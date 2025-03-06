@@ -1,0 +1,197 @@
+# This file contains settings of survival_game that can be changed in
+# minetest.conf
+
+[MTG]
+#    In creative mode players are able to dig all kind of blocks nearly
+#    instantly, and have access to unlimited resources.
+#    Some of the functionality is only available if this setting is present
+#    at startup.
+creative_mode (Creative mode) bool false
+
+#    Flammable nodes will be ignited by nearby igniters. Spreading fire may
+#    cause severe destruction.
+#    Spreading fire nodes will disappear when fire is disabled, but
+#    'permanent_flame' nodes are unaffected.
+enable_fire (Fire) bool true
+
+#    Enable flame sound.
+flame_sound (Flame sound) bool true
+
+#    Enable lavacooling.
+enable_lavacooling (Lavacooling) bool true
+
+#    If enabled, steel tools, torches and cobblestone will be given to new
+#    players.
+give_initial_stuff (Give initial items) bool false
+
+#    If enabled, players respawn at the bed they last lay on instead of normal
+#    spawn.
+#    This setting is only read at startup.
+enable_bed_respawn (Respawn at bed) bool true
+
+#    If enabled, the night can be skipped if more than half of the players are
+#    in beds.
+enable_bed_night_skip (Skip night when sleeping) bool true
+
+#    If enabled, fences and walls cannot be jumped over.
+enable_fence_tall (Tall fences and walls) bool false
+
+#    When TNT explodes, it destroys nearby nodes and damages nearby players.
+#    This setting is disabled by default on servers.
+enable_tnt (TNT) bool true
+
+#    The radius in which nodes will be destroyed by a TNT explosion.
+tnt_radius (TNT radius) int 4 0
+
+#    Sets the behaviour of the inventory items when a player dies.
+#    bones: Store items in a bone node but drop items if inside protected area.
+#    drop: Drop items on the ground.
+#    keep: Player keeps items.
+bones_mode (Bones mode) enum bones bones,drop,keep
+
+#    The time in seconds after which the bones of a dead player can be looted
+#    by everyone.
+#    Setting this to 0 will disable sharing of bones completely.
+share_bones_time (Bones share time) int 1200 0
+
+#    How much earlier the bones of a dead player can be looted by
+#    everyone if the player dies in a protected area they don't own.
+#    0 to disable. By default it is "share_bones_time" divide by four.
+share_bones_time_early (Earlier bones share time) int 300 0
+
+#    Inform player of condition and location of new bones.
+bones_position_message (Inform player about bones) bool false
+
+#    Replaces old stairs with new ones. Only required for older worlds.
+enable_stairs_replace_abm (Replace old stairs) bool false
+
+#    If enabled, use the engine's spawn search which does not check for a
+#    suitable starting biome.
+engine_spawn (Use engine spawn search) bool false
+
+#    Whether river water source nodes create flowing sounds.
+#    Helps rivers create more sound, especially on level sections.
+river_source_sounds (River source node sounds) bool false
+
+#    If enabled, the 'weather' mod will control cloud parameters, shadow intensity,
+#    bloom and volumetric lighting.
+#    Non-functional in V6 or Singlenode mapgens.
+enable_weather (Enable weather) bool true
+
+#    If enabled, non-player actions are logged
+log_non_player_actions (Log non-player action) bool false
+
+[3D_armor]
+#    Enable 3d armor's wieldview
+enable_wieldview (Enable wieldview) bool true
+
+[Mobs]
+#    Enable setting so that Mobs Redo mobs can attack Creatura mobs
+mobs_attack_creatura (Attack Creatura Mobs) bool false
+
+#    How often mobs get nodes around them (default is 0.25, 1/4 second)
+mob_node_timer_interval (Mob Node Timer Interval) float 0.25
+
+#    How often mobs run main functions (default is 1.00, 1 second)
+mob_main_timer_interval (Mob Node Timer Interval) float 1.00
+
+#    If false then mobs no longer spawn in world without spawner or spawn egg
+mobs_spawn (Spawn Mobs) bool true
+
+#    If disabled then Mobs no longer destroy world blocks
+mobs_griefing (Griefing Mobs) bool true
+
+#    If false then Mobs no longer spawn inside player protected areas
+mobs_spawn_protected (Spawn Mobs in protected areas) bool true
+
+#    If false then Monsters no longer spawn inside player protected areas
+mobs_spawn_monster_protected (Spawn Monsters in protected areas) bool true
+
+#    If true Mobs will be removed once a map chunk is out of view
+remove_far_mobs (Remove far Mobs) bool true
+
+#    Sets Mob difficulty level by multiplying punch damage
+mob_difficulty (Mob difficulty) float 1.0
+
+#    Contains a value used to multiply Mob spawn values
+mob_chance_multiplier (Mob chance multiplier) float 1.0
+
+#    When false Mob no longer drop items when killed
+mobs_drop_items (Mob drops) bool true
+
+#    Sets minimum distance around player that mobs cannot spawn
+mob_nospawn_range (Mob no-spawn range) float 12.0
+
+#    Sets maximum number of active mobs in game (0 for unlimited)
+mob_active_limit (Mob Active Limit) float 0
+
+#    Enables area check when spawning mobs
+mob_area_spawn (Mob Area Spawn) bool false
+
+#    Enable mobs smooth rotation
+mob_smooth_rotate (Smooth rotation for mobs) bool true
+
+#   Fix Mob Height if too low so they cannot escape through specific nodes
+mob_height_fix (Fix Mob Height) bool false
+
+mob_log_spawn (Log Mob Spawning) bool false
+
+#   Mob hearing, when enabled will override minetest.sound_play for mobs to hear
+mobs_can_hear (Enable Mob hearing) bool true
+
+#   Node hearing, when enabled will allow nodes to hear nearby sounds
+mobs_can_hear_node (Enable Node hearing) bool false
+
+#   By default mobs are dealt knockback from damage, this lets you disable it
+mobs_disable_damage_kb (Disable knockback from damage only) bool false
+
+[Pathfinding]
+#    Enable pathfinding (default Enabled)
+mob_pathfinding_enable (Enable pathfinding) bool true
+#    How long before stuck mobs starts searching (default 3.0)
+mob_pathfinding_stuck_timeout (How long before stuck mobs start searching) float 3.0
+#    How long will mob follow path before giving up (default 5.0)
+mob_pathfinding_stuck_path_timeout (How long will mob follow path before giving up) float 5.0
+#    Which pathfinding algorithm to use
+#      - Dijkstra (default)
+#      - A*_noprefetch (AStar_noprefetch)
+#      - A* (AStar)
+#      (A* names differ cause Minetest doesn´t allow "*" in settings)
+mob_pathfinding_algorithm (pathfinding algorithm) enum Dijkstra Dijkstra,AStar_noprefetch,AStar
+# max search distance from search positions (default 16)
+mob_pathfinding_searchdistance (path search distance) int 16
+# max jump height for pathfinding (default 4)
+mob_pathfinding_max_jump (path max jump height) int 4
+# max drop height for pathfinding (default 6)
+mob_pathfinding_max_drop (path max drop height) int 6
+
+[Pex]
+#    Size of protected area around protection node limiting player interaction
+protector_radius (Protector Radius [max 30]) int 5
+
+#    Flips player around when accessing protected area to stop lag griefing
+protector_flip (Protector Flip) bool false
+
+#    Hurts player by amount entered when accessing protected area, 0 to disable
+protector_hurt (Protector Hurt) int 0
+
+#    Enables protection messages in player chat
+protector_msg (Enable Protector Messages) bool true
+
+[Stamina]
+stamina.enabled          (Is stamina enabled?)                                    bool true
+stamina.tick             (time in seconds after that 1 saturation point is taken) float 800
+stamina.tick_min         (stamina ticks won't reduce saturation below this level) int 4
+stamina.health_tick      (time in seconds after player gets healed/damaged)       float 4
+stamina.move_tick        (time in seconds after the movement is checked)          float 0.5
+stamina.exhaust_dig      (exhaustion for digging a node)                          float 3
+stamina.exhaust_place    (exhaustion for placing a node)                          float 1
+stamina.exhaust_move     (exhaustion for moving)                                  float 1.5
+stamina.exhaust_jump     (exhaustion for jumping)                                 float 5
+stamina.exhaust_punch    (exhaustion for punching)                                float 40
+stamina.exhaust_lvl      (exhaustion level at which saturation gets lowered)      float 160
+stamina.heal             (amount of HP a player gains per stamina.health_tick)    int 1 0 20
+stamina.heal_lvl         (minimum saturation needed for healing)                  int 5 1 20
+stamina.starve           (amount of HP a player loses per stamina.health_tick)    int 1 0 20
+stamina.starve_lvl       (maximum stamina needed for starving)                    int 3 0 19
+stamina.visual_max       (hud bar only extends to 20)                             int 20 2 20
