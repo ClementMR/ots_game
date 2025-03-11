@@ -375,7 +375,7 @@ local oredefs = {
 		tools = {
 			pick = {
 				groupcaps = {
-					cracky = {times = {[1] = 1.90, [2] = 0.90, [3] = 0.40}, uses = 200, maxlevel = 3},
+					cracky = {times = {[1] = 1.70, [2] = 0.90, [3] = 0.40}, uses = 200, maxlevel = 3},
 				},
 				damage_groups = {fleshy = 6},
 			},
@@ -384,13 +384,13 @@ local oredefs = {
 			},
 			shovel = {
 				groupcaps = {
-					crumbly = {times = {[1] = 1.10, [2] = 0.40, [3] = 0.25}, uses = 200, maxlevel = 3},
+					crumbly = {times = {[1] = 1.30, [2] = 0.50, [3] = 0.30}, uses = 200, maxlevel = 3},
 				},
 				damage_groups = {fleshy = 5},
 			},
 			axe = {
 				groupcaps = {
-					choppy = {times = {[1] = 2.50, [2] = 0.80, [3] = 0.50}, uses = 200, maxlevel = 3},
+					choppy = {times = {[1] = 1.90, [2] = 0.50, [3] = 0.30}, uses = 200, maxlevel = 3},
 					fleshy = {times = {[2] = 1.10, [3] = 0.60}, uses = 200, maxlevel = 3},
 				},
 				damage_groups = {fleshy = 7},
@@ -398,8 +398,8 @@ local oredefs = {
 			sword = {
 				groupcaps = {
 					fleshy = {times = {[2] = 0.70, [3] = 0.30}, uses = 200, maxlevel = 3},
-					snappy = {times = {[1] = 1.70, [2] = 0.70, [3] = 0.30}, uses = 200, maxlevel = 3},
-					choppy = {times = {[3] = 0.80}, uses = 200, maxlevel = 0},
+					snappy = {times = {[1] = 1.40, [2] = 0.60, [3] = 0.20}, uses = 200, maxlevel = 3},
+					choppy = {times = {[3] = 0.70}, uses = 200, maxlevel = 0},
 				},
 				damage_groups = {fleshy = 9},
 			},
