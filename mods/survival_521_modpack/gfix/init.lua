@@ -40,9 +40,7 @@ core.register_chatcommand("mapfix", {
 
 		mapfix(minp, maxp)
 
-		core.chat_send_all("Mapfix requested by "..name.." done!")
-
-		return true, "Done."
+		core.chat_send_all("Mapfix requested by "..name.."!")
 	end,
 })
 
