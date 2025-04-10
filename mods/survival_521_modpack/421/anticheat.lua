@@ -216,8 +216,8 @@ anticheat.register_check("fly", {
     title = "Fly",
     violation_delay = 2,
     violation_period = 60 * 5,
-    violation_alert = 5,
-    violation_punish = 10,
+    violation_alert = 3,
+    violation_punish = 6,
     globalstep = function(player, info, flag)
         --if not core.settings:get_bool("anticheat_fly_a_enabled", true) then return end
         if core.check_player_privs(player, { fly = true }) then return end
@@ -238,8 +238,8 @@ anticheat.register_check("speed", {
     title = "Speed",
     violation_delay = 1,
     violation_period = 60 * 5,
-    violation_alert = 5,
-    violation_punish = 10,
+    violation_alert = 3,
+    violation_punish = 6,
     globalstep = function(player, info, flag)
         if core.check_player_privs(player, { fast = true }) then return end
         if #info.position_history < 60 then return end
