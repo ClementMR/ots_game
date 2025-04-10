@@ -172,3 +172,8 @@ core.register_chatcommand("s_all", {
 })
 
 dofile(MP .. "/expire.lua")
+dofile(MP .. "/anticheat.lua")
+
+dofile(MP .. "/RELAY/connection.lua")
+
+print ("[MOD] 421 loaded")

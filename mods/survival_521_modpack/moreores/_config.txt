@@ -18,9 +18,9 @@ moreores.silver_chunk_size = 13
 moreores.silver_chunk_size_deep = 11
 
 -- Mithril
-moreores.mithril_chunk_size_high = 19
-moreores.mithril_chunk_size = 21
-moreores.mithril_chunk_size_deep = 19
+moreores.mithril_chunk_size_high = 20
+moreores.mithril_chunk_size = 24
+moreores.mithril_chunk_size_deep = 20
 
 -- Amount of ore per chunk (higher = bigger ore deposits)
 -- Tin
@@ -35,7 +35,7 @@ moreores.silver_ore_per_chunk_deep = 4
 
 -- Mithril
 moreores.mithril_ore_per_chunk_high = 2
-moreores.mithril_ore_per_chunk = 2
+moreores.mithril_ore_per_chunk = 1
 moreores.mithril_ore_per_chunk_deep = 2
 
 -- Clust sizes for ore generation (bigger = ores in ore deposits are less bound together)
