@@ -13,7 +13,7 @@ local delay = 60
 core.register_chatcommand("mapfix", {
 	description = "Recalculate the flowing liquids and the light of a chunk",
 	func = function(name)
-		local pos = vector.round(core.get_player_by_name(name):getpos())
+		local pos = vector.round(core.get_player_by_name(name):get_pos())
 		local size = 20
 
 		if size >= 121 then
