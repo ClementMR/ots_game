@@ -62,10 +62,8 @@ core.register_craft({
 })
 
 core.register_craft({
-	output = "tech:source",
-	type = "shapeless",
+	output = "tech:source 3",
 	recipe = {
-		"default:mese_crystal_fragment",
-		"default:mese_crystal_fragment"
+		{"default:mese_crystal_fragment","default:gold_ingot", "default:mese_crystal_fragment"}
 	}
 })
