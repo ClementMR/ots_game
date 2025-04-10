@@ -51,8 +51,8 @@ function nyancat.place(pos, facedir, length)
 end
 
 function nyancat.generate(minp, maxp, seed)
-	local height_min = -31000
-	local height_max = -32
+	local height_min = -5000
+	local height_max = -4000
 	if maxp.y < height_min or minp.y > height_max then
 		return
 	end
@@ -62,7 +62,7 @@ function nyancat.generate(minp, maxp, seed)
 	local pr = PseudoRandom(seed + 9324342)
 	local max_num_nyancats = math.floor(volume / (16 * 16 * 16))
 	for i = 1, max_num_nyancats do
-		if pr:next(0, 1000) == 0 then
+		if pr:next(0, 1500) == 0 then
 			local x0 = pr:next(minp.x, maxp.x)
 			local y0 = pr:next(minp.y, maxp.y)
 			local z0 = pr:next(minp.z, maxp.z)
