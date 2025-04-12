@@ -582,7 +582,7 @@ minetest.register_node("tnt:gunpowder_burning", {
 })
 
 minetest.register_craft({
-	output = "tnt:gunpowder 5",
+	output = "tnt:gunpowder 2",
 	type = "shapeless",
 	recipe = {"default:coal_lump", "default:gravel"}
 })
