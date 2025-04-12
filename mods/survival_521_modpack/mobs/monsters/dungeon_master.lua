@@ -62,7 +62,7 @@ mobs:spawn({
 	chance = 800,
 	max_light = 5,
 	max_height = -70,
-	active_object_count = 1,
+	active_object_count = 2,
 })
 
 mobs:register_egg("mobs:dungeon_master", "Dungeon Master", "fire_basic_flame.png", 1)
@@ -89,14 +89,8 @@ mobs:register_arrow("mobs:fireball", {
 	on_punch = function(self, hitter, tflp, tool_capabilities, dir)
 
 		if hitter and hitter:is_player() and tool_capabilities and dir then
-
-			local damage = tool_capabilities.damage_groups and
-				tool_capabilities.damage_groups.fleshy or 1
-
-			local tmp = tflp / (tool_capabilities.full_punch_interval or 1.4)
-
-			if damage > 6 and tmp < 4 then
-
+			local damage = tool_capabilities.damage_groups and tool_capabilities.damage_groups.fleshy or 1
+			if damage > 6 then
 				self.object:set_velocity({
 					x = dir.x * self.velocity,
 					y = dir.y * self.velocity,
