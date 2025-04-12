@@ -70,8 +70,8 @@ minetest.register_node("default:torch", {
 
 		return itemstack
 	end,
-	floodable = true,
-	on_flood = on_flood,
+	--floodable = true,
+	--on_flood = on_flood,
 	on_rotate = false
 })
 
@@ -95,8 +95,8 @@ minetest.register_node("default:torch_wall", {
 		wall_side = {-1/2, -1/2, -1/8, -1/8, 1/8, 1/8},
 	},
 	sounds = default.node_sound_wood_defaults(),
-	floodable = true,
-	on_flood = on_flood,
+	--floodable = true,
+	--on_flood = on_flood,
 	on_rotate = false
 })
 
@@ -120,8 +120,8 @@ minetest.register_node("default:torch_ceiling", {
 		wall_top = {-1/8, -1/16, -5/16, 1/8, 1/2, 1/8},
 	},
 	sounds = default.node_sound_wood_defaults(),
-	floodable = true,
-	on_flood = on_flood,
+	--floodable = true,
+	--on_flood = on_flood,
 	on_rotate = false
 })
 
