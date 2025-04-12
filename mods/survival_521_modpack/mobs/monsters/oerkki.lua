@@ -65,7 +65,7 @@ mobs:spawn({
 	chance = 300,
 	max_light = 7,
 	max_height = -10,
-	active_object_count = 1,
+	active_object_count = 3,
 })
 
 mobs:register_egg("mobs:oerkki", "Oerkki", "default_obsidian.png", 1)

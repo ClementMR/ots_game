@@ -64,7 +64,7 @@ mobs:spawn({
 		"default:desert_stone", 
 		"default:sandstone"
 	},
-	chance = 250,
+	chance = 200,
 	max_light = 7,
 	max_height = 0,
 	active_object_count = 2,

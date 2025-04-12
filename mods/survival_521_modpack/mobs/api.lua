@@ -18,7 +18,7 @@ end
 -- Global table
 
 mobs = {
-	mod = "redo", version = "20250209",
+	mod = "redo", version = "521",
 	spawning_mobs = {}, translate = S,
 	node_snow = has(core.registered_aliases["mapgen_snow"])
 			or has("mcl_core:snow") or has("default:snow") or "air",
@@ -604,7 +604,7 @@ function mob_class:update_tag(newname)
 	end
 
 
-	self.infotext = "❤️" .. self.health .. " / " .. prop.hp_max
+	self.infotext = self.health .. " ❤️"
 
 	-- set infotext changes
 	if self.infotext ~= prop.infotext then
@@ -3954,7 +3954,7 @@ end
 
 function mobs:safe_boom(self, pos, radius, texture)
 
-	core.sound_play(self.sounds and self.sounds.explode or "tnt_explode", {
+	core.sound_play(self and self.sounds and self.sounds.explode or "tnt_explode", {
 		pos = pos,
 		gain = 1.0,
 		max_hear_distance = (self.sounds and self.sounds.distance) or 32
@@ -3971,16 +3971,21 @@ function mobs:boom(self, pos, node_damage_radius, entity_radius, texture)
 
 	texture = texture or "tnt_smoke.png"
 
-	if mobs_griefing and core.get_modpath("tnt") and tnt and tnt.boom
-	and not core.is_protected(pos, "") then
+	if mobs_griefing then
+		if core.get_modpath("mcl_explosions") then
 
-		tnt.boom(pos, {
-			radius = node_damage_radius,
-			damage_radius = entity_radius,
-			sound = self.sounds and self.sounds.explode,
-			explode_center = true,
-			tiles = texture
-		})
+			mcl_explosions.explode(pos, node_damage_radius)
+
+		elseif core.get_modpath("tnt") and tnt and tnt.boom then
+
+			tnt.boom(pos, {
+				radius = node_damage_radius,
+				damage_radius = entity_radius,
+				sound = self and self.sounds and self.sounds.explode or "tnt_explode",
+				explode_center = true,
+				tiles = texture
+			})
+		end
 	else
 		mobs:safe_boom(self, pos, node_damage_radius, texture)
 	end
