@@ -8,11 +8,7 @@
 @1 Shovel=
 @1 Axe=
 @1 Sword=
+@1 Hoe=
 
-Copper=
-Tin=
-Bronze=
 Silver=
-Gold=
 Mithril=
-Copper Rail=

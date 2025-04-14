@@ -10,17 +10,8 @@ Licensed under the zlib license. See LICENSE.md for more information.
 
 moreores = {}
 
-local modpath = core.get_modpath("moreores")
-
 local S = core.get_translator("moreores")
 moreores.S = S
-
-dofile(modpath .. "/_config.txt")
-
--- `mg` mapgen support
-if core.get_modpath("mg") then
-	dofile(modpath .. "/mg.lua")
-end
 
 -- `frame` support
 local use_frame = core.get_modpath("frame")
@@ -290,25 +281,25 @@ local oredefs = {
 		block_cracky = 2,
 		block_level = 2,
 		oredef_high= {
-			clust_scarcity = moreores.silver_chunk_size_high ^ 3,
-			clust_num_ores = moreores.silver_ore_per_chunk_high,
-			clust_size = moreores.silver_clust_size_high,
-			y_min = moreores.silver_min_depth_high,
-			y_max = moreores.silver_max_depth_high,
+			clust_scarcity = 12 * 12 * 12,
+			clust_num_ores = 4,
+			clust_size = 3,
+			y_min = 1025,
+			y_max = 31000,
 		},
 		oredef = {
-			clust_scarcity = moreores.silver_chunk_size ^ 3,
-			clust_num_ores = moreores.silver_ore_per_chunk,
-			clust_size = moreores.silver_clust_size,
-			y_min = moreores.silver_min_depth,
-			y_max = moreores.silver_max_depth,
+			clust_scarcity = 14 * 14 *14,
+			clust_num_ores = 2,
+			clust_size = 3,
+			y_min = -127,
+			y_max = -64,
 		},
 		oredef_deep = {
-			clust_scarcity = moreores.silver_chunk_size_deep ^ 3,
-			clust_num_ores = moreores.silver_ore_per_chunk_deep,
-			clust_size = moreores.silver_clust_size_deep,
-			y_min = moreores.silver_min_depth_deep,
-			y_max = moreores.silver_max_depth_deep,
+			clust_scarcity = 12 * 12 * 12,
+			clust_num_ores = 4,
+			clust_size = 3,
+			y_min = -31000,
+			y_max = -128,
 		},
 		tools = {
 			pick = {
@@ -352,25 +343,25 @@ local oredefs = {
 		block_cracky = 1,
 		block_level = 3,
 		oredef_high = {
-			clust_scarcity = moreores.mithril_chunk_size_high ^ 3,
-			clust_num_ores = moreores.mithril_ore_per_chunk_high,
-			clust_size = moreores.mithril_clust_size_high,
-			y_min = moreores.mithril_min_depth_high,
-			y_max = moreores.mithril_max_depth_high,
+			clust_scarcity = 17 * 17 * 17,
+			clust_num_ores = 1,
+			clust_size = 3,
+			y_min = 2049,
+			y_max = 31000,
 		},
 		oredef = {
-			clust_scarcity = moreores.mithril_chunk_size ^ 3,
-			clust_num_ores = moreores.mithril_ore_per_chunk,
-			clust_size = moreores.mithril_clust_size,
-			y_min = moreores.mithril_min_depth,
-			y_max = moreores.mithril_max_depth,
+			clust_scarcity = 18 * 18 * 18,
+			clust_num_ores = 1,
+			clust_size = 3,
+			y_min = -4095,
+			y_max = -512,
 		},
 		oredef_deep = {
-			clust_scarcity = moreores.mithril_chunk_size_deep ^ 3,
-			clust_num_ores = moreores.mithril_ore_per_chunk_deep,
-			clust_size = moreores.mithril_clust_size_deep,
-			y_min = moreores.mithril_min_depth_deep,
-			y_max = moreores.mithril_max_depth_deep,
+			clust_scarcity = 17 * 17 * 17,
+			clust_num_ores = 1,
+			clust_size = 3,
+			y_min = -31000,
+			y_max = -4096,
 		},
 		tools = {
 			pick = {
