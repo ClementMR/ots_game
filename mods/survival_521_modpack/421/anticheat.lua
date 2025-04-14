@@ -49,7 +49,7 @@ function anticheat.flag(player, check_name)
                 -- Runs the command as the admin user
                 cmd.func(core.settings:get("name"), punishment_params:gsub("@player", player_name):gsub("@check", check.title))
 
-                if core.get_modpath("relay") then
+                if core.get_modpath("drc") then
                     relay.send("Anticheat: "..player_name.." was punished for using "..check.title..".")
                 end
             end
