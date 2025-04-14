@@ -331,6 +331,15 @@ core.register_on_player_receive_fields(function(player, formname, fields)
             core.log("action", name.." saved locator as "..dest_name.." at "..pos_str)
         end
     end
+
+    if formname == "tech:locator" and fields.clear_locator then
+        if stack:get_name() == "tech:locator" then
+            local new_stack = ItemStack("tech:blank_locator")
+            player:set_wielded_item(new_stack)
+
+            core.log("action", name.." cleared a locator.")
+        end
+    end
 end)
 
 core.register_craftitem("tech:advanced_combination", {
@@ -421,7 +430,8 @@ core.register_craftitem("tech:locator", {
             "formspec_version[4]"..
             "size[8.0,4.0]"..
             "field[1.0,1.0;6.0,1.0;locator_name;Name:;"..(meta:get_string("locator_name") or "Unknown").."]"..
-            "button_exit[3.0,3.0;2.25,0.75;resave_locator;Re-Save]"
+            "button_exit[2.5,3.0;1.5,0.75;resave_locator;Save]"..
+            "button_exit[4.4,3.0;1.5,0.75;clear_locator;Clear]"
 
         if meta:get_string("owner") == "" or meta:get_string("owner") == name then
             core.show_formspec(name, "tech:locator", form)
