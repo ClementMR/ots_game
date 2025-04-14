@@ -29,17 +29,3 @@ dofile(modpath .. "/functions.lua")
 dofile(modpath .. "/api.lua")
 dofile(modpath .. "/beds.lua")
 dofile(modpath .. "/spawns.lua")
-
-minetest.register_chatcommand("clear_bed", {
-    description = "Clear your bed spawn position",
-    privs = {interact = true},
-    func = function(name)
-        if beds.spawn[name] then
-            beds.spawn[name] = nil
-            beds.save_spawns()
-            return true, "Your bed spawn position has been cleared."
-        else
-            return false, "You don't have a bed spawn position set."
-        end
-    end,
-})

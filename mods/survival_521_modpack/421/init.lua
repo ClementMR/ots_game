@@ -171,6 +171,20 @@ core.register_chatcommand("s_all", {
 	end,
 })
 
+core.register_chatcommand("clear_bed", {
+    description = "Clear your bed spawn position",
+    privs = {interact = true},
+    func = function(name)
+        if beds.spawn[name] then
+            beds.spawn[name] = nil
+            beds.save_spawns()
+            return true, "Your bed spawn position has been cleared."
+        else
+            return false, "You don't have a bed spawn position set."
+        end
+    end,
+})
+
 dofile(MP .. "/expire.lua")
 dofile(MP .. "/anticheat.lua")
 
