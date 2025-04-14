@@ -84,8 +84,8 @@ end
 function anticheat.clear_history(player)
     if not player_info[player:get_player_name()] then return end -- Once the set_pos has been wrapped, static spawn point will try to call set pos before we can set anything up, which calls this
     player_info[player:get_player_name()].position_history = {}
-    player_info[player:get_player_name()].velocity_history = {}
-    player_info[player:get_player_name()].ground_history = {}
+    --player_info[player:get_player_name()].velocity_history = {}
+    --player_info[player:get_player_name()].ground_history = {}
     player_info[player:get_player_name()].max_speed_history = {}
 end
 
@@ -212,6 +212,7 @@ end
 --- Checks
 --
 
+--[[
 anticheat.register_check("fly", {
     title = "Fly",
     violation_delay = 2,
@@ -233,6 +234,7 @@ anticheat.register_check("fly", {
         end
     end
 })
+]]
 
 anticheat.register_check("speed", {
     title = "Speed",
@@ -286,8 +288,8 @@ core.register_globalstep(function(dtime)
         -- History
         local pos = player:get_pos()
         update_history(info.position_history, pos)
-        update_history(info.velocity_history, player:get_velocity())
-        update_history(info.ground_history, on_ground(player))
+        --update_history(info.velocity_history, player:get_velocity())
+        --update_history(info.ground_history, on_ground(player))
         update_history(info.max_speed_history, player:get_physics_override().speed * player:get_physics_override().speed_walk * 4)
 
         -- Checks
