@@ -67,7 +67,7 @@ mobs:spawn({
 	chance = 200,
 	max_light = 7,
 	max_height = 0,
-	active_object_count = 2,
+	active_object_count = 4,
 })
 
 mobs:register_egg("mobs:stone_monster", "Stone Monster", "default_stone.png", 1)

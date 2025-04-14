@@ -56,7 +56,7 @@ mobs:register_mob("mobs:lava_flan", {
 
 			pos.y = pos.y + 1
 
-			mobs:effect(pos, 40, "tnt_smoke.png", 3, 5, 2, 0.5, nil, false)
+			--mobs:effect(pos, 40, "tnt_smoke.png", 3, 5, 2, 0.5, nil, false)
 
 			core.sound_play("fire_extinguish_flame",
 				{pos = pos, max_hear_distance = 12, gain = 1.5}, true)
@@ -67,7 +67,7 @@ mobs:register_mob("mobs:lava_flan", {
 				core.set_node(pos, {name = "fire:basic_flame"})
 			end
 
-			mobs:effect(pos, 40, "fire_basic_flame.png", 2, 3, 2, 5, 10, nil)
+			--mobs:effect(pos, 40, "fire_basic_flame.png", 2, 3, 2, 5, 10, nil)
 
 			self.object:remove()
 		end
