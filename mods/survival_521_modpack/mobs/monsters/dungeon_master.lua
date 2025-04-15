@@ -21,7 +21,7 @@ mobs:register_mob("mobs:dungeon_master", {
 	textures = {"mobs_dungeon_master.png"},
 	makes_footstep_sound = true,
 	sounds = {
-		--distance = 50,
+		distance = 50,
 		--random = "mobs_monster",
 		damage = "mobs_monster_hit",
 		death = "mobs_monster_death",
@@ -36,7 +36,7 @@ mobs:register_mob("mobs:dungeon_master", {
 		{name = "default:mese_crystal_fragment", chance = 1, min = 0, max = 2},
 		{name = "default:mese_crystal", chance = 3, min = 0, max = 2},
 		{name = "default:diamond", chance = 4, min = 0, max = 1},
-		{name = "default:diamondblock", chance = 30, min = 0, max = 1},
+		{name = "default:diamondblock", chance = 50, min = 0, max = 1},
 	},
 	water_damage = 1,
 	lava_damage = 1,
@@ -59,10 +59,22 @@ mobs:register_mob("mobs:dungeon_master", {
 mobs:spawn({
 	name = "mobs:dungeon_master",
 	nodes = {"default:stone"},
-	chance = 800,
+	chance = 800, -- 0.125%
 	max_light = 5,
 	max_height = -70,
+	min_height = -4049,
 	active_object_count = 2,
+})
+
+-- deep
+mobs:spawn({
+	name = "mobs:dungeon_master",
+	nodes = {"default:stone"},
+	chance = 500, -- 0.2%
+	max_light = 6,
+	max_height = -4050,
+	min_height = -31000,
+	active_object_count = 3,
 })
 
 mobs:register_egg("mobs:dungeon_master", "Dungeon Master", "fire_basic_flame.png", 1)

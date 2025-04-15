@@ -78,9 +78,9 @@ mobs:register_mob("mobs:lava_flan", {
 mobs:spawn({
 	name = "mobs:lava_flan",
 	nodes = {"default:lava_source"},
-	chance = 500,
+	chance = 500, -- 0.2%
 	max_height = 0,
-	active_object_count = 3,
+	active_object_count = 4,
 })
 
 mobs:register_egg("mobs:lava_flan", "Lava Flan", "default_lava.png", 1)

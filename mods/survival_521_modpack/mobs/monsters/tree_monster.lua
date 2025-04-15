@@ -68,7 +68,7 @@ mobs:spawn({
 		"default:dirt_with_rainforest_litter"
 	},
 	max_light = 7,
-	chance = 300,
+	chance = 300, -- 0.3%
 	min_height = 0,
 	active_object_count = 2,
 	day_toggle = false,

@@ -137,11 +137,26 @@ mobs:spawn({
 		"default:mese", 
 		"default:stone"
 	},
-	chance = 350,
+	chance = 300, -- 0.3%
 	max_light = 7,
 	max_height = -40,
-	active_object_count = 1,
+	min_height = -4049,
+	active_object_count = 3,
 })
 
+-- deep
+mobs:spawn({
+	name = "mobs:spider",
+	nodes = {
+		"default:stone_with_mese",
+		"default:mese",
+		"default:stone"
+	},
+	chance = 200, -- 0.5%
+	max_light = 7,
+	max_height = -4050,
+	min_height = -31000,
+	active_object_count = 4,
+})
 
 mobs:register_egg("mobs:spider", "Spider", "mobs_cobweb.png", 1)

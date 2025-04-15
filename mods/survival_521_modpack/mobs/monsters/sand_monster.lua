@@ -60,7 +60,7 @@ mobs:register_mob("mobs:sand_monster", {
 mobs:spawn({
 	name = "mobs:sand_monster",
 	nodes = {"default:desert_sand"},
-	chance = 300,
+	chance = 300, -- 0.3%
 	min_height = 0,
 	active_object_count = 5,
 })

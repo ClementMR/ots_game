@@ -13,6 +13,4 @@ dofile(path .. "/monsters/sand_monster.lua")
 dofile(path .. "/monsters/stone_monster.lua")
 dofile(path .. "/monsters/tree_monster.lua")
 
-print("[MOD] Mobs [521] loaded")
-
 print ("[MOD] Mobs [521] loaded")

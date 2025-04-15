@@ -28,7 +28,7 @@ mobs:register_mob("mobs:dirt_monster", {
 	drops = {
 		{name = "default:dirt", chance = 1, min = 0, max = 2},
 		{name = "default:grass_1", chance = 5, min = 0, max = 2},
-		{name = "default:dirt_with_grass", chance = 50, min = 0, max = 1}
+		{name = "default:dirt_with_grass", chance = 100, min = 0, max = 1}
 	},
 	water_damage = 1,
 	lava_damage = 5,
@@ -57,7 +57,7 @@ mobs:spawn({
 		"default:dirt_with_dry_grass",
 		"default:dry_dirt_with_dry_grass"
 	},
-	chance = 200,
+	chance = 200, -- 0.5%
 	max_light = 7,
 	min_height = 0,
 	active_object_count = 4,

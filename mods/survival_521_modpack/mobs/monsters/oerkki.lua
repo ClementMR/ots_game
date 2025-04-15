@@ -62,9 +62,24 @@ mobs:spawn({
 		"default:stone",
 		"default:obsidian"
 	},
-	chance = 300,
+	chance = 300, -- 0.3%
 	max_light = 7,
 	max_height = -10,
+	min_height = -4049,
+	active_object_count = 3,
+})
+
+-- deep
+mobs:spawn({
+	name = "mobs:oerkki",
+	nodes = {
+		"default:stone",
+		"default:obsidian"
+	},
+	chance = 100, -- 1%
+	max_light = 8,
+	max_height = -4050,
+	min_height = -31000,
 	active_object_count = 4,
 })
 
