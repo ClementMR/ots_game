@@ -44,6 +44,30 @@ function settings_form(pos, player)
         return
     end
 
+    local core_stacks = {
+        meta:get_inventory():get_stack("core", 1),
+        meta:get_inventory():get_stack("core", 2),
+        meta:get_inventory():get_stack("core", 3),
+        meta:get_inventory():get_stack("core", 4),
+    }
+
+    local count = 0
+    for _, stack in ipairs(core_stacks) do
+        if not stack:is_empty() and stack:get_name() == "tech:core" then
+            count = count + 1
+        end
+    end
+
+    local range = {
+        [0] = 2000,
+        [1] = 4000,
+        [2] = 8000,
+        [3] = 16000,
+        [4] = 20000,
+    }
+
+    local max_distance = range[count] or 2000
+
     local current_mode = meta:get_string("teleport_mode") or "private"
     local form = 
         "formspec_version[4]"..
@@ -51,6 +75,7 @@ function settings_form(pos, player)
         "label[0.5,0.5;Select teleportation mode:]"..
         "dropdown[0.5,1.5;7.0;teleport_mode;private,protected,public;"..
         (current_mode == "private" and 1 or current_mode == "protected" and 2 or 3).."]"..
+        "label[0.5,3.0;Range: " .. max_distance .. "]"..
         "button_exit[3.0,3.0;2.0,0.75;save_settings;Save]"
 
     core.show_formspec(player:get_player_name(), "tech:teleporter_settings_" .. core.pos_to_string(pos), form)
@@ -87,14 +112,14 @@ function teleporter(pos, player)
 
         if item_pos ~= "" and not locator_stack:is_empty() and locator_stack:get_name() == "tech:locator" then
             local distance = vector.distance(vector.new(pos), core.string_to_pos(item_pos))
-            if distance <= 16000 then
+            if distance <= 20000 then
                 local required_source = math.max(1, math.ceil(distance / 200))
                 local required_core = 0
 
-                if distance > 1000 then required_core = 1 end
-                if distance > 2000 then required_core = 2 end
-                if distance > 4000 then required_core = 3 end
-                if distance > 8000 then required_core = 4 end
+                if distance > 2000 then required_core = 1 end
+                if distance > 4000 then required_core = 2 end
+                if distance > 8000 then required_core = 3 end
+                if distance > 16000 then required_core = 4 end
 
                 local count = 0
                 for _, stack in ipairs(core_stacks) do
