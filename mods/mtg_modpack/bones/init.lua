@@ -188,8 +188,6 @@ local function may_replace(pos, player)
 end
 
 local player_inventory_lists = { "main", "craft" }
-bones.player_inventory_lists = player_inventory_lists
-
 local function is_all_empty(player_inv)
 	for _, list_name in ipairs(player_inventory_lists) do
 		if not player_inv:is_empty(list_name) then
@@ -199,76 +197,43 @@ local function is_all_empty(player_inv)
 	return true
 end
 
-local function manage_inventory(player)
-	local bones_mode = minetest.settings:get("bones_mode") or "bones"
-	if bones_mode ~= "bones" and bones_mode ~= "drop" and bones_mode ~= "keep" then
-		bones_mode = "bones"
-	end
-
+local function make_bones(player)
 	local name = player:get_player_name()
 	if minetest.is_creative_enabled(name) or minetest.get_player_privs(player:get_player_name()).protection_bypass then
 		return
 	end
 
-	local bones_position_message = minetest.settings:get_bool("bones_position_message") == true
 	local player_name = player:get_player_name()
 	local pos = vector.round(player:get_pos())
 	local pos_string = minetest.pos_to_string(pos)
 
-	-- return if keep inventory set or in creative mode
-	if bones_mode == "keep" or minetest.is_creative_enabled(player_name) then
-		minetest.log("action", player_name .. " dies at " .. pos_string ..
-			". No bones placed")
-		if bones_position_message then
-			minetest.chat_send_player(player_name, S("@1 died at @2.", player_name, pos_string))
-		end
-		return
-	end
-
 	local player_inv = player:get_inventory()
 	if is_all_empty(player_inv) then
-		minetest.log("action", player_name .. " dies at " .. pos_string ..
-			". No bones placed")
-		if bones_position_message then
-			minetest.chat_send_player(player_name, S("@1 died at @2.", player_name, pos_string))
-		end
+		minetest.log("action", player_name .. "'s inventory is empty. No bones placed")
 		return
 	end
 
 	-- check if it's possible to place bones, if not find space near player
-	if bones_mode == "bones" and not may_replace(pos, player) then
+	if not may_replace(pos, player) then
 		local air = minetest.find_node_near(pos, 1, {"air"})
-		if air then
+		if minetest.find_node_near(pos, 1, {"air"}) then
 			pos = air
 		else
-			bones_mode = "drop"
-		end
-	end
-
-	if bones_mode == "drop" then
-		for _, list_name in ipairs(player_inventory_lists) do
-			for i = 1, player_inv:get_size(list_name) do
-				drop(pos, player_inv:get_stack(list_name, i))
+			for _, list_name in ipairs(player_inventory_lists) do
+				for i = 1, player_inv:get_size(list_name) do
+					drop(pos, player_inv:get_stack(list_name, i))
+				end
+				player_inv:set_list(list_name, {})
 			end
-			player_inv:set_list(list_name, {})
+			minetest.log("action", player_name .. " dropped their inventory at " .. pos_string)
+			return
 		end
-		drop(pos, ItemStack("bones:bones"))
-		minetest.log("action", player_name .. " dies at " .. pos_string ..
-			". Inventory dropped")
-		if bones_position_message then
-			minetest.chat_send_player(player_name, S("@1 died at @2, and dropped their inventory.", player_name, pos_string))
-		end
-		return
 	end
 
 	local param2 = minetest.dir_to_facedir(player:get_look_dir())
 	minetest.set_node(pos, {name = "bones:bones", param2 = param2})
 
-	minetest.log("action", player_name .. " dies at " .. pos_string ..
-		". Bones placed")
-	if bones_position_message then
-		minetest.chat_send_player(player_name, S("@1 died at @2, and bones were placed.", player_name, pos_string))
-	end
+	minetest.log("action", player_name .. "'s bones placed at " .. pos_string)
 
 	local meta = minetest.get_meta(pos)
 	local inv = meta:get_inventory()
@@ -305,11 +270,12 @@ local function manage_inventory(player)
 end
 
 minetest.register_on_dieplayer(function(player)
-	manage_inventory(player)
+	make_bones(player)
 end)
 
 minetest.register_on_leaveplayer(function(player, timed_out)
+	-- if the player timed out, we don't want to create bones
 	if not timed_out then
-		manage_inventory(player)
+		make_bones(player)
 	end
 end)
