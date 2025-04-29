@@ -3,7 +3,7 @@ core.register_node("light:lamp", {
     drawtype = "glasslike_framed_optional",
     tiles = {"light_lamp.png"},
 	paramtype = "light",
-    light_source = 10,
+    light_source = 14,
 	sunlight_propagates = true,
 	is_ground_content = false,
 	groups = {cracky = 3, oddly_breakable_by_hand = 3},
