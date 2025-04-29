@@ -186,6 +186,6 @@ core.register_chatcommand("clear_bed", {
 })
 
 dofile(MP .. "/expire.lua")
-dofile(MP .. "/anticheat.lua")
+--dofile(MP .. "/anticheat.lua")
 
 print ("[MOD] 421 loaded")
