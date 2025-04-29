@@ -185,6 +185,18 @@ core.register_chatcommand("clear_bed", {
     end,
 })
 
+core.hud_replace_builtin("breath", {
+	type = "statbar",
+	position = {x = 0.5, y = 1},
+	text = "bubble.png",
+	text2 = "bubble_gone.png",
+	number = core.PLAYER_MAX_BREATH_DEFAULT * 2,
+	item = core.PLAYER_MAX_BREATH_DEFAULT * 2,
+	direction = 0,
+	size = {x = 24, y = 24},
+	offset = {x = 25, y= -120},
+})
+
 dofile(MP .. "/expire.lua")
 --dofile(MP .. "/anticheat.lua")
 
