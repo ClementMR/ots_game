@@ -90,11 +90,11 @@ function teleporter(pos, player)
     local name = player:get_player_name()
 
     if mode == "private" and meta:get_string("owner") ~= name then
-        core.chat_send_player(name, "This teleporter is private.")
+        core.chat_send_player(name, "Unable to teleport: This teleporter is private.")
         core.log("action", name.." tried to teleport to "..core.pos_to_string(pos).." but it is private.")
         return
     elseif mode == "protected" and core.is_protected(pos, name) then
-        core.chat_send_player(name, "This teleporter is protected.")
+        core.chat_send_player(name, "Unable to teleport: This teleporter is protected.")
         core.log("action", name.." tried to teleport to "..core.pos_to_string(pos).." but it is protected.")
         return
     end
@@ -176,10 +176,10 @@ function teleporter(pos, player)
                     else
                         if required_source > 1 then
                             core.chat_send_player(name, "Unable to teleport: You need to hold "
-                                ..required_source.." sources or coal blocks in your hand to teleport.")
+                                ..required_source.." coal blocks or sources in your hand to teleport.")
                         else
                             core.chat_send_player(name, "Unable to teleport: You need to hold "
-                                ..required_source.." source or coal block in your hand to teleport.")
+                                ..required_source.." coal block or source in your hand to teleport.")
                         end
                     end
                 else
