@@ -437,7 +437,7 @@ core.register_craftitem("tech:locator", {
         local name = user:get_player_name()
         local meta = itemstack:get_meta()
 
-        local pos = meta:get_string("pos") ; if pos == "" then loc_name = "???" end
+        local pos = meta:get_string("pos") ; if pos == "" then pos = "???" end
         local loc_name = meta:get_string("locator_name") ; if loc_name == "" then loc_name = "???" end
         local owner = meta:get_string("owner") ; if owner == "" then owner = "???" end
 
