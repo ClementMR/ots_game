@@ -119,8 +119,7 @@ core.hud_replace_builtin("breath", {
 	offset = {x = 25, y= -120},
 })
 
---dofile(MP .. "/expire.lua")
---dofile(MP .. "/anticheat.lua")
+dofile(MP .. "/expire.lua")
 dofile(MP .. "/chatcommands.lua")
 
 print ("[MOD] 421 loaded")

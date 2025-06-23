@@ -55,7 +55,6 @@ end)
 core.register_on_joinplayer(function(player)
     local name = player:get_player_name()
     local meta = player:get_meta()
-    local spawn = core.setting_get_pos("static_spawnpoint")
 
     if not core.check_player_privs(player, {server = true}) then
         meta:set_string("exp_last_login", tostring(os.time()))
@@ -79,7 +78,10 @@ core.register_on_joinplayer(function(player)
             core.set_player_privs(name, {interact = true, shout = true})
         end
 
-        player:set_pos(spawn or {x = 51.0, y = 21.5, z = 139})
+        local spawn = core.setting_get_pos("static_spawnpoint")
+        if spawn then
+            player:set_pos(spawn)
+        end
 
         save_player(name, false)
     end
@@ -346,11 +348,7 @@ core.register_abm({
     end
 })
 
---
--- Automatic expiration
---
-
-local inactivity_time = 2160 -- 3 months (in hours)
+local inactivity_time = 1800 -- 2.5 m
 local function check_players()
     local auth_handler = core.get_auth_handler()
 
