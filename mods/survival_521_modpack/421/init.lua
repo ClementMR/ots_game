@@ -20,4 +20,27 @@ core.hud_replace_builtin("breath", {
 	offset = {x = 25, y= -120},
 })
 
+function get_players()
+    local players = {}
+    for _, player in ipairs(core.get_connected_players()) do
+        local name = player:get_player_name()
+        table.insert(players, name)
+    end
+
+    return players
+end
+
+core.register_on_joinplayer(function(player)
+    local players = get_players()
+    core.chat_send_player(player:get_player_name(), core.colorize("grey", "Player(s): "..table.concat(players, ", ")))
+end)
+
+core.register_chatcommand("online", {
+    description = "Show online players",
+    func = function(name)
+        local players = get_players()
+        return true, core.colorize("grey", "Player(s): "..table.concat(players, ", "))
+    end
+})
+
 print ("[MOD] 421 loaded")
