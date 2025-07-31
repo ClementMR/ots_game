@@ -27,11 +27,6 @@ farming.register_hoe(":farming:hoe_steel", {
 	groups = {hoe = 1}
 })
 
--- The following are deprecated by removing the 'material' field to prevent
--- crafting and removing from creative inventory, to cause them to eventually
--- disappear from worlds. The registrations should be removed in a future
--- release.
-
 farming.register_hoe(":farming:hoe_bronze", {
 	description = S("Bronze Hoe"),
 	inventory_image = "farming_tool_bronzehoe.png",

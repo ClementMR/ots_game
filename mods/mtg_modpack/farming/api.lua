@@ -66,7 +66,6 @@ farming.hoe_on_use = function(itemstack, user, pointed_thing, uses)
 	if not minetest.is_creative_enabled(player_name) then
 		-- wear tool
 		local wdef = itemstack:get_definition()
-		--itemstack:add_wear_by_uses(uses)
 		itemstack:add_wear(65535/(uses-1))
 		-- tool break sound
 		if itemstack:get_count() == 0 and wdef.sound and wdef.sound.breaks then
@@ -179,21 +178,14 @@ farming.place_seed = function(itemstack, placer, pointed_thing, plantname)
 	end
 
 	-- add the node and remove 1 item from the itemstack
-	if placer then
-		default.log_player_action(placer, "places node", plantname, "at", pt.above)
-	end
+	minetest.log("action", player_name .. " places node " .. plantname .. " at " ..
+		minetest.pos_to_string(pt.above))
 	minetest.add_node(pt.above, {name = plantname, param2 = 1})
 	tick(pt.above)
 	if not minetest.is_creative_enabled(player_name) then
 		itemstack:take_item()
 	end
 	return itemstack
-end
-
--- check if on wet soil
-farming.can_grow = function(pos)
-	local below = minetest.get_node(pos:offset(0, -1, 0))
-	return minetest.get_item_group(below.name, "soil") >= 3
 end
 
 farming.grow_plant = function(pos, elapsed)
@@ -231,7 +223,9 @@ farming.grow_plant = function(pos, elapsed)
 		return
 	end
 
-	if not (def.can_grow or farming.can_grow)(pos) then
+	-- check if on wet soil
+	local below = minetest.get_node({x = pos.x, y = pos.y - 1, z = pos.z})
+	if minetest.get_item_group(below.name, "soil") < 3 then
 		tick_again(pos)
 		return
 	end
