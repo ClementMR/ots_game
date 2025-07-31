@@ -1,30 +1,3 @@
-core.register_chatcommand("placeblock", {
-    params = "<x> <y> <z> <block>",
-    description = "Place a block",
-    privs = {server = true},
-    func = function(name, param)
-        local player = core.get_player_by_name(name)
-        if not player then
-            return false, "Player not found."
-        end
-
-        local x, y, z, block = param:match("^(%-?%d+) (%-?%d+) (%-?%d+) ([%w_:]+)$")
-        if not x or not y or not z or not block then
-            return false, "Usage: /placeblock <x> <y> <z> <block>"
-        end
-
-        if not core.registered_nodes[block] then
-            return false, "Invalid block name: " .. block
-        end
-
-        x, y, z = tonumber(x), tonumber(y), tonumber(z)
-
-		core.set_node({x = x, y = y, z = z}, {name = block})
-
-        return true, "Block " .. block .. " placed at " .. x .. ", " .. y .. ", " .. z
-    end
-})
-
 core.register_chatcommand("s_msg", {
 	params = "<name> <message>",
 	description = "Send a direct message to a player (Admin tunnel)",
