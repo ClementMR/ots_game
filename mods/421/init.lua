@@ -30,10 +30,12 @@ function get_players()
     return players
 end
 
+--[[
 core.register_on_joinplayer(function(player)
     local players = get_players()
     core.chat_send_player(player:get_player_name(), core.colorize("grey", "Player(s): "..table.concat(players, ", ")))
 end)
+]]
 
 core.register_chatcommand("online", {
     description = "Show online players",
