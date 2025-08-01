@@ -1,13 +1,27 @@
-local modpath = core.get_modpath(core.get_current_modname())
-
-dofile(modpath.."/src/api.lua")
-
+local modname = core.get_current_modname()
+local modpath = core.get_modpath(modname)
+local worldpath = core.get_worldpath()
 local last_punch_time = {}
 local timer = 0
 
-local S = core.get_translator(core.get_current_modname())
-local F = core.formspec_escape
+dofile(modpath.."/api.lua")
 
+-- local functions
+local S = core.get_translator(core.get_current_modname())
+
+
+-- Legacy Config Support
+
+local input = io.open(modpath.."/armor.conf", "r")
+if input then
+	dofile(modpath.."/armor.conf")
+	input:close()
+end
+input = io.open(worldpath.."/armor.conf", "r")
+if input then
+	dofile(worldpath.."/armor.conf")
+	input:close()
+end
 for name, _ in pairs(armor.config) do
 	local global = "ARMOR_"..name:upper()
 	if core.global_exists(global) then
@@ -16,6 +30,9 @@ for name, _ in pairs(armor.config) do
 end
 if core.global_exists("ARMOR_MATERIALS") then
 	armor.materials = table.copy(ARMOR_MATERIALS)
+end
+if core.global_exists("ARMOR_FIRE_NODES") then
+	armor.fire_nodes = table.copy(ARMOR_FIRE_NODES)
 end
 
 -- Load Configuration
@@ -33,7 +50,6 @@ for name, config in pairs(armor.config) do
 		armor.config[name] = setting
 	end
 end
-
 for material, _ in pairs(armor.materials) do
 	local key = "material_"..material
 	if armor.config[key] == false then
@@ -44,6 +60,44 @@ end
 -- Convert set_elements to a Lua table splitting on blank spaces
 local t_set_elements = armor.config.set_elements
 armor.config.set_elements = string.split(t_set_elements, " ")
+
+-- Remove torch damage if fire_protect_torch == false
+if armor.config.fire_protect_torch == false and armor.config.fire_protect == true then
+	for k,v in pairs(armor.fire_nodes) do
+		for k2,v2 in pairs(v) do
+			if string.find (v2,"torch") then
+				armor.fire_nodes[k] = nil
+			end
+		end
+	end
+end
+
+-- Mod Compatibility
+
+if core.get_modpath("technic") then
+	armor:register_armor_group("radiation")
+end
+
+
+
+-- Armor Initialization
+
+armor:register_on_damage(function(player, index, stack)
+	local name = player:get_player_name()
+	local def = stack:get_definition()
+	if name and def and def.description and stack:get_wear() > 60100 then
+		core.chat_send_player(name, S("Your @1 is almost broken!", def.description))
+		core.sound_play("default_tool_breaks", {to_player = name, gain = 2.0})
+	end
+end)
+armor:register_on_destroy(function(player, index, stack)
+	local name = player:get_player_name()
+	local def = stack:get_definition()
+	if name and def and def.description then
+		core.chat_send_player(name, S("Your @1 got destroyed!", def.description))
+		core.sound_play("default_tool_breaks", {to_player = name, gain = 2.0})
+	end
+end)
 
 local function validate_armor_inventory(player)
 	-- Workaround for detached inventory swap exploit
@@ -65,7 +119,7 @@ local function validate_armor_inventory(player)
 	end
 	local elements = {}
 	local player_inv = player:get_inventory()
-	for i = 1, 5 do
+	for i = 1, #armor.elements do
 		local stack = inv:get_stack("armor", i)
 		if stack:get_count() > 0 then
 			local item = stack:get_name()
@@ -107,7 +161,6 @@ local function init_player_armor(initplayer)
 			armor:save_armor_inventory(player)
 			armor:set_player_armor(player)
 
-			-- sfinv support
 			if core.get_modpath("sfinv") then
 				sfinv.set_page(player, "sfinv:crafting")
 			else
@@ -119,11 +172,8 @@ local function init_player_armor(initplayer)
 			armor:save_armor_inventory(player)
 			armor:set_player_armor(player)
 
-			-- sfinv support
 			if core.get_modpath("sfinv") then
 				sfinv.set_page(player, "sfinv:crafting")
-			else
-				armor:show_formspec(player:get_player_name())
 			end
 		end,
 		on_move = function(inv, from_list, from_index, to_list, to_index, count, player)
@@ -131,11 +181,8 @@ local function init_player_armor(initplayer)
 			armor:save_armor_inventory(player)
 			armor:set_player_armor(player)
 
-			-- sfinv support
 			if core.get_modpath("sfinv") then
 				sfinv.set_page(player, "sfinv:crafting")
-			else
-				armor:show_formspec(player:get_player_name())
 			end
 		end,
 		allow_put = function(inv, listname, index, put_stack, player)
@@ -159,11 +206,7 @@ local function init_player_armor(initplayer)
 			if player:get_player_name() ~= name then
 				return 0
 			end
-			--cursed items cannot be unequiped by the player
-			local is_cursed = core.get_item_group(stack:get_name(), "cursed") ~= 0
-			if not core.is_creative_enabled(player) and is_cursed then
-				return 0
-			end
+
 			return stack:get_count()
 		end,
 		allow_move = function(inv, from_list, from_index, to_list, to_index, count, player)
@@ -189,10 +232,10 @@ local function init_player_armor(initplayer)
 			return count
 		end,
 	}, name)
-	armor_inv:set_size("armor", 5)
+	armor_inv:set_size("armor", #armor.elements)
 	if not armor:load_armor_inventory(initplayer) and armor.migrate_old_inventory then
 		local player_inv = initplayer:get_inventory()
-		player_inv:set_size("armor", 5)
+		player_inv:set_size("armor", #armor.elements)
 		for i=1, 6 do
 			local stack = player_inv:get_stack("armor", i)
 			armor_inv:set_stack("armor", i, stack)
@@ -200,7 +243,7 @@ local function init_player_armor(initplayer)
 		armor:save_armor_inventory(initplayer)
 		player_inv:set_size("armor", 0)
 	end
-	for i=1, 5 do
+	for i=1, #armor.elements do
 		local stack = armor_inv:get_stack("armor", i)
 		if stack:get_count() > 0 then
 			armor:run_callbacks("on_equip", initplayer, i, stack)
@@ -221,23 +264,14 @@ local function init_player_armor(initplayer)
 	for group, _ in pairs(armor.registered_groups) do
 		armor.def[name].groups[group] = 0
 	end
+	local skin = armor.default_skin..".png"
 	armor.textures[name] = {
+		skin = skin,
 		armor = "blank.png",
-		wielditem = "blank.png"
+		wielditem = "blank.png",
 	}
-	local texture_path = core.get_modpath("player_textures")
-	if texture_path then
-		local dir_list = core.get_dir_list(texture_path.."/textures")
-		for _, fn in pairs(dir_list) do
-			if fn == "player_"..name..".png" then
-				armor.textures[name].skin = fn
-				break
-			end
-		end
-	end
 	armor:set_player_armor(initplayer)
 
-	-- sfinv support
 	if core.get_modpath("sfinv") then
 		sfinv.set_page(initplayer, "sfinv:crafting")
 	end
@@ -249,19 +283,19 @@ player_api.register_model("3d_armor_character.b3d", {
 	textures = {
 		armor.default_skin..".png",
 		"blank.png",
-		"blank.png"
+		"blank.png",
 	},
 	animations = {
 		stand = {x=0, y=79},
 		lay = {x=162, y=166},
 		lay = {x=162, y=166, eye_height = 0.3, override_local = true,
-			collisionbox = {-0.6, 0.0, -0.6, 0.6, 0.3, 0.6}},
+		collisionbox = {-0.6, 0.0, -0.6, 0.6, 0.3, 0.6}},
 		walk = {x=168, y=187},
 		mine = {x=189, y=198},
 		walk_mine = {x=200, y=219},
 		sit = {x=81, y=160},
 		sit = {x=81, y=160, eye_height = 0.8, override_local = true,
-			collisionbox = {-0.3, 0.0, -0.3, 0.3, 1.0, 0.3}},
+		collisionbox = {-0.3, 0.0, -0.3, 0.3, 1.0, 0.3}},
 		-- compatibility w/ the emote mod
 		wave = {x = 192, y = 196, override_local = true},
 		point = {x = 196, y = 196, override_local = true},
@@ -271,6 +305,19 @@ player_api.register_model("3d_armor_character.b3d", {
 	-- stepheight: use default
 	eye_height = 1.47,
 })
+
+core.register_on_player_receive_fields(function(player, formname, fields)
+	local name = armor:get_valid_player(player, "[on_player_receive_fields]")
+	if not name then
+		return
+	end
+	local player_name = player:get_player_name()
+	for field, _ in pairs(fields) do
+		if string.find(field, "skins_set") then
+			armor:update_skin(player_name)
+		end
+	end
+end)
 
 core.register_on_joinplayer(function(player)
 	player_api.set_model(player, "3d_armor_character.b3d")
@@ -285,88 +332,69 @@ core.register_on_leaveplayer(function(player)
 	end
 end)
 
-core.register_on_dieplayer(function(player)
-	local name, armor_inv = armor:get_valid_player(player, "[on_dieplayer]")
-	if not name then
-		return
-	end
+if armor.config.drop == true or armor.config.destroy == true then
+	core.register_on_dieplayer(function(player)
+		local name, armor_inv = armor:get_valid_player(player, "[on_dieplayer]")
+		if not name then return end
 
-    if core.is_creative_enabled(player:get_player_name()) then
-		return
-	end
+		if core.is_creative_enabled(player:get_player_name()) then return end
 
-	local drop = {}
-	for i=1, armor_inv:get_size("armor") do
-		local stack = armor_inv:get_stack("armor", i)
-		if stack:get_count() > 0 then
-			--soulbound armors remain equipped after death
-			if core.get_item_group(stack:get_name(), "soulbound") == 0 then
-				table.insert(drop, stack)
-				armor:run_callbacks("on_unequip", player, i, stack)
-				armor_inv:set_stack("armor", i, nil)
+		local drop = {}
+		for i=1, armor_inv:get_size("armor") do
+			local stack = armor_inv:get_stack("armor", i)
+			if stack:get_count() > 0 then
+				--soulbound armors remain equipped after death
+				if core.get_item_group(stack:get_name(), "soulbound") == 0 then
+					table.insert(drop, stack)
+					armor:run_callbacks("on_unequip", player, i, stack)
+					armor_inv:set_stack("armor", i, nil)
+				end
 			end
 		end
-	end
-	armor:save_armor_inventory(player)
-	armor:set_player_armor(player)
-	local pos = player:get_pos()
-	if pos then
-		core.after(0.5, function()
-			local meta = nil
-			local maxp = vector.add(pos, 16)
-			local minp = vector.subtract(pos, 16)
-			local bones = core.find_nodes_in_area(minp, maxp, {"bones:bones"})
-			for _, p in pairs(bones) do
-				local m = core.get_meta(p)
-				if m:get_string("owner") == name then
-					meta = m
-					break
-				end
+		armor:save_armor_inventory(player)
+		armor:set_player_armor(player)
+		local pos = player:get_pos()
+		if pos then
+			for _,stack in ipairs(drop) do
+				armor.drop_armor(pos, stack)
 			end
-			if meta then
-				local inv = meta:get_inventory()
-				for _,stack in ipairs(drop) do
-					if inv:room_for_item("main", stack) then
-						inv:add_item("main", stack)
-					else
-						armor.drop_armor(pos, stack)
-					end
-				end
-			else
-				for _,stack in ipairs(drop) do
-					armor.drop_armor(pos, stack)
-				end
+		end
+	end)
+
+	core.register_on_respawnplayer(function(player)
+		-- reset un-dropped armor and it's effects
+		armor:set_player_armor(player)
+
+		if core.get_modpath("sfinv") then
+			sfinv.set_page(player, "sfinv:crafting")
+		end
+	end)
+end
+
+if armor.config.punch_damage == true then
+	core.register_on_punchplayer(function(player, hitter,
+			time_from_last_punch, tool_capabilities)
+		local name = player:get_player_name()
+		if hitter then
+			local hit_ip = hitter:is_player()
+			if name and hit_ip and core.is_protected(player:get_pos(), "") then
+				return
 			end
-		end)
-	end
-end)
+		end
 
-core.register_on_respawnplayer(function(player)
-	-- reset un-dropped armor and it's effects
-	armor:set_player_armor(player)
-
-	-- sfinv support
-	if core.get_modpath("sfinv") then
-		sfinv.set_page(player, "sfinv:crafting")
-	end
-end)
-
-core.register_on_punchplayer(function(player, hitter,
-		time_from_last_punch, tool_capabilities)
-	local name = player:get_player_name()
-	local hit_ip = hitter:is_player()
-	if name and hit_ip and core.is_protected(player:get_pos(), "") then
-		return
-	elseif name then
-		armor:punch(player, hitter, time_from_last_punch, tool_capabilities)
-		last_punch_time[name] = core.get_gametime()
-	end
-end)
+		if name then
+			armor:punch(player, hitter, time_from_last_punch, tool_capabilities)
+			last_punch_time[name] = core.get_gametime()
+		end
+	end)
+end
 
 core.register_on_player_hpchange(function(player, hp_change, reason)
 	if not core.is_player(player) then
 		return hp_change
 	end
+
+	if hp_change <= 20 then return hp_change end
 
 	if reason.type == "drown" or reason.hunger or hp_change >= 0 then
 		return hp_change
@@ -376,6 +404,10 @@ core.register_on_player_hpchange(function(player, hp_change, reason)
 	local properties = player:get_properties()
 	local hp = player:get_hp()
 	if hp + hp_change < properties.hp_max then
+		local heal = armor.def[name].heal
+		if heal >= math.random(100) then
+			hp_change = 0
+		end
 		-- check if armor damage was handled by fire or on_punchplayer
 		local time = last_punch_time[name] or 0
 		if time == 0 or time + 1 < core.get_gametime() then
@@ -386,16 +418,28 @@ core.register_on_player_hpchange(function(player, hp_change, reason)
 	return hp_change
 end, true)
 
+if core.get_modpath("sfinv") then
+	local orig_get = sfinv.pages["sfinv:crafting"].get
+	sfinv.override_page("sfinv:crafting", {
+		get = function(self, player, context)
+			local form = armor:get_armor_formspec(player:get_player_name())
+			return orig_get(self, player, context) .. form
+		end
+	})
+end
+
 core.register_globalstep(function(dtime)
 	timer = timer + dtime
 
-	for _,player in pairs(core.get_connected_players()) do
-		local name = player:get_player_name()
-		if armor.def[name].feather > 0 then
-			local vel_y = player:get_velocity().y
-			if vel_y < 0 and vel_y < 3 then
-				vel_y = -(vel_y * 0.05)
-				player:add_velocity({x = 0, y = vel_y, z = 0})
+	if armor.config.feather_fall == true then
+		for _,player in pairs(core.get_connected_players()) do
+			local name = player:get_player_name()
+			if armor.def[name].feather > 0 then
+				local vel_y = player:get_velocity().y
+				if vel_y < -0.5 then
+					vel_y = -(vel_y * 0.05)
+					player:add_velocity({x = 0, y = vel_y, z = 0})
+				end
 			end
 		end
 	end
@@ -405,18 +449,50 @@ core.register_globalstep(function(dtime)
 	end
 	timer = 0
 
-	for _,player in pairs(core.get_connected_players()) do
-		local name = player:get_player_name()
-		if armor.def[name].water > 0 and
-				player:get_breath() < 10 then
-			player:set_breath(10)
+	-- water breathing protection, added by TenPlus1
+	if armor.config.water_protect == true then
+		for _,player in pairs(core.get_connected_players()) do
+			local name = player:get_player_name()
+			if armor.def[name].water > 0 and
+					player:get_breath() < 10 then
+				player:set_breath(10)
+			end
 		end
 	end
 end)
 
-dofile(modpath.."/src/command.lua")
-dofile(modpath.."/src/inventory.lua")
-dofile(modpath.."/src/register.lua")
-dofile(modpath.."/src/wieldview.lua")
+if armor.config.fire_protect == true then
 
-print ("[MOD] 3d_armor [521] loaded")
+	-- make torches hurt
+	core.override_item("default:torch", {damage_per_second = 1})
+	core.override_item("default:torch_wall", {damage_per_second = 1})
+	core.override_item("default:torch_ceiling", {damage_per_second = 1})
+
+	-- check player damage for any hot nodes we may be protected against
+	core.register_on_player_hpchange(function(player, hp_change, reason)
+
+		if reason.type == "node_damage" and reason.node then
+			-- fire protection
+			if armor.config.fire_protect == true and hp_change < 0 then
+				local name = player:get_player_name()
+				for _,igniter in pairs(armor.fire_nodes) do
+					if reason.node == igniter[1] then
+						if armor.def[name].fire >= igniter[2] then
+							hp_change = 0
+						end
+					end
+				end
+			end
+		end
+		return hp_change
+	end, true)
+end
+
+-- Register armors
+for k, _ in pairs(armor.materials) do
+	dofile(core.get_modpath(core.get_current_modname()).."/src/"..k.."_armor.lua")
+end
+
+dofile(core.get_modpath(core.get_current_modname()).."/src/admin_armor.lua")
+dofile(core.get_modpath(core.get_current_modname()).."/src/recipes.lua")
+dofile(core.get_modpath(core.get_current_modname()).."/src/aliases.lua")

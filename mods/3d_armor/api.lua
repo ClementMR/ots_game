@@ -1,8 +1,89 @@
-local transparent_armor = false
 
+--- 3D Armor API
+--
+--  @topic api
+
+
+local transparent_armor = core.settings:get_bool("armor_transparent", false)
+
+
+--- Tables
+--
+--  @section tables
+
+--- Armor definition table used for registering armor.
+--
+--  @table ArmorDef
+--  @tfield string description Human-readable name/description.
+--  @tfield string inventory_image Image filename used for icon.
+--  @tfield table groups See: `ArmorDef.groups`
+--  @tfield table armor_groups See: `ArmorDef.armor_groups`
+--  @tfield table damage_groups See: `ArmorDef.damage_groups`
+--  @see ItemDef
+--  @usage local def = {
+--    description = "Wood Helmet",
+--    inventory_image = "3d_armor_inv_helmet_wood.png",
+--    groups = {armor_head=1, armor_heal=0, armor_use=2000, flammable=1},
+--    armor_groups = {fleshy=5},
+--    damage_groups = {cracky=3, snappy=2, choppy=3, crumbly=2, level=1},
+--  }
+
+--- Groups table.
+--
+--  General groups defining item behavior.
+--
+--  Some commonly used groups: ***armor\_&lt;type&gt;***, ***armor\_heal***, ***armor\_use***
+--
+--  @table ArmorDef.groups
+--  @tfield int armor_type The armor type. "head", "torso", "hands", "shield", etc.
+--  (**Note:** replace "type" with actual type).
+--  @tfield int armor_heal Healing value of armor when equipped.
+--  @tfield int armor_use Amount of uses/damage before armor "breaks".
+--  @see groups
+--  @usage groups = {
+--    armor_head = 1,
+--    armor_heal = 5,
+--    armor_use = 2000,
+--    flammable = 1,
+--  }
+
+--- Armor groups table.
+--
+--  Groups that this item is effective against when taking damage.
+--
+--  Some commonly used groups: ***fleshy***
+--
+--  @table ArmorDef.armor_groups
+--  @usage armor_groups = {
+--    fleshy = 5,
+--  }
+
+--- Damage groups table.
+--
+--  Groups that this item is effective on when used as a weapon/tool.
+--
+--  Some commonly used groups: ***cracky***, ***snappy***, ***choppy***, ***crumbly***, ***level***
+--
+--  @table ArmorDef.damage_groups
+--  @see entity_damage_mechanism
+--  @usage damage_groups = {
+--    cracky = 3,
+--    snappy = 2,
+--    choppy = 3,
+--    crumbly = 2,
+--    level = 1,
+--  }
+
+--- @section end
+
+
+-- local functions
 local S = core.get_translator(core.get_current_modname())
 local F = core.formspec_escape
 
+local use_player_monoids = core.global_exists("player_monoids")
+local use_armor_monoid = core.global_exists("armor_monoid")
+local use_pova_mod = core.get_modpath("pova")
 local armor_def = setmetatable({}, {
 	__index = function()
 		return setmetatable({
@@ -32,7 +113,7 @@ armor = {
 	timer = 0,
 	elements = {"head", "torso", "legs", "feet", "shield"},
 	physics = {"jump", "speed", "gravity"},
-	attributes = {"fire", "water", "feather"},
+	attributes = {"heal",  "fire", "water", "feather"},
 	def = armor_def,
 	textures = armor_textures,
 	default_skin = "character",
@@ -44,6 +125,21 @@ armor = {
 		diamond = "default:diamond",
 		gold = "default:gold_ingot",
 		mithril = "moreores:mithril_ingot",
+		crystal = "ethereal:crystal_ingot",
+		nether = "nether:nether_ingot",
+	},
+	fire_nodes = {
+		{"nether:lava_source",      5, 8},
+		{"default:lava_source",     5, 8},
+		{"default:lava_flowing",    5, 8},
+		{"fire:basic_flame",        3, 4},
+		{"fire:permanent_flame",    3, 4},
+		{"ethereal:crystal_spike",  2, 1},
+		{"ethereal:fire_flower",    2, 1},
+		{"nether:lava_crust",       2, 1},
+		{"default:torch",           1, 1},
+		{"default:torch_ceiling",   1, 1},
+		{"default:torch_wall",      1, 1},
 	},
 	registered_groups = {["fleshy"]=100},
 	registered_callbacks = {
@@ -52,18 +148,51 @@ armor = {
 		on_unequip = {},
 		on_damage = {},
 		on_destroy = {},
-	},
-	migrate_old_inventory = true
+	}
 }
 
 armor.config = {
-	init_delay = 1,
+	init_delay = 2,
 	update_time = 1,
+	drop = true,
+	destroy = false,
 	level_multiplier = 1,
+	heal_multiplier = 1,
+	material_wood = true,
+	material_cactus = true,
+	material_steel = true,
+	material_bronze = true,
+	material_diamond = true,
+	material_gold = true,
+	material_mithril = true,
+	material_crystal = true,
+	material_nether = true,
 	set_elements = "head torso legs feet shield",
-	set_multiplier = 1.1
+	set_multiplier = 1.1,
+	water_protect = true,
+	fire_protect = core.get_modpath("ethereal") ~= nil,
+	fire_protect_torch = core.get_modpath("ethereal") ~= nil,
+	feather_fall = true,
+	punch_damage = true,
 }
 
+
+--- Methods
+--
+--  @section methods
+
+--- Registers a new armor item.
+--
+--  @function armor:register_armor
+--  @tparam string name Armor item technical name (ex: "3d\_armor:helmet\_gold").
+--  @tparam ArmorDef def Armor definition table.
+--  @usage armor:register_armor("3d_armor:helmet_wood", {
+--    description = "Wood Helmet",
+--    inventory_image = "3d_armor_inv_helmet_wood.png",
+--    groups = {armor_head=1, armor_heal=0, armor_use=2000, flammable=1},
+--    armor_groups = {fleshy=5},
+--    damage_groups = {cracky=3, snappy=2, choppy=3, crumbly=2, level=1},
+--  })
 armor.register_armor = function(self, name, def)
 	def.on_secondary_use = function(itemstack, player)
 		return armor:equip(player, itemstack)
@@ -91,41 +220,105 @@ armor.register_armor = function(self, name, def)
 	core.register_tool(name, def)
 end
 
+--- Registers a new armor group.
+--
+--  @function armor:register_armor_group
+--  @tparam string group Group ID.
+--  @tparam int base Base armor value.
 armor.register_armor_group = function(self, group, base)
 	base = base or 100
 	self.registered_groups[group] = base
+	if use_armor_monoid then
+		armor_monoid.register_armor_group(group, base)
+	end
 end
 
+--- Armor Callbacks Registration
+--
+--  @section callbacks
+
+--- Registers a callback for when player visuals are update.
+--
+--  @function armor:register_on_update
+--  @tparam function func Function to be executed.
+--  @see armor:update_player_visuals
+--  @usage armor:register_on_update(function(player, index, stack)
+--    -- code to execute
+--  end)
 armor.register_on_update = function(self, func)
 	if type(func) == "function" then
 		table.insert(self.registered_callbacks.on_update, func)
 	end
 end
 
+--- Registers a callback for when armor is equipped.
+--
+--  @function armor:register_on_equip
+--  @tparam function func Function to be executed.
+--  @usage armor:register_on_equip(function(player, index, stack)
+--    -- code to execute
+--  end)
 armor.register_on_equip = function(self, func)
 	if type(func) == "function" then
 		table.insert(self.registered_callbacks.on_equip, func)
 	end
 end
 
+--- Registers a callback for when armor is unequipped.
+--
+--  @function armor:register_on_unequip
+--  @tparam function func Function to be executed.
+--  @usage armor:register_on_unequip(function(player, index, stack)
+--    -- code to execute
+--  end)
 armor.register_on_unequip = function(self, func)
 	if type(func) == "function" then
 		table.insert(self.registered_callbacks.on_unequip, func)
 	end
 end
 
+--- Registers a callback for when armor is damaged.
+--
+--  @function armor:register_on_damage
+--  @tparam function func Function to be executed.
+--  @see armor:damage
+--  @usage armor:register_on_damage(function(player, index, stack)
+--    -- code to execute
+--  end)
 armor.register_on_damage = function(self, func)
 	if type(func) == "function" then
 		table.insert(self.registered_callbacks.on_damage, func)
 	end
 end
 
+--- Registers a callback for when armor is destroyed.
+--
+--  @function armor:register_on_destroy
+--  @tparam function func Function to be executed.
+--  @see armor:damage
+--  @usage armor:register_on_destroy(function(player, index, stack)
+--    -- code to execute
+--  end)
 armor.register_on_destroy = function(self, func)
 	if type(func) == "function" then
 		table.insert(self.registered_callbacks.on_destroy, func)
 	end
 end
 
+--- @section end
+
+
+--- Methods
+--
+--  @section methods
+
+--- Runs callbacks.
+--
+--  @function armor:run_callbacks
+--  @tparam function callback Function to execute.
+--  @tparam ObjectRef player First parameter passed to callback.
+--  @tparam int index Second parameter passed to callback.
+--  @tparam ItemStack stack Callback owner.
 armor.run_callbacks = function(self, callback, player, index, stack)
 	if stack then
 		local def = stack:get_definition() or {}
@@ -142,6 +335,10 @@ armor.run_callbacks = function(self, callback, player, index, stack)
 	end
 end
 
+--- Updates visuals.
+--
+--  @function armor:update_player_visuals
+--  @tparam ObjectRef player
 armor.update_player_visuals = function(self, player)
 	if not player then
 		return
@@ -159,6 +356,10 @@ armor.update_player_visuals = function(self, player)
 	self:run_callbacks("on_update", player)
 end
 
+--- Sets player's armor attributes.
+--
+--  @function armor:set_player_armor
+--  @tparam ObjectRef player
 armor.set_player_armor = function(self, player)
 	local name, armor_inv = self:get_valid_player(player, "[set_player_armor]")
 	if not name then
@@ -179,21 +380,17 @@ armor.set_player_armor = function(self, player)
 	for _, phys in pairs(self.physics) do
 		physics[phys] = 1
 	end
-
 	for _, attr in pairs(self.attributes) do
 		attributes[attr] = 0
 	end
-
 	for group, _ in pairs(self.registered_groups) do
 		change[group] = 1
 		levels[group] = 0
 	end
-
 	local list = armor_inv:get_list("armor")
 	if type(list) ~= "table" then
 		return
 	end
-
 	for i, stack in pairs(list) do
 		if stack:get_count() == 1 then
 			local def = stack:get_definition()
@@ -211,30 +408,29 @@ armor.set_player_armor = function(self, player)
 					end
 					break
 				end
+				-- DEPRECATED, use armor_groups instead
+				if def.groups["armor_radiation"] and levels["radiation"] then
+					levels["radiation"] = levels["radiation"] + def.groups["armor_radiation"]
+				end
 			end
 			local item = stack:get_name()
 			local tex = def.texture or item:gsub("%:", "_")
 			tex = tex:gsub(".png$", "")
-
 			if not transparent_armor then
 				texture = texture.."^"..tex..".png"
 			end
-
 			state = state + stack:get_wear()
 			count = count + 1
-
 			for _, phys in pairs(self.physics) do
 				local value = def.groups["physics_"..phys] or 0
 				physics[phys] = physics[phys] + value
 			end
-
 			for _, attr in pairs(self.attributes) do
 				local value = def.groups["armor_"..attr] or 0
 				attributes[attr] = attributes[attr] + value
 			end
 		end
 	end
-
 	-- The following code compares player worn armor items against requirements
 	-- of which armor pieces are needed to be worn to meet set bonus requirements
 	for loc,item in pairs(worn_armor) do
@@ -260,7 +456,6 @@ armor.set_player_armor = function(self, player)
 			armor_multi = armor.config.set_multiplier
 		end
 	end
-
 	for group, level in pairs(levels) do
 		if level > 0 then
 			level = level * armor.config.level_multiplier
@@ -276,26 +471,48 @@ armor.set_player_armor = function(self, player)
 		groups[group] = base - level
 		change[group] = groups[group] / base
 	end
-
+	for _, attr in pairs(self.attributes) do
+		local mult = attr == "heal" and self.config.heal_multiplier or 1
+		self.def[name][attr] = attributes[attr] * mult
+	end
 	for _, phys in pairs(self.physics) do
 		self.def[name][phys] = physics[phys]
 	end
-
-	-- Preserve immortal group (damage disabled for player)
-	local player_groups = player:get_armor_groups()
-	local immortal = player_groups.immortal
-	if immortal and immortal ~= 0 then
-		groups.immortal = 1
-	end
-	-- Preserve fall_damage_add_percent group (fall damage modifier)
-	groups.fall_damage_add_percent = player_groups.fall_damage_add_percent
-	player:set_armor_groups(groups)
-
-	local player_physics_locked = player:get_meta():get_int("player_physics_locked")
-	if player_physics_locked == nil or player_physics_locked == 0 then
-		player:set_physics_override(physics)
+	if use_armor_monoid then
+		armor_monoid.monoid:add_change(player, change, "3d_armor:armor")
+	else
+		-- Preserve immortal group (damage disabled for player)
+		local player_groups = player:get_armor_groups()
+		local immortal = player_groups.immortal
+		if immortal and immortal ~= 0 then
+			groups.immortal = 1
+		end
+		-- Preserve fall_damage_add_percent group (fall damage modifier)
+		groups.fall_damage_add_percent = player_groups.fall_damage_add_percent
+		player:set_armor_groups(groups)
 	end
 
+	if use_player_monoids then
+		player_monoids.speed:add_change(player, physics.speed,
+			"3d_armor:physics")
+		player_monoids.jump:add_change(player, physics.jump,
+			"3d_armor:physics")
+		player_monoids.gravity:add_change(player, physics.gravity,
+			"3d_armor:physics")
+	elseif use_pova_mod then
+		-- only add the changes, not the default 1.0 for each physics setting
+		pova.add_override(name, "3d_armor", {
+			speed = physics.speed - 1,
+			jump = physics.jump - 1,
+			gravity = physics.gravity - 1,
+		})
+		pova.do_override(player)
+	else
+		local player_physics_locked = player:get_meta():get_int("player_physics_locked")
+		if player_physics_locked == nil or player_physics_locked == 0 then
+			player:set_physics_override(physics)
+		end
+	end
 	self.textures[name].armor = texture
 	self.def[name].level = self.def[name].groups.fleshy or 0
 	self.def[name].state = state
@@ -303,6 +520,13 @@ armor.set_player_armor = function(self, player)
 	self:update_player_visuals(player)
 end
 
+--- Action when armor is punched.
+--
+--  @function armor:punch
+--  @tparam ObjectRef player Player wearing the armor.
+--  @tparam ObjectRef hitter Entity attacking player.
+--  @tparam[opt] int time_from_last_punch Time in seconds since last punch action.
+--  @tparam[opt] table tool_capabilities See `entity_damage_mechanism`.
 armor.punch = function(self, player, hitter, time_from_last_punch, tool_capabilities)
 	local name, armor_inv = self:get_valid_player(player, "[punch]")
 	if not name then
@@ -389,24 +613,27 @@ armor.punch = function(self, player, hitter, time_from_last_punch, tool_capabili
 	self.def[name].count = count
 end
 
+--- Action when armor is damaged.
+--
+--  @function armor:damage
+--  @tparam ObjectRef player
+--  @tparam int index Inventory index where armor is equipped.
+--  @tparam ItemStack stack Armor item receiving damaged.
+--  @tparam int use Amount of wear to add to armor item.
 armor.damage = function(self, player, index, stack, use)
 	local old_stack = ItemStack(stack)
 	local worn_armor = armor:get_weared_armor_elements(player)
-
 	if not worn_armor then
 		return
 	end
-
 	local armor_worn_cnt = 0
 	for k,v in pairs(worn_armor) do
 		armor_worn_cnt = armor_worn_cnt + 1
 	end
-
 	use = math.ceil(use/armor_worn_cnt)
 	stack:add_wear(use)
 	self:run_callbacks("on_damage", player, index, stack)
 	self:set_inventory_stack(player, index, stack)
-
 	if stack:get_count() == 0 then
 		self:run_callbacks("on_unequip", player, index, old_stack)
 		self:run_callbacks("on_destroy", player, index, old_stack)
@@ -414,13 +641,17 @@ armor.damage = function(self, player, index, stack, use)
 	end
 end
 
+--- Get elements of equipped armor.
+--
+--  @function armor:get_weared_armor_elements
+--  @tparam ObjectRef player
+--  @treturn table List of equipped armors.
 armor.get_weared_armor_elements = function(self, player)
     local name, inv = self:get_valid_player(player, "[get_weared_armor]")
 	local weared_armor = {}
 	if not name then
 		return
 	end
-
     for i=1, inv:get_size("armor") do
         local item_name = inv:get_stack("armor", i):get_name()
         local element = self:get_element(item_name)
@@ -432,6 +663,12 @@ armor.get_weared_armor_elements = function(self, player)
 	return weared_armor
 end
 
+--- Equips a piece of armor to a player.
+--
+--  @function armor:equip
+--  @tparam ObjectRef player Player to whom item is equipped.
+--  @tparam ItemStack itemstack Armor item to be equipped.
+--  @treturn ItemStack Leftover item stack.
 armor.equip = function(self, player, itemstack)
     local name, armor_inv = self:get_valid_player(player, "[equip]")
     local armor_element = self:get_element(itemstack:get_name())
@@ -443,11 +680,12 @@ armor.equip = function(self, player, itemstack)
             return itemstack
         end
 
-        local current_stack = armor_inv:get_stack("armor", index)
-        if not current_stack:is_empty() then
-            if core.get_item_group(current_stack:get_name(), "cursed") ~= 0 then
-                return itemstack
-            end
+        local stack = armor_inv:get_stack("armor", index)
+		--prevents equiping an armor that would unequip a cursed armor.
+		if core.get_item_group(stack:get_name(), "cursed") ~= 0 then
+			return itemstack
+		end
+        if not stack:is_empty() then
             self:unequip(player, armor_element)
         end
 
@@ -457,7 +695,6 @@ armor.equip = function(self, player, itemstack)
         self:set_player_armor(player)
         self:save_armor_inventory(player)
 
-		-- sfinv support
 		if core.get_modpath("sfinv") then
 			sfinv.set_page(player, "sfinv:crafting")
 		end
@@ -466,6 +703,12 @@ armor.equip = function(self, player, itemstack)
     return itemstack
 end
 
+--- Unequips a piece of armor from a player.
+--
+--  @function armor:unequip
+--  @tparam ObjectRef player Player from whom item is removed.
+--  @tparam string armor_element Armor type identifier associated with the item
+--  to be removed ("head", "torso", "hands", "shield", "legs", "feet", etc.).
 armor.unequip = function(self, player, armor_element)
     local name, armor_inv = self:get_valid_player(player, "[unequip]")
 	if not name then
@@ -494,109 +737,40 @@ armor.unequip = function(self, player, armor_element)
 	end
 end
 
+--- Removes all armor worn by player.
+--
+--  @function armor:remove_all
+--  @tparam ObjectRef player
 armor.remove_all = function(self, player)
     local name, inv = self:get_valid_player(player, "[remove_all]")
 	if not name then
 		return
     end
-
 	inv:set_list("armor", {})
 	self:set_player_armor(player)
 	self:save_armor_inventory(player)
 end
 
-armor.get_element = function(self, item_name)
-	for _, element in pairs(armor.elements) do
-		if core.get_item_group(item_name, "armor_"..element) > 0 then
-			return element
+--- Updates skin.
+--
+--  @function armor:update_skin
+--  @tparam string name Player name.
+armor.update_skin = function(self, name)
+	core.after(0, function()
+		local pplayer = core.get_player_by_name(name)
+		if pplayer then
+			self.textures[name].skin = armor.default_skin..".png"
+			self:set_player_armor(pplayer)
 		end
-	end
+	end)
 end
 
-armor.serialize_inventory_list = function(self, list)
-	local list_table = {}
-	for _, stack in ipairs(list) do
-		table.insert(list_table, stack:to_string())
-	end
-	return core.serialize(list_table)
-end
-
-armor.deserialize_inventory_list = function(self, list_string)
-	local list_table = core.deserialize(list_string)
-	local list = {}
-	for _, stack in ipairs(list_table or {}) do
-		table.insert(list, ItemStack(stack))
-	end
-	return list
-end
-
-armor.load_armor_inventory = function(self, player)
-	local _, inv = self:get_valid_player(player, "[load_armor_inventory]")
-	if inv then
-		local meta = player:get_meta()
-		local armor_list_string = meta:get_string("3d_armor_inventory")
-		if armor_list_string then
-			inv:set_list("armor", self:deserialize_inventory_list(armor_list_string))
-			return true
-		end
-	end
-end
-
-armor.save_armor_inventory = function(self, player)
-	local _, inv = self:get_valid_player(player, "[save_armor_inventory]")
-	if inv then
-		local meta = player:get_meta()
-		meta:set_string("3d_armor_inventory", self:serialize_inventory_list(inv:get_list("armor")))
-	end
-end
-
-armor.set_inventory_stack = function(self, player, i, stack)
-	local _, inv = self:get_valid_player(player, "[set_inventory_stack]")
-	if inv then
-		inv:set_stack("armor", i, stack)
-		self:save_armor_inventory(player)
-	end
-end
-
-armor.get_valid_player = function(self, player, msg)
-	msg = msg or ""
-	if not player then
-		core.log("warning", ("3d_armor%s: Player reference is nil"):format(msg))
-		return
-	end
-
-	if type(player) ~= "userdata" then
-		-- Fake player, fail silently
-		return
-	end
-
-	local name = player:get_player_name()
-	if not name then
-		core.log("warning", ("3d_armor%s: Player name is nil"):format(msg))
-		return
-	end
-
-	local inv = core.get_inventory({type="detached", name=name.."_armor"})
-	if not inv then
-		-- This check may fail when called inside `on_joinplayer`
-		-- in that case, the armor will be initialized/updated later on
-		core.log("warning", ("3d_armor%s: Detached armor inventory is nil"):format(msg))
-		return
-	end
-
-	return name, inv
-end
-
-armor.drop_armor = function(pos, stack)
-	local node = core.get_node_or_nil(pos)
-	if node then
-		local obj = core.add_item(pos, stack)
-		if obj then
-			obj:set_velocity({x=math.random(-1, 1), y=5, z=math.random(-1, 1)})
-		end
-	end
-end
-
+--- Retrieves armor formspec.
+--
+--  @function armor:get_armor_formspec
+--  @tparam string name Player name.
+--  @tparam[opt] bool listring Use `listring` formspec element (default: `false`).
+--  @treturn string Formspec formatted string.
 armor.get_armor_formspec = function(self, name)
     local armor_slots = {"helmet", "chestplate", "leggings", "boots", "shield"}
     local armor_bg = ""
@@ -622,24 +796,158 @@ armor.get_armor_formspec = function(self, name)
     return form
 end
 
-armor.show_formspec = function(self, name)
-	local player = core.get_player_by_name(name)
-	local form = "size[8,9.1]".."list[current_player;main;0,5.2;8,1;]"..
-		"image[0,5.2;1,1;gui_hb_bg.png]"..
-		"image[1,5.2;1,1;gui_hb_bg.png]"..
-		"image[2,5.2;1,1;gui_hb_bg.png]"..
-		"image[3,5.2;1,1;gui_hb_bg.png]"..
-		"image[4,5.2;1,1;gui_hb_bg.png]"..
-		"image[5,5.2;1,1;gui_hb_bg.png]"..
-		"image[6,5.2;1,1;gui_hb_bg.png]"..
-		"image[7,5.2;1,1;gui_hb_bg.png]"..
-		"list[current_player;main;0,6.35;8,3;8]"..
-		"list[current_player;craft;3,1;3,3;]"..
-		"list[current_player;craftpreview;7,2;1,1;]"..
-		"listring[current_player;craft]"..
-		"listring[current_player;main]"
+--- Retrieves element.
+--
+--  @function armor:get_element
+--  @tparam string item_name
+--  @return Armor element.
+armor.get_element = function(self, item_name)
+	for _, element in pairs(armor.elements) do
+		if core.get_item_group(item_name, "armor_"..element) > 0 then
+			return element
+		end
+	end
+end
 
-	form = form..armor:get_armor_formspec(name)
+--- Serializes armor inventory.
+--
+--  @function armor:serialize_inventory_list
+--  @tparam table list Inventory contents.
+--  @treturn string
+armor.serialize_inventory_list = function(self, list)
+	local list_table = {}
+	for _, stack in ipairs(list) do
+		table.insert(list_table, stack:to_string())
+	end
+	return core.serialize(list_table)
+end
 
-	core.show_formspec(name, "3d_armor:cmd", form)
+--- Deserializes armor inventory.
+--
+--  @function armor:deserialize_inventory_list
+--  @tparam string list_string Serialized inventory contents.
+--  @treturn table
+armor.deserialize_inventory_list = function(self, list_string)
+	local list_table = core.deserialize(list_string)
+	local list = {}
+	for _, stack in ipairs(list_table or {}) do
+		table.insert(list, ItemStack(stack))
+	end
+	return list
+end
+
+--- Loads armor inventory.
+--
+--  @function armor:load_armor_inventory
+--  @tparam ObjectRef player
+--  @treturn bool
+armor.load_armor_inventory = function(self, player)
+	local _, inv = self:get_valid_player(player, "[load_armor_inventory]")
+	if inv then
+		local meta = player:get_meta()
+		local armor_list_string = meta:get_string("3d_armor_inventory")
+		if armor_list_string then
+			inv:set_list("armor", self:deserialize_inventory_list(armor_list_string))
+			return true
+		end
+	end
+end
+
+--- Saves armor inventory.
+--
+--  Inventory is stored in `PlayerMetaRef` string "3d\_armor\_inventory".
+--
+--  @function armor:save_armor_inventory
+--  @tparam ObjectRef player
+armor.save_armor_inventory = function(self, player)
+	local _, inv = self:get_valid_player(player, "[save_armor_inventory]")
+	if inv then
+		local meta = player:get_meta()
+		meta:set_string("3d_armor_inventory", self:serialize_inventory_list(inv:get_list("armor")))
+	end
+end
+
+--- Updates inventory.
+--
+--  DEPRECATED: Legacy inventory support.
+--
+--  @function armor:update_inventory
+--  @param player
+armor.update_inventory = function(self, player)
+	-- DEPRECATED: Legacy inventory support
+end
+
+
+--- Sets inventory stack.
+--
+--  @function armor:set_inventory_stack
+--  @tparam ObjectRef player
+--  @tparam int i Armor inventory index.
+--  @tparam ItemStack stack Armor item.
+armor.set_inventory_stack = function(self, player, i, stack)
+	local _, inv = self:get_valid_player(player, "[set_inventory_stack]")
+	if inv then
+		inv:set_stack("armor", i, stack)
+		self:save_armor_inventory(player)
+	end
+end
+
+--- Checks for a player that can use armor.
+--
+--  @function armor:get_valid_player
+--  @tparam ObjectRef player
+--  @tparam string msg Additional info for log messages.
+--  @treturn list Player name & armor inventory.
+--  @usage local name, inv = armor:get_valid_player(player, "[equip]")
+armor.get_valid_player = function(self, player, msg)
+	msg = msg or ""
+	if not player then
+		core.log("warning", ("3d_armor%s: Player reference is nil"):format(msg))
+		return
+	end
+	if type(player) ~= "userdata" then
+		-- Fake player, fail silently
+		return
+	end
+	local name = player:get_player_name()
+	if not name then
+		core.log("warning", ("3d_armor%s: Player name is nil"):format(msg))
+		return
+	end
+	local inv = core.get_inventory({type="detached", name=name.."_armor"})
+	if not inv then
+		-- This check may fail when called inside `on_joinplayer`
+		-- in that case, the armor will be initialized/updated later on
+		core.log("warning", ("3d_armor%s: Detached armor inventory is nil"):format(msg))
+		return
+	end
+	return name, inv
+end
+
+--- Drops armor item at given position.
+--
+--  @tparam vector pos
+--  @tparam ItemStack stack Armor item to be dropped.
+armor.drop_armor = function(pos, stack)
+	local node = core.get_node_or_nil(pos)
+	if node then
+		local obj = core.add_item(pos, stack)
+		if obj then
+			obj:set_velocity({x=math.random(-1, 1), y=5, z=math.random(-1, 1)})
+		end
+	end
+end
+
+local disable_sounds = core.settings:get_bool("shields_disable_sounds", false)
+armor.play_sound_effect = function(self, player, name)
+	if not disable_sounds and player then
+		local pos = player:get_pos()
+		if pos then
+			core.sound_play(name, {
+				pos = pos,
+				max_hear_distance = 10,
+				gain = 0.5,
+			})
+		end
+	end
 end
