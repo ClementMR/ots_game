@@ -113,11 +113,47 @@ armor:register_armor(":shields:shield_cactus", {
     damage_groups = {cracky=3, snappy=3, choppy=2, crumbly=2, level=1},
     reciprocate_damage = true,
     on_damage = function(player, index, stack)
-        play_sound_effect(player, "default_wood_footstep")
+        armor:play_sound_effect(player, "default_wood_footstep")
     end,
     on_destroy = function(player, index, stack)
-        play_sound_effect(player, "default_wood_footstep")
+        armor:play_sound_effect(player, "default_wood_footstep")
     end,
+})
+--- Enhanced Cactus Shield
+--
+--  @shield shields:shield_enhanced_cactus
+--  @img shields_inv_shield_enhanced_cactus.png
+--  @grp armor_shield 1
+--  @grp armor_heal 0
+--  @grp armor_use 1000
+--  @armorgrp fleshy 8
+--  @damagegrp cracky 3
+--  @damagegrp snappy 3
+--  @damagegrp choppy 2
+--  @damagegrp crumbly 2
+--  @damagegrp level 2
+armor:register_armor(":shields:shield_enhanced_cactus", {
+    description = S("Enhanced Cactus Shield"),
+    inventory_image = "shields_inv_shield_enhanced_cactus.png",
+    groups = {armor_shield=1, armor_heal=0, armor_use=1000},
+    armor_groups = {fleshy=8},
+    damage_groups = {cracky=3, snappy=3, choppy=2, crumbly=2, level=2},
+    reciprocate_damage = true,
+    on_damage = function(player, index, stack)
+        armor:play_sound_effect(player, "default_dig_metal")
+    end,
+    on_destroy = function(player, index, stack)
+        armor:play_sound_effect(player, "default_dug_metal")
+    end,
+})
+
+core.register_craft({
+    output = "shields:shield_enhanced_cactus",
+    recipe = {
+        {"default:steel_ingot"},
+        {"shields:shield_cactus"},
+        {"default:steel_ingot"},
+    },
 })
 
 core.register_craft({

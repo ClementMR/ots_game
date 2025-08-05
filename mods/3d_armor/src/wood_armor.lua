@@ -125,6 +125,42 @@ armor:register_armor(":shields:shield_wood", {
         armor:play_sound_effect(player, "default_wood_footstep")
     end,
 })
+--- Enhanced Wood Shield
+--
+--  @shield shields:shield_enhanced_wood
+--  @img shields_inv_shield_enhanced_wood.png
+--  @grp armor_shield 1
+--  @grp armor_heal 0
+--  @grp armor_use 2000
+--  @armorgrp fleshy 8
+--  @damagegrp cracky 3
+--  @damagegrp snappy 2
+--  @damagegrp choppy 3
+--  @damagegrp crumbly 2
+--  @damagegrp level 2
+armor:register_armor(":shields:shield_enhanced_wood", {
+    description = S("Enhanced Wood Shield"),
+    inventory_image = "shields_inv_shield_enhanced_wood.png",
+    groups = {armor_shield=1, armor_heal=0, armor_use=2000},
+    armor_groups = {fleshy=8},
+    damage_groups = {cracky=3, snappy=2, choppy=3, crumbly=2, level=2},
+    reciprocate_damage = true,
+    on_damage = function(player, index, stack)
+        armor:play_sound_effect(player, "default_dig_metal")
+    end,
+    on_destroy = function(player, index, stack)
+        armor:play_sound_effect(player, "default_dug_metal")
+    end,
+})
+
+core.register_craft({
+    output = "shields:shield_enhanced_wood",
+    recipe = {
+        {"default:steel_ingot"},
+        {"shields:shield_wood"},
+        {"default:steel_ingot"},
+    },
+})
 
 core.register_craft({
     type = "fuel",

@@ -394,7 +394,7 @@ core.register_on_player_hpchange(function(player, hp_change, reason)
 		return hp_change
 	end
 
-	if hp_change <= 20 then return hp_change end
+	--if hp_change <= 20 then return hp_change end
 
 	if reason.type == "drown" or reason.hunger or hp_change >= 0 then
 		return hp_change
