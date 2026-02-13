@@ -78,15 +78,15 @@ core.register_on_mods_loaded(function()
 
 	core.register_on_joinplayer(function(player, last_login)
         if not core.is_singleplayer() then
-            core.chat_send_all(core.colorize("rgb(19, 130, 13)", S("@1 joined the game.", player:get_player_name())))
+            core.chat_send_all(core.colorize("#0F820F", S("@1 joined the game.", player:get_player_name())))
         end
 	end)
 
 	core.register_on_leaveplayer(function(player, timed_out)
         local name = player:get_player_name()
-        local announcement = core.colorize("rgb(130, 11, 11)", S("@1 left the game.", name))
+        local announcement = core.colorize("#820B0B", S("@1 left the game.", name))
         if timed_out then
-            announcement = core.colorize("rgb(130, 11, 11)", S("@1 left the game (timed out).", name))
+            announcement = core.colorize("#820B0B", S("@1 left the game (timed out).", name))
         end
 
         core.chat_send_all(announcement)
