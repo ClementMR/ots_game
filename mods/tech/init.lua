@@ -1,206 +1,253 @@
-function main_form(player, pos)
+local selected_destination = {}
+
+local MAXIMUM_DISTANCE = 20000
+local mod_prefix = "[Teleporter] "
+local C = core.colorize
+
+local function show_teleporter_form(player, pos)
     local spos = pos.x .. "," .. pos.y .. "," .. pos.z
     local meta = core.get_meta(pos)
     local inv = meta:get_inventory()
-    local locators = {}
+    local tp_mode = meta:get_string("teleport_mode")
 
+    local destinations = {}
     for i = 1, 16 do
         local stack = inv:get_stack("locator", i)
-        if not stack:is_empty() then
-            local name = stack:get_meta():get_string("locator_name")
-            if name and name ~= "" then
-                table.insert(locators, name)
+        if not stack:is_empty() and stack:get_name() == "tech:locator" then
+            local locator_name = stack:get_meta():get_string("locator_name")
+            local locator_pos = stack:get_meta():get_string("pos")
+
+            if locator_name and locator_pos then
+                local string = locator_name
+
+                if tp_mode == "" or (tp_mode and tp_mode == "public") then
+                    string = string .. " " .. locator_pos
+                end
+
+                table.insert(destinations, core.formspec_escape(string))
             else
-                table.insert(locators, "Error")
+                table.insert(destinations, "Error")
             end
         else
-            table.insert(locators, "Empty")
+            table.insert(destinations, "Empty")
         end
     end
 
     local form =
-        "formspec_version[4]"..
-        "size[15.62,11.30]"..
-        "no_prepend[]"..
-        "list[nodemeta:" .. spos .. ";locator;0.35,0.125;4,4;]"..
-        "list[nodemeta:" .. spos .. ";core;0.35,5.40;1,4;]"..
-        "list[nodemeta:" .. spos .. ";source;14.25,5.40;1,1;]"..
-        "list[current_player;main;2.74,5.40;8.0,1;]"..
-        "list[current_player;main;2.74,6.75;8.0,3;8]"..
-        "button[0.35,10.40;2.30,0.70;tp_settings;Settings]"..
-        "button_exit[5.20,10.38;2.30,0.70;tp_exit;Exit]"..
-        "button_exit[7.70,10.38;2.30,0.70;teleport;Teleport]"..
-        "table[5.20,0.125;10.30,4.725;teleporter_poi;"..table.concat(locators, ",").."]"..
-        "listring[nodemeta:" .. spos .. ";locator]"..
+        "formspec_version[4]" ..
+        "size[15.62,11.30]" ..
+        --"no_prepend[]" ..
+        "list[nodemeta:" .. spos .. ";locator;0.35,0.125;4,4;]" ..
+        "list[nodemeta:" .. spos .. ";core;0.35,5.40;1,4;]" ..
+        "list[nodemeta:" .. spos .. ";source;14.25,5.40;1,1;]" ..
+        "list[current_player;main;2.74,5.40;8.0,1;]" ..
+        "list[current_player;main;2.74,6.75;8.0,3;8]" ..
+        "button[0.35,10.40;2.30,0.70;settings_btn;Settings]" ..
+        "button_exit[5.20,10.38;2.30,0.70;exit_btn;Exit]" ..
+        "button_exit[7.70,10.38;2.30,0.70;teleport;Teleport]" ..
+        "table[5.20,0.125;10.30,4.725;destinations;" .. table.concat(destinations, ",") .. "]" ..
+        "listring[nodemeta:" .. spos .. ";locator]" ..
         "listring[current_player;main]"
 
-    core.show_formspec(player:get_player_name(), "tech:teleporter_" .. core.pos_to_string(pos), form)
+    if inv:get_stack("source", 1):is_empty() then
+        form = form .. "image[14.25,5.40;1,1;tech_source_empty_slot.png]"
+    end
+
+    local y = 5.40
+    for i=1, 4 do
+        local stack = inv:get_stack("core", i)
+        if stack:is_empty() then
+            form = form .. "image[0.35," .. y .. ";1,1;tech_core_empty_slot.png]"
+        end
+
+        y = y + 1.25
+    end
+
+    core.show_formspec(player:get_player_name(), "tech:teleporter_" .. spos, form)
 end
 
-function settings_form(pos, player)
+local function teleporter_range(value)
+    if value >= 4 then
+        return MAXIMUM_DISTANCE
+    end
+
+    -- Default range
+    local range = 2000
+
+    if value == 0 then
+        return range
+    end
+
+    for i=1, value do
+        range = range * 2
+    end
+
+    return range
+end
+
+
+local function show_settings_form(player, pos)
+    local spos = pos.x .. "," .. pos.y .. "," .. pos.z
     local meta = core.get_meta(pos)
-    if not default.can_interact_with_node(player, pos) or (meta:get_string("owner") == "" 
-        and not core.check_player_privs(player, {protection_bypass=true})) then
+    local inv = meta:get_inventory()
+    local name = player:get_player_name()
+
+    -- Check if the player can interact with the node
+    if not default.can_interact_with_node(player, pos) or (meta:get_string("owner") == ""
+        and not core.get_player_privs(name).protection_bypass) then
         return
     end
 
-    local core_stacks = {
-        meta:get_inventory():get_stack("core", 1),
-        meta:get_inventory():get_stack("core", 2),
-        meta:get_inventory():get_stack("core", 3),
-        meta:get_inventory():get_stack("core", 4),
-    }
-
     local count = 0
-    for _, stack in ipairs(core_stacks) do
+    for i=1, inv:get_size("core") do
+        local stack = inv:get_stack("core", i)
         if not stack:is_empty() and stack:get_name() == "tech:core" then
             count = count + 1
         end
     end
 
-    local range = {
-        [0] = 2000,
-        [1] = 4000,
-        [2] = 8000,
-        [3] = 16000,
-        [4] = 20000,
-    }
-
-    local max_distance = range[count] or 2000
-
     local current_mode = meta:get_string("teleport_mode") or "private"
-    local form = 
-        "formspec_version[4]"..
-        "size[8.0,4.0]"..
-        "label[0.5,0.5;Select teleportation mode:]"..
-        "dropdown[0.5,1.5;7.0;teleport_mode;private,protected,public;"..
-        (current_mode == "private" and 1 or current_mode == "protected" and 2 or 3).."]"..
-        "label[0.5,3.0;Range: " .. max_distance .. "]"..
-        "button_exit[3.0,3.0;2.0,0.75;save_settings;Save]"
+    local form =
+        "formspec_version[4]" ..
+        "size[8.0,4.0]" ..
+        "label[0.5,0.5;Select a mode :]" ..
+        "dropdown[0.5,1.5;7.0;teleport_mode;private,protected,public;" ..
+        ((current_mode == "private" and 1) or (current_mode == "protected" and 2) or 3) .. "]" ..
+        "label[0.5,3.0;Range : " .. teleporter_range(count) .. "]" ..
+        "button_exit[3.0,3.0;2.0,0.75;save_btn;Save]"
 
-    core.show_formspec(player:get_player_name(), "tech:teleporter_settings_" .. core.pos_to_string(pos), form)
+    core.show_formspec(player:get_player_name(), "tech:teleporter_settings_" .. spos, form)
 end
 
-function teleporter(pos, player)
+local function teleport_player(player, pos)
     local meta = core.get_meta(pos)
     local inv = meta:get_inventory()
-    local player_meta = player:get_meta()
-    local selected_dest = player_meta:get_string("selected_dest") ; if selected_dest == "" then selected_dest = nil end
     local mode = meta:get_string("teleport_mode") or "private"
     local name = player:get_player_name()
+    local owner = meta:get_string("owner")
 
-    if mode == "private" and meta:get_string("owner") ~= name then
-        core.chat_send_player(name, "Unable to teleport: This teleporter is private.")
-        core.log("action", name.." tried to teleport to "..core.pos_to_string(pos).." but it is private.")
-        return
-    elseif mode == "protected" and core.is_protected(pos, name) then
-        core.chat_send_player(name, "Unable to teleport: This teleporter is protected.")
-        core.log("action", name.." tried to teleport to "..core.pos_to_string(pos).." but it is protected.")
-        return
+    if not selected_destination or not selected_destination[name] then
+        core.chat_send_player(name, "Unable to teleport : No destination selected.")
+        return false
     end
 
-    if selected_dest then
-        local locator_stack = inv:get_stack("locator", selected_dest)
-        local source_stack = inv:get_stack("source", 1)
-        local item_pos = locator_stack:get_meta():get_string("pos")
-        local core_stacks = {
-            inv:get_stack("core", 1), 
-            inv:get_stack("core", 2), 
-            inv:get_stack("core", 3),
-            inv:get_stack("core", 4)
-        }
-
-        if item_pos ~= "" and not locator_stack:is_empty() and locator_stack:get_name() == "tech:locator" then
-            local distance = vector.distance(vector.new(pos), core.string_to_pos(item_pos))
-            if distance <= 20000 then
-                local required_source = math.max(1, math.ceil(distance / 200))
-                local required_core = 0
-
-                if distance > 2000 then required_core = 1 end
-                if distance > 4000 then required_core = 2 end
-                if distance > 8000 then required_core = 3 end
-                if distance > 16000 then required_core = 4 end
-
-                local count = 0
-                for _, stack in ipairs(core_stacks) do
-                    if not stack:is_empty() and stack:get_name() == "tech:core" then
-                        count = count + 1
-                    end
-                end
-
-                -- Check if there are enough cores
-                if count >= required_core then
-                    local wielded_stack = player:get_wielded_item()
-                    local has_infinite_source = (source_stack:get_name() == "tech:infinite_source" or wielded_stack:get_name() == "tech:infinite_source")
-                    local has_enough_sources = (source_stack:get_name() == "tech:source" and source_stack:get_count() >= required_source)
-                    local has_enough = (
-                        (wielded_stack:get_name() == "tech:source" or wielded_stack:get_name() == "default:coalblock") 
-                        and wielded_stack:get_count() >= required_source
-                    )
-
-                    -- Check if there are enough sources
-                    if has_infinite_source or has_enough_sources or has_enough then
-                        if not has_infinite_source then
-                            if has_enough_sources then
-                                source_stack:set_count(source_stack:get_count() - required_source)
-                                inv:set_stack("source", 1, source_stack)
-                            elseif has_enough then
-                                wielded_stack:set_count(wielded_stack:get_count() - required_source)
-                                player:set_wielded_item(wielded_stack)
-                            end
-                        end
-
-                        player:set_pos(core.string_to_pos(item_pos))
-                        core.chat_send_player(name, "Teleport to "..item_pos.." complete")
-                        core.log("action", name.." teleported to "..item_pos)
-
-                        core.after(0.2, function()
-                            core.add_particlespawner({
-                                amount = 15,
-                                time = 0.5,
-                                collision_removal = true,
-                                texture = "tech_teleporter_particles.png",
-                                glow = 10,
-                                minpos = player:get_pos(),
-                                maxpos = player:get_pos(),
-                                minvel = {x=-3, y=0, z=-3},
-                                maxvel = {x=3, y=5, z=3},
-                                minacc = {x=0, y=2, z=0},
-                                maxacc = {x=0, y=4, z=0},
-                                minexptime = 0.5,
-                                maxexptime = 1,
-                                minsize = 2,
-                                maxsize = 3,
-                            })
-                        end)
-                    else
-                        if required_source > 1 then
-                            core.chat_send_player(name, "Unable to teleport: You need to hold "
-                                ..required_source.." coal blocks or sources in your hand to teleport.")
-                        else
-                            core.chat_send_player(name, "Unable to teleport: You need to hold "
-                                ..required_source.." coal block or source in your hand to teleport.")
-                        end
-                    end
-                else
-                    core.chat_send_player(name, "Unable to teleport: Not enough core. Missing: "..(required_core-count))
-                end
-            else
-                core.chat_send_player(name, "Unable to teleport: Too far away.")
-            end
-        else
-            core.chat_send_player(name, "Unable to teleport: Empty slot selected.")
+    if name ~= owner then
+        if mode == "private" then
+            core.chat_send_player(name, ("Unable to teleport : This teleporter is private (Owner : %s)"):format(owner))
+            return false
+        elseif mode == "protected" and core.is_protected(pos, name) then
+            core.chat_send_player(name, "Unable to teleport : This teleporter is protected.")
+            return false
         end
-    else
-        core.chat_send_player(name, "Unable to teleport: No destination selected.")
     end
+
+    local locator_stack = inv:get_stack("locator", selected_destination[name])
+    local destination = locator_stack:get_meta():get_string("pos")
+
+    if destination == "" or locator_stack:is_empty() or locator_stack:get_name() ~= "tech:locator" then
+        core.chat_send_player(name, "Unable to teleport: Empty slot selected.")
+        return false
+    end
+
+    local distance = vector.distance(vector.new(pos), core.string_to_pos(destination))
+    if distance > MAXIMUM_DISTANCE then
+        core.chat_send_player(name, "Unable to teleport: Too far away.")
+        return false
+    end
+
+    local required_core = 0
+    if distance > 2000 then required_core = 1 end
+    if distance > 4000 then required_core = 2 end
+    if distance > 8000 then required_core = 3 end
+    if distance > 16000 then required_core = 4 end
+
+    local count = 0
+    for i=1, inv:get_size("core") do
+        local stack = inv:get_stack("core", i)
+        if not stack:is_empty() and stack:get_name() == "tech:core" then
+            count = count + 1
+        end
+    end
+
+    -- Check if there are enough cores
+    if count < required_core then
+        core.chat_send_player(name, "Unable to teleport : Not enough core. Missing : " .. (required_core - count))
+        return false
+    end
+
+    local wielded_stack = player:get_wielded_item()
+    local source_stack = inv:get_stack("source", 1)
+    local required_source = math.max(1, math.ceil(distance / 200))
+
+    local has_infinite_source = source_stack:get_name() == "tech:infinite_source"
+    or wielded_stack:get_name() == "tech:infinite_source"
+    local has_enough_in_slot = source_stack:get_name() == "tech:source"
+    and source_stack:get_count() >= required_source
+    local has_enough_in_hand = (wielded_stack:get_name() == "tech:source"
+    or wielded_stack:get_name() == "default:coalblock") and wielded_stack:get_count() >= required_source
+
+    if not has_infinite_source and not has_enough_in_slot and not has_enough_in_hand then
+        core.chat_send_player(name,
+        ("Unable to teleport : You need to hold %d coal blocks or sources in your hand to teleport.")
+        :format(required_source))
+        return false
+    end
+
+    -- Consume the sources
+    if not has_infinite_source then
+        if has_enough_in_slot then
+            source_stack:set_count(source_stack:get_count() - required_source)
+            inv:set_stack("source", 1, source_stack)
+        elseif has_enough_in_hand then
+            wielded_stack:set_count(wielded_stack:get_count() - required_source)
+            player:set_wielded_item(wielded_stack)
+        end
+    end
+
+    -- Teleport the player
+    player:set_pos(core.string_to_pos(destination))
+    core.chat_send_player(name, "Teleport to " .. destination .. " complete")
+    core.log("action", mod_prefix .. name .. " teleported to " .. destination)
+
+    -- Add particles
+    core.add_particlespawner({
+        amount = 20,
+        time = 1,
+        attached = player,
+        texture = "tech_teleporter_yellow_particles.png",
+        glow = 10,
+        minvel = {x=-3, y=0, z=-3},
+        maxvel = {x=3, y=5, z=3},
+        minacc = {x=0, y=2, z=0},
+        maxacc = {x=0, y=4, z=0},
+        minsize = 2,
+        maxsize = 3,
+        minexptime = 0.5,
+        maxexptime = 1,
+    })
+
+    core.add_particlespawner({
+        amount = 20,
+        time = 1,
+        attached = player,
+        texture = "tech_teleporter_blue_particles.png",
+        glow = 10,
+        minvel = {x=-3, y=0, z=-3},
+        maxvel = {x=3, y=5, z=3},
+        minacc = {x=0, y=2, z=0},
+        maxacc = {x=0, y=4, z=0},
+        minsize = 2,
+        maxsize = 3,
+        minexptime = 0.5,
+        maxexptime = 1,
+    })
 end
 
 core.register_node("tech:teleporter", {
     description = "Teleporter",
     tiles = {"tech_teleporter.png"},
     groups = {cracky = 1, level = 3},
-    paramtype2 = "facedir", 
+    paramtype2 = "facedir",
     is_ground_content = false,
     sounds = default.node_sound_stone_defaults(),
     on_construct = function(pos)
@@ -213,203 +260,134 @@ core.register_node("tech:teleporter", {
         inv:set_size("core", 4)
         inv:set_size("source", 1)
     end,
-
     after_place_node = function(pos, placer, itemstack, pointed_thing)
         local meta = core.get_meta(pos)
 
         meta:set_string("owner", placer:get_player_name() or "")
-        meta:set_string("infotext", "Teleporter (owned by "..meta:get_string("owner")..")")
+        meta:set_string("infotext", "Teleporter (owned by " .. meta:get_string("owner") .. ")")
     end,
-
     can_dig = function(pos, player)
         local meta = core.get_meta(pos)
         local inv = meta:get_inventory()
 
-        return inv:is_empty("locator") and inv:is_empty("core") and inv:is_empty("source") and
-                default.can_interact_with_node(player, pos)
-    end,
+        if not default.can_interact_with_node(player, pos) then
+            return false
+        end
 
+        for _, list in ipairs({"locator", "core", "source"}) do
+            for _, stack in pairs(inv:get_list(list)) do
+                core.add_item(pos, stack)
+            end
+        end
+
+        return true
+    end,
     allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
         local meta = core.get_meta(pos)
+        local name = player:get_player_name()
 
-        if not default.can_interact_with_node(player, pos) 
-            or (meta:get_string("owner") == "" and not 
-            core.check_player_privs(player, {protection_bypass=true})) then
+        if not default.can_interact_with_node(player, pos)
+            or (meta:get_string("owner") == "" and not
+            core.get_player_privs(name).protection_bypass) then
             return 0
         end
         return count
     end,
-
     allow_metadata_inventory_put = function(pos, listname, index, stack, player)
         local meta = core.get_meta(pos)
+        local name = player:get_player_name()
 
-        if not default.can_interact_with_node(player, pos) 
-            or (meta:get_string("owner") == "" and not 
-            core.check_player_privs(player, {protection_bypass=true})) then
+        if not default.can_interact_with_node(player, pos)
+            or (meta:get_string("owner") == "" and not
+            core.get_player_privs(name).protection_bypass) then
             return 0
         end
         return stack:get_count()
     end,
-
     allow_metadata_inventory_take = function(pos, listname, index, stack, player)
         local meta = core.get_meta(pos)
+        local name = player:get_player_name()
 
-        if not default.can_interact_with_node(player, pos) 
-            or (meta:get_string("owner") == "" and not 
-            core.check_player_privs(player, {protection_bypass=true})) then
+        if not default.can_interact_with_node(player, pos)
+            or (meta:get_string("owner") == "" and not
+            core.get_player_privs(name).protection_bypass) then
             return 0
         end
         return stack:get_count()
     end,
-
-    on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-        main_form(clicker, pos)
-    end,
-
     on_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
-        main_form(player, pos)
+        show_teleporter_form(player, pos)
     end,
-
-    on_metadata_inventory_put = function(pos, listname, index, stack, player)
-        main_form(player, pos)
-    end,
-
-    on_metadata_inventory_take = function(pos, listname, index, stack, player)
-        main_form(player, pos)
-    end,
-
+    on_rightclick = function(pos, node, clicker, itemstack, pointed_thing) show_teleporter_form(clicker, pos) end,
+    on_metadata_inventory_put = function(pos, listname, index, stack, player) show_teleporter_form(player, pos) end,
+    on_metadata_inventory_take = function(pos, listname, index, stack, player) show_teleporter_form(player, pos) end,
     on_blast = function() end,
 })
 
-core.register_on_player_receive_fields(function(player, formname, fields)
-    local name = player:get_player_name()
-    local stack = player:get_wielded_item()
-    local player_meta = player:get_meta()
-
-    if string.sub(formname, 0, 16) == "tech:teleporter_" then
-        local pos_s = string.sub(formname, 17)
-        local pos = core.string_to_pos(pos_s)
-
-        if fields.teleporter_poi then
-            player_meta:set_string("selected_dest", string.match(fields.teleporter_poi, "%d+"))
-        end
-
-        if fields.teleport then
-            teleporter(pos, player)
-        end
-
-        if fields.tp_settings then
-            settings_form(pos, player)
-        end
-
-        if fields.quit then
-            player_meta:set_string("selected_dest", "")
-        end
+local function set_string(string)
+    if string ~= "" then
+        return string
     end
 
-    if string.sub(formname, 0, 25) == "tech:teleporter_settings_" then
-        local pos_s = string.sub(formname, 26)
-        local pos = core.string_to_pos(pos_s)
-        local meta = core.get_meta(pos)
+    return "???"
+end
 
-        local mode = fields.teleport_mode
-        if mode then
-            meta:set_string("teleport_mode", mode)
+core.register_craftitem("tech:locator", {
+    description = "Locator",
+    inventory_image = "tech_locator.png",
+    stack_max = 1,
+    groups = {not_in_creative_inventory=1},
+    on_use = function(itemstack, user, pointed_thing)
+        local name = user:get_player_name()
+        local meta = itemstack:get_meta()
+        local destination = set_string(meta:get_string("locator_name"))
+        local owner = meta:get_string("owner")
+
+        if owner and owner ~= name then
+            core.chat_send_player(name, C("red", ("You cannot edit this locator. Owner : %s"):format(owner)))
+            return
         end
+
+        local form =
+            "formspec_version[4]" ..
+            "size[8.0,4.0]" ..
+            "field[1.0,1.0;6.0,1.0;locator_name;Name :;" .. destination .. "]" ..
+            "button_exit[2.5,3.0;1.5,0.75;resave_locator;Save]" ..
+            "button_exit[4.4,3.0;1.5,0.75;clear_locator;Clear]"
+
+        core.show_formspec(name, "tech:locator", form)
+
+        return itemstack
+    end,
+    on_secondary_use = function(itemstack, user, pointed_thing)
+        local meta = itemstack:get_meta()
+        local destination = set_string(meta:get_string("locator_name"))
+        local pos = set_string(meta:get_string("pos"))
+        local owner = set_string(meta:get_string("owner"))
+
+        core.chat_send_player(user:get_player_name(), ("Destination : %s %s | Owner : %s"):format(C("cyan", destination), pos, C("cyan", owner)))
     end
-
-    if formname == "tech:blank_locator" and fields.save_locator then
-        if stack:get_name() == "tech:blank_locator" then
-            local meta = stack:get_meta()
-            local pos_str = meta:get_string("pos")
-            local dest_name = '"Unknown"'
-
-            if fields.locator_name ~= "" then dest_name = '"'..fields.locator_name..'"' end
-
-            local new_stack = ItemStack("tech:locator")
-            new_stack:get_meta():set_string("locator_name", dest_name)
-            new_stack:get_meta():set_string("pos", pos_str)
-            new_stack:get_meta():set_string("owner", player:get_player_name())
-
-            player:set_wielded_item(new_stack)
-            core.chat_send_player(name, "Locator saved as: "..dest_name)
-            core.log("action", name.." saved locator as "..dest_name.." at "..pos_str)
-        end
-    end
-
-    if formname == "tech:locator" and fields.resave_locator then
-        if stack:get_name() == "tech:locator" then
-            local meta = stack:get_meta()
-            local pos_str = meta:get_string("pos")
-            local dest_name = '"Unknown"'
-
-            if fields.locator_name ~= "" then dest_name = '"'..fields.locator_name..'"' end
-
-            local new_stack = ItemStack("tech:locator")
-            new_stack:get_meta():set_string("locator_name", dest_name)
-            new_stack:get_meta():set_string("pos", pos_str)
-            new_stack:get_meta():set_string("owner", player:get_player_name())
-
-            player:set_wielded_item(new_stack)
-
-            core.chat_send_player(name, "Locator saved as: "..dest_name)
-            core.log("action", name.." saved locator as "..dest_name.." at "..pos_str)
-        end
-    end
-
-    if formname == "tech:locator" and fields.clear_locator then
-        if stack:get_name() == "tech:locator" then
-            local new_stack = ItemStack("tech:blank_locator")
-            player:set_wielded_item(new_stack)
-
-            core.log("action", name.." cleared a locator.")
-        end
-    end
-end)
-
-core.register_craftitem("tech:advanced_combination", {
-    description = "Advanced Combination",
-    inventory_image = "default_obsidian_shard.png",
-    stack_max = 2,
-})
-
-core.register_craftitem("tech:advanced_component", {
-    description = "Advanced Component",
-    inventory_image = "default_obsidian_shard.png",
-    stack_max = 2,
-})
-
-core.register_craftitem("tech:basic_combination", {
-    description = "Basic Combination",
-    inventory_image = "default_obsidian_shard.png",
-    stack_max = 4,
-})
-
-core.register_craftitem("tech:basic_component", {
-    description = "Basic Component",
-    inventory_image = "default_obsidian_shard.png",
-    stack_max = 4,
 })
 
 core.register_craftitem("tech:blank_locator", {
     description = "Blank Locator",
-    inventory_image = "default_obsidian_shard.png",
+    inventory_image = "tech_blank_locator.png",
     stack_max = 1,
     on_use = function(itemstack, user, pointed_thing)
         if pointed_thing.type == "node" then
             local pos = pointed_thing.above
-            local name = user:get_player_name()
             local meta = itemstack:get_meta()
 
-            local form = 
-                "formspec_version[4]"..
-                "size[8.0,4.0]"..
-                "field[1.0,1.0;6.0,1.0;locator_name;Name:;]"..
-                "label[1.0,2.5;Position: "..core.pos_to_string(pos).."]"..
+            local form =
+                "formspec_version[4]" ..
+                "size[8.0,4.0]" ..
+                "field[1.0,1.0;6.0,1.0;locator_name;Name :;]" ..
+                "label[1.0,2.5;Position : " .. core.pos_to_string(pos) .. "]" ..
                 "button_exit[3.0,3.0;2.25,0.75;save_locator;Save]"
 
-            core.show_formspec(name, "tech:blank_locator", form)
+            core.show_formspec(user:get_player_name(), "tech:blank_locator", form)
 
+            -- Save the position as a metadata
             meta:set_string("pos", core.pos_to_string(pos))
 
             return itemstack
@@ -417,9 +395,94 @@ core.register_craftitem("tech:blank_locator", {
     end,
 })
 
+local function save_locator(player, destination)
+    local wielded_stack = player:get_wielded_item()
+    local name = player:get_player_name()
+
+    -- Check if the player is holding a locator
+    if wielded_stack:get_name() == "tech:blank_locator"
+    or wielded_stack:get_name() == "tech:locator" then
+        local meta = wielded_stack:get_meta()
+        local pos = meta:get_string("pos") or player:get_pos()
+
+        local new_stack = ItemStack("tech:locator")
+        new_stack:get_meta():set_string("locator_name", destination)
+        new_stack:get_meta():set_string("pos", pos)
+        new_stack:get_meta():set_string("owner", player:get_player_name())
+        --new_stack:get_meta():set_string("description", ("Locator\n" ..
+        --C("grey", "Destination : %s %s\nOwner : %s")):format(destination, pos, player:get_player_name()))
+
+        player:set_wielded_item(new_stack)
+        core.chat_send_player(name, ("Locator saved as : %s"):format(C("cyan", destination)))
+        core.log("action", mod_prefix .. name .. " saved locator as " .. destination .. " at " .. pos)
+    end
+end
+
+core.register_on_leaveplayer(function(player)
+    if selected_destination[player:get_player_name()] then
+        selected_destination[player:get_player_name()] = nil
+    end
+end)
+
+core.register_on_player_receive_fields(function(player, formname, fields)
+    local name = player:get_player_name()
+    local stack = player:get_wielded_item()
+
+    if formname:sub(0, 16) == "tech:teleporter_" then
+        local pos = core.string_to_pos(formname:sub(17))
+
+        if fields.destinations then
+            selected_destination[name] = core.explode_table_event(fields.destinations).row
+        elseif fields.teleport then
+            teleport_player(player, pos)
+        elseif fields.settings_btn then
+            show_settings_form(player, pos)
+        end
+
+        if fields.quit then
+            selected_destination[name] = nil
+        end
+    end
+
+    if formname:sub(0, 25) == "tech:teleporter_settings_" then
+        local pos = core.string_to_pos(formname:sub(26))
+
+        if fields.teleport_mode then
+            core.get_meta(pos):set_string("teleport_mode", fields.teleport_mode)
+        end
+
+        if fields.save_btn then
+            show_teleporter_form(player, pos)
+        end
+    end
+
+    if formname == "tech:blank_locator" then
+        if fields.save_locator and fields.locator_name ~= "" then
+            save_locator(player, fields.locator_name)
+        elseif fields.key_enter == "true" and fields.key_enter_field == "locator_name"
+        and fields.locator_name ~= "" then
+            save_locator(player, fields.locator_name)
+        end
+    end
+
+    if formname == "tech:locator" then
+        if fields.resave_locator and fields.locator_name ~= "" then
+            save_locator(player, fields.locator_name)
+        elseif fields.key_enter == "true" and fields.key_enter_field == "locator_name"
+        and fields.locator_name ~= "" then
+            save_locator(player, fields.locator_name)
+        elseif fields.clear_locator then
+            if stack:get_name() == "tech:locator" then
+                local new_stack = ItemStack("tech:blank_locator")
+                player:set_wielded_item(new_stack)
+            end
+        end
+    end
+end)
+
 core.register_craftitem("tech:core", {
     description = "Core",
-    inventory_image = "default_obsidian.png",
+    inventory_image = "tech_core.png",
     stack_max = 1,
 })
 
@@ -429,43 +492,28 @@ core.register_craftitem("tech:infinite_source", {
     stack_max = 1,
 })
 
-core.register_craftitem("tech:locator", {
-    description = "Locator",
-    inventory_image = "default_obsidian_shard.png",
-    stack_max = 1,
-    on_use = function(itemstack, user, pointed_thing)
-        local name = user:get_player_name()
-        local meta = itemstack:get_meta()
+core.register_craftitem("tech:advanced_combination", {
+    description = "Advanced Combination",
+    inventory_image = "tech_advanced_combination.png",
+    stack_max = 2,
+})
 
-        local pos = meta:get_string("pos") ; if pos == "" then pos = "???" end
-        local loc_name = meta:get_string("locator_name") ; if loc_name == "" then loc_name = "???" end
-        local owner = meta:get_string("owner") ; if owner == "" then owner = "???" end
+core.register_craftitem("tech:advanced_component", {
+    description = "Advanced Component",
+    inventory_image = "tech_advanced_component.png",
+    stack_max = 2,
+})
 
-        core.chat_send_player(name, "Locator: "..loc_name.." at "..pos.."\n"
-            .."(owned by "..owner..")")
+core.register_craftitem("tech:basic_combination", {
+    description = "Basic Combination",
+    inventory_image = "tech_basic_combination.png",
+    stack_max = 4,
+})
 
-        return itemstack
-    end,
-
-    on_secondary_use = function(itemstack, user, pointed_thing)
-        local name = user:get_player_name()
-        local meta = itemstack:get_meta()
-
-        local form = 
-            "formspec_version[4]"..
-            "size[8.0,4.0]"..
-            "field[1.0,1.0;6.0,1.0;locator_name;Name:;"..(meta:get_string("locator_name") or "Unknown").."]"..
-            "button_exit[2.5,3.0;1.5,0.75;resave_locator;Save]"..
-            "button_exit[4.4,3.0;1.5,0.75;clear_locator;Clear]"
-
-        if meta:get_string("owner") == "" or meta:get_string("owner") == name then
-            core.show_formspec(name, "tech:locator", form)
-        else
-            core.chat_send_player(name, "You cannot edit this locator.")
-        end
-
-        return itemstack
-    end,
+core.register_craftitem("tech:basic_component", {
+    description = "Basic Component",
+    inventory_image = "tech_basic_component.png",
+    stack_max = 4,
 })
 
 core.register_craftitem("tech:source", {
@@ -474,6 +522,6 @@ core.register_craftitem("tech:source", {
     stack_max = 8000,
 })
 
-dofile(core.get_modpath("tech").."/recipes.lua")
+dofile(core.get_modpath(core.get_current_modname()) .. "/recipes.lua")
 
-print ("[MOD] Tech [521] loaded")
+print ("[MOD] Tech loaded")

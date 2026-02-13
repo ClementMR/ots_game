@@ -95,7 +95,7 @@ armor:register_armor("3d_armor:boots_wood", {
     inventory_image = "3d_armor_inv_boots_wood.png",
     armor_groups = {fleshy=5},
     damage_groups = {cracky=3, snappy=2, choppy=3, crumbly=2, level=1},
-    groups = {armor_feet=1, armor_heal=0, armor_use=2000, flammable=1},
+    groups = {armor_feet=1, armor_heal=0, armor_use=2000, flammable=1, armor_feather = 0},
 })
 --- Wood Shield
 --

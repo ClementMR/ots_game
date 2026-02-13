@@ -1,8 +1,9 @@
 core.register_privilege("skins", {
-	description = "Can set skins",
+	description = "Change the skin of your character",
 	give_to_singleplayer = false,
 })
 
+--[[
 core.register_chatcommand("skins", {
 	params = "<value>",
 	description = "Set a skin",
@@ -37,34 +38,32 @@ core.register_chatcommand("skins", {
 
 			local success = skins.set_player_skin(player, skin_name)
 			if success then
-				return true, "skin set to "..param
+				return true, "Skin set to "..param
 			else
-				return false, "invalid skin "..param
+				return false, "Invalid skin "..param..". Please type /list_skins"
 			end
 		end
 	end,
 })
+]]
 
-core.register_chatcommand("list_skins", {
-	description = "List of skins",
-	privs = {skins=true},
+core.register_chatcommand("skin_info", {
+	description = "Print information about the current skin",
 	func = function(name)
 		local player = core.get_player_by_name(name)
-
-		local list = skins.get_skinlist_for_player()
-		--list = skins.get_skinlist_with_meta("playername", name)
-
-		local info = {}
-		for v, skin in ipairs(list) do
-			table.insert(info, "["..(v-1).."] "..skin:get_meta_string("name"))
+		if not player then
+			return false, "Player not found"
 		end
 
-		local info_string = table.concat(info, ", ")
-
-		if #info_string > 0 then
-			core.chat_send_player(name, info_string)
-		else
-			core.chat_send_player(name, "No skins found")
+		local skin = skins.get_player_skin(player)
+		if skin then
+			local skin_name = skin.name or "Unknown"
+			local author = skin.author or "Unknown"
+			local license = skin.license or "None"
+			core.chat_send_player(name, core.colorize("cyan", "~ Current skin ~") ..
+				"\nName:" .. skin_name .. "\n" ..
+				"Author: " .. author .. "\n" ..
+				"License: " .. license)
 		end
 	end,
 })

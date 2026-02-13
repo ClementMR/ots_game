@@ -72,6 +72,7 @@ function skins.set_player_skin(player, skin)
 end
 
 -- Check Skin format (code stohlen from stu's multiskin)
+--[[
 function skins.get_skin_format(file)
 	file:seek("set", 1)
 	if file:read(3) == "PNG" then
@@ -89,3 +90,4 @@ function skins.get_skin_format(file)
 		end
 	end
 end
+]]

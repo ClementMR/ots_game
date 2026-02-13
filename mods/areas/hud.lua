@@ -15,11 +15,6 @@ core.register_globalstep(function(dtime)
 		local name = player:get_player_name()
 		local pos = vector.round(player:get_pos())
 
-		if not core.check_player_privs(name, {protection_bypass = true}) then
-			return
-		end
-
-
 		pos = vector.apply(pos, function(p)
 			return math.max(math.min(p, 2147483), -2147483)
 		end)
@@ -62,7 +57,7 @@ core.register_globalstep(function(dtime)
 			table.insert(areaStrings, str)
 		end
 
-		local areaString = S("Areas:")
+		local areaString = ""
 		if #areaStrings > 0 then
 			areaString = areaString.."\n"..
 				table.concat(areaStrings, "\n")
@@ -74,7 +69,7 @@ core.register_globalstep(function(dtime)
 			hud.areasId = player:hud_add({
 				[core.features.hud_def_type_field and "type" or "hud_elem_type"] = "text", -- compatible with older versions
 				name = "Areas",
-				number = 0xFFFFFF,
+				number = 0xE8A320,
 				position = {x=0, y=1},
 				offset = {x=8, y=-8},
 				text = areaString,

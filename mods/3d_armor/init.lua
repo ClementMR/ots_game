@@ -1,39 +1,11 @@
-local modname = core.get_current_modname()
-local modpath = core.get_modpath(modname)
-local worldpath = core.get_worldpath()
+local modpath = core.get_modpath(core.get_current_modname())
+dofile(modpath .. "/src/api.lua")
+
 local last_punch_time = {}
 local timer = 0
 
-dofile(modpath.."/api.lua")
-
 -- local functions
 local S = core.get_translator(core.get_current_modname())
-
-
--- Legacy Config Support
-
-local input = io.open(modpath.."/armor.conf", "r")
-if input then
-	dofile(modpath.."/armor.conf")
-	input:close()
-end
-input = io.open(worldpath.."/armor.conf", "r")
-if input then
-	dofile(worldpath.."/armor.conf")
-	input:close()
-end
-for name, _ in pairs(armor.config) do
-	local global = "ARMOR_"..name:upper()
-	if core.global_exists(global) then
-		armor.config[name] = _G[global]
-	end
-end
-if core.global_exists("ARMOR_MATERIALS") then
-	armor.materials = table.copy(ARMOR_MATERIALS)
-end
-if core.global_exists("ARMOR_FIRE_NODES") then
-	armor.fire_nodes = table.copy(ARMOR_FIRE_NODES)
-end
 
 -- Load Configuration
 
@@ -50,6 +22,7 @@ for name, config in pairs(armor.config) do
 		armor.config[name] = setting
 	end
 end
+
 for material, _ in pairs(armor.materials) do
 	local key = "material_"..material
 	if armor.config[key] == false then
@@ -79,8 +52,8 @@ if core.get_modpath("technic") then
 end
 
 
-
 -- Armor Initialization
+
 
 armor:register_on_damage(function(player, index, stack)
 	local name = player:get_player_name()
@@ -90,6 +63,7 @@ armor:register_on_damage(function(player, index, stack)
 		core.sound_play("default_tool_breaks", {to_player = name, gain = 2.0})
 	end
 end)
+
 armor:register_on_destroy(function(player, index, stack)
 	local name = player:get_player_name()
 	local def = stack:get_definition()
@@ -160,46 +134,33 @@ local function init_player_armor(initplayer)
 			validate_armor_inventory(player)
 			armor:save_armor_inventory(player)
 			armor:set_player_armor(player)
-
-			if core.get_modpath("sfinv") then
-				sfinv.set_page(player, "sfinv:crafting")
-			else
-				armor:show_formspec(player:get_player_name())
-			end
 		end,
 		on_take = function(inv, listname, index, stack, player)
 			validate_armor_inventory(player)
 			armor:save_armor_inventory(player)
 			armor:set_player_armor(player)
-
-			if core.get_modpath("sfinv") then
-				sfinv.set_page(player, "sfinv:crafting")
-			end
 		end,
 		on_move = function(inv, from_list, from_index, to_list, to_index, count, player)
 			validate_armor_inventory(player)
 			armor:save_armor_inventory(player)
 			armor:set_player_armor(player)
-
-			if core.get_modpath("sfinv") then
-				sfinv.set_page(player, "sfinv:crafting")
-			end
 		end,
 		allow_put = function(inv, listname, index, put_stack, player)
 			if player:get_player_name() ~= name then
 				return 0
 			end
-
 			local element = armor:get_element(put_stack:get_name())
-			if not element then
+			if not element or element ~= armor.elements[index] then
 				return 0
 			end
-
-			local valid_index = {head = 1, torso = 2, legs = 3, feet = 4, shield = 5}
-			if valid_index[element] ~= index then
-				return 0
+			for i = 1, 6 do
+				local stack = inv:get_stack("armor", i)
+				local def = stack:get_definition() or {}
+				if def.groups and def.groups["armor_"..element]
+						and i ~= index then
+					return 0
+				end
 			end
-
 			return 1
 		end,
 		allow_take = function(inv, listname, index, stack, player)
@@ -214,18 +175,9 @@ local function init_player_armor(initplayer)
 				return 0
 			end
 
-			local stack = inv:get_stack(from_list, from_index)
-			if stack:is_empty() then
-				return 0
-			end
-
+			local stack = inv:get_stack("armor", from_index)
 			local element = armor:get_element(stack:get_name())
-			if not element then
-				return 0
-			end
-
-			local valid_index = {head = 1, torso = 2, legs = 3, feet = 4, shield = 5}
-			if valid_index[element] ~= to_index then
+			if not element or element ~= armor.elements[to_index] then
 				return 0
 			end
 
@@ -272,9 +224,6 @@ local function init_player_armor(initplayer)
 	}
 	armor:set_player_armor(initplayer)
 
-	if core.get_modpath("sfinv") then
-		sfinv.set_page(initplayer, "sfinv:crafting")
-	end
 end
 
 -- Armor Player Model
@@ -287,13 +236,11 @@ player_api.register_model("3d_armor_character.b3d", {
 	},
 	animations = {
 		stand = {x=0, y=79},
-		lay = {x=162, y=166},
 		lay = {x=162, y=166, eye_height = 0.3, override_local = true,
 		collisionbox = {-0.6, 0.0, -0.6, 0.6, 0.3, 0.6}},
 		walk = {x=168, y=187},
 		mine = {x=189, y=198},
 		walk_mine = {x=200, y=219},
-		sit = {x=81, y=160},
 		sit = {x=81, y=160, eye_height = 0.8, override_local = true,
 		collisionbox = {-0.3, 0.0, -0.3, 0.3, 1.0, 0.3}},
 		-- compatibility w/ the emote mod
@@ -306,19 +253,6 @@ player_api.register_model("3d_armor_character.b3d", {
 	eye_height = 1.47,
 })
 
-core.register_on_player_receive_fields(function(player, formname, fields)
-	local name = armor:get_valid_player(player, "[on_player_receive_fields]")
-	if not name then
-		return
-	end
-	local player_name = player:get_player_name()
-	for field, _ in pairs(fields) do
-		if string.find(field, "skins_set") then
-			armor:update_skin(player_name)
-		end
-	end
-end)
-
 core.register_on_joinplayer(function(player)
 	player_api.set_model(player, "3d_armor_character.b3d")
 	init_player_armor(player)
@@ -329,6 +263,19 @@ core.register_on_leaveplayer(function(player)
 	if name then
 		armor.def[name] = nil
 		armor.textures[name] = nil
+	end
+end)
+
+core.register_on_player_receive_fields(function(player, formname, fields)
+	local name = armor:get_valid_player(player, "[on_player_receive_fields]")
+	if not name then
+		return
+	end
+	local player_name = player:get_player_name()
+	for field, _ in pairs(fields) do
+		if field:find("skins_set") then
+			armor:update_skin(player_name)
+		end
 	end
 end)
 
@@ -364,10 +311,6 @@ if armor.config.drop == true or armor.config.destroy == true then
 	core.register_on_respawnplayer(function(player)
 		-- reset un-dropped armor and it's effects
 		armor:set_player_armor(player)
-
-		if core.get_modpath("sfinv") then
-			sfinv.set_page(player, "sfinv:crafting")
-		end
 	end)
 end
 
@@ -390,21 +333,35 @@ if armor.config.punch_damage == true then
 end
 
 core.register_on_player_hpchange(function(player, hp_change, reason)
-	if not core.is_player(player) then
-		return hp_change
-	end
+	if not core.is_player(player) then return hp_change end
 
-	--if hp_change <= 20 then return hp_change end
+	local name = player:get_player_name()
+	local properties = player:get_properties()
+	local hp = player:get_hp()
+	local def = armor.def[name]
+	local heal = def.heal
+	local feather = def.feather
+
+	if def.groups["immortal"] ~= 0 then return 0 end -- Admin armor
 
 	if reason.type == "drown" or reason.hunger or hp_change >= 0 then
 		return hp_change
 	end
 
-	local name = player:get_player_name()
-	local properties = player:get_properties()
-	local hp = player:get_hp()
+	if reason.type == "fall" then
+		if armor.config.feather_fall then
+			local attenuation = hp_change + feather
+			if attenuation < 0 then
+				return attenuation
+			else
+				return 0
+			end
+		else
+			return hp_change
+		end
+	end
+
 	if hp + hp_change < properties.hp_max then
-		local heal = armor.def[name].heal
 		if heal >= math.random(100) then
 			hp_change = 0
 		end
@@ -418,28 +375,15 @@ core.register_on_player_hpchange(function(player, hp_change, reason)
 	return hp_change
 end, true)
 
-if core.get_modpath("sfinv") then
-	local orig_get = sfinv.pages["sfinv:crafting"].get
-	sfinv.override_page("sfinv:crafting", {
-		get = function(self, player, context)
-			local form = armor:get_armor_formspec(player:get_player_name())
-			return orig_get(self, player, context) .. form
-		end
-	})
-end
-
 core.register_globalstep(function(dtime)
 	timer = timer + dtime
 
-	if armor.config.feather_fall == true then
-		for _,player in pairs(core.get_connected_players()) do
+	-- water breathing protection, added by TenPlus1
+	if armor.config.water_protect == true then
+		for _, player in pairs(core.get_connected_players()) do
 			local name = player:get_player_name()
-			if armor.def[name].feather > 0 then
-				local vel_y = player:get_velocity().y
-				if vel_y < -0.5 then
-					vel_y = -(vel_y * 0.05)
-					player:add_velocity({x = 0, y = vel_y, z = 0})
-				end
+			if armor.def[name].water > 0 and player:get_breath() < 10 then
+				player:set_breath(10)
 			end
 		end
 	end
@@ -448,17 +392,6 @@ core.register_globalstep(function(dtime)
 		return
 	end
 	timer = 0
-
-	-- water breathing protection, added by TenPlus1
-	if armor.config.water_protect == true then
-		for _,player in pairs(core.get_connected_players()) do
-			local name = player:get_player_name()
-			if armor.def[name].water > 0 and
-					player:get_breath() < 10 then
-				player:set_breath(10)
-			end
-		end
-	end
 end)
 
 if armor.config.fire_protect == true then
@@ -475,7 +408,7 @@ if armor.config.fire_protect == true then
 			-- fire protection
 			if armor.config.fire_protect == true and hp_change < 0 then
 				local name = player:get_player_name()
-				for _,igniter in pairs(armor.fire_nodes) do
+				for _, igniter in pairs(armor.fire_nodes) do
 					if reason.node == igniter[1] then
 						if armor.def[name].fire >= igniter[2] then
 							hp_change = 0
@@ -489,10 +422,11 @@ if armor.config.fire_protect == true then
 end
 
 -- Register armors
-for k, _ in pairs(armor.materials) do
-	dofile(core.get_modpath(core.get_current_modname()).."/src/"..k.."_armor.lua")
+for mat, _ in pairs(armor.materials) do
+	dofile(modpath .. "/src/" .. mat .. "_armor.lua")
 end
 
-dofile(core.get_modpath(core.get_current_modname()).."/src/admin_armor.lua")
-dofile(core.get_modpath(core.get_current_modname()).."/src/recipes.lua")
-dofile(core.get_modpath(core.get_current_modname()).."/src/aliases.lua")
+dofile(modpath .. "/src/admin_armor.lua")
+dofile(modpath .. "/src/armor_description.lua")
+dofile(modpath .. "/src/recipes.lua")
+dofile(modpath .. "/src/aliases.lua")

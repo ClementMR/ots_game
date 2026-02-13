@@ -353,4 +353,4 @@ core.register_on_respawnplayer(function(player)
 	stamina.update_saturation(player, settings.visual_max)
 end)
 
-print ("[MOD] Stamina [521] loaded")
+print ("[MOD] Stamina loaded")

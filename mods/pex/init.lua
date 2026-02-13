@@ -191,7 +191,8 @@ function protector.can_dig(r, pos, digger, onlyowner, infolevel)
 			-- and you aren't on the member list
 			if onlyowner or not is_member(meta, digger) then
 
-				show_msg(digger, core.pos_to_string(selected_pos).." is protected using protectors by "..owner..core.pos_to_string(pos[n]))
+				show_msg(digger, core.pos_to_string(selected_pos).." is protected using protectors by "..
+				owner..core.pos_to_string(pos[n]))
 
 				return false
 			end
@@ -238,7 +239,7 @@ core.register_on_protection_violation(function(pos, name)
 		if protector_hurt > 0 and player:get_hp() > 0 then
 
 			-- This delay fixes item duplication bug (thanks luk3yx)
-			core.after(0.1, function(player)
+			core.after(0.1, function()
 				player:set_hp(player:get_hp() - protector_hurt)
 			end, player)
 		end
@@ -470,4 +471,4 @@ dofile(MP .. "/chest.lua")
 dofile(MP .. "/doors.lua")
 dofile(MP .. "/recipes.lua")
 
-print ("[MOD] Pex [521] loaded")
+print ("[MOD] Pex loaded")

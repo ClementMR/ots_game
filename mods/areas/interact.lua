@@ -1,5 +1,3 @@
-local S = core.get_translator("areas")
-
 local old_is_protected = core.is_protected
 function core.is_protected(pos, name)
 	if not areas:canInteract(pos, name) then

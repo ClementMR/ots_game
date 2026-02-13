@@ -6,17 +6,10 @@ skins = {}
 skins.modpath = core.get_modpath(core.get_current_modname())
 skins.default = "character"
 
-dofile(skins.modpath.."/skin_meta_api.lua")
-dofile(skins.modpath.."/api.lua")
-dofile(skins.modpath.."/skinlist.lua")
-dofile(skins.modpath.."/chatcommands.lua")
-
--- ie.loadfile does not exist?
-skins.ie = core.request_insecure_environment()
-skins.http = core.request_http_api()
-dofile(skins.modpath.."/skins_updater.lua")
-skins.ie = nil
-skins.http = nil
+dofile(skins.modpath .. "/skin_meta_api.lua")
+dofile(skins.modpath .. "/api.lua")
+dofile(skins.modpath .. "/skinlist.lua")
+dofile(skins.modpath .. "/chatcommands.lua")
 
 -- 3d_armor compatibility
 if core.global_exists("armor") then
@@ -44,6 +37,7 @@ core.register_on_joinplayer(function(player)
 	skins.update_player_skin(player)
 end)
 
+--[[
 player_api.register_model("skinsdb_3d_armor_character_5.b3d", {
 	animation_speed = 30,
 	textures = {
@@ -65,15 +59,14 @@ player_api.register_model("skinsdb_3d_armor_character_5.b3d", {
 		freeze = {x = 205, y = 205, override_local = true},
 	},
 })
+]]
 
 -- Register default character.png if not part of this mod
 local default_skin_obj = skins.get(skins.default)
 if not default_skin_obj then
 	default_skin_obj = skins.new(skins.default)
 	default_skin_obj:set_texture("character.png")
-	default_skin_obj:set_meta("format", '1.0')
+	--default_skin_obj:set_meta("format", '1.0')
 	default_skin_obj:set_meta("_sort_id", 0)
 	default_skin_obj:set_meta("name", "Sam")
 end
-
-print ("[MOD] Skins [521] loaded")

@@ -34,7 +34,7 @@ core.register_craft({
 core.register_craft({
 	output = "pex:chest",
 	type = "shapeless",
-	recipe = { 
+	recipe = {
 		"default:chest",
 		"default:copper_ingot"
 	}
@@ -74,8 +74,8 @@ for _, recipe in ipairs({"default:copper_ingot", "default:tin_ingot"}) do
 	core.register_craft({
 		output = "pex:door_wood",
 		type = "shapeless",
-		recipe = { 
-			"doors:door_wood", 
+		recipe = {
+			"doors:door_wood",
 			recipe
 		}
 	})
@@ -92,8 +92,8 @@ for _, recipe in ipairs({"default:copper_ingot", "default:tin_ingot"}) do
 	core.register_craft({
 		output = "pex:door_steel",
 		type = "shapeless",
-		recipe = { 
-			"doors:door_steel", 
+		recipe = {
+			"doors:door_steel",
 			recipe
 		}
 	})
@@ -109,8 +109,8 @@ for _, recipe in ipairs({"default:copper_ingot", "default:tin_ingot"}) do
 	core.register_craft({
 		output = "pex:trapdoor",
 		type = "shapeless",
-		recipe = { 
-			"doors:trapdoor", 
+		recipe = {
+			"doors:trapdoor",
 			recipe
 		}
 	})
@@ -126,8 +126,8 @@ for _, recipe in ipairs({"default:copper_ingot", "default:tin_ingot"}) do
 	core.register_craft({
 		output = "pex:trapdoor_steel",
 		type = "shapeless",
-		recipe = { 
-			"doors:trapdoor_steel", 
+		recipe = {
+			"doors:trapdoor_steel",
 			recipe
 		}
 	})

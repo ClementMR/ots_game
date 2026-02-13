@@ -409,4 +409,4 @@ for orename, def in pairs(oredefs) do
 	add_ore("moreores", def.description, orename, def, def.extra_node_def)
 end
 
-print ("[MOD] Moreores [521] loaded")
+print ("[MOD] Moreores loaded")
