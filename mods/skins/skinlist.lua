@@ -72,6 +72,7 @@ function skins.register_skin(path, filename)
 		skin_obj:set_meta("playername", playername)
 	end
 
+	--[[
 	if path then
 		-- Get type of skin based on dimensions
 		local file = io.open(path .. "/" .. filename, "r")
@@ -79,6 +80,7 @@ function skins.register_skin(path, filename)
 		skin_obj:set_meta("format", skin_format)
 		file:close()
 	end
+	]]
 
 	skin_obj:set_meta("name", identifier)
 
@@ -159,7 +161,8 @@ local function skins_sort(skinslist)
 	end)
 end
 
--- (obsolete) get skinlist. If assignment given ("mod:wardrobe" or "player:bell07") select skins matches the assignment. select_unassigned selects the skins without any assignment too
+-- (obsolete) get skinlist. If assignment given ("mod:wardrobe" or "player:bell07")
+-- select skins matches the assignment. select_unassigned selects the skins without any assignment too
 function skins.get_skinlist(assignment, select_unassigned)
 	core.log("deprecated", "skins.get_skinlist() is deprecated. Use skins.get_skinlist_for_player() instead")
 	local skinslist = {}

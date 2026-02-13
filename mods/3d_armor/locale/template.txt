@@ -64,3 +64,7 @@ Wood Leggings=
 Wood Boots=
 Wooden Shield=
 Enhanced Wood Shield=
+
+Feather Falling (@1)=
+Healing (@1)=
+Solidity (@1)=

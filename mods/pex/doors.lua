@@ -3,15 +3,13 @@ pex = {}
 pex.registered_doors = {}
 pex.registered_trapdoors = {}
 
-local function door_toggle() end
-local function trapdoor_toggle() end
-
 local function is_doors_upper_node(pos)
 	return core.get_node(pos).name == "pex:hidden"
 end
 
+--[[
 -- returns an object to a door object or nil
-function get(pos)
+local function get(pos)
 	local node_name = core.get_node(pos).name
 	if pex.registered_doors[node_name] then
 		-- A normal upright door
@@ -64,6 +62,7 @@ function get(pos)
 		return nil
 	end
 end
+]]
 
 -- this hidden node is placed on top of the bottom, and prevents
 -- nodes from being placed in the top half of the door.
@@ -119,7 +118,7 @@ local transform = {
 	},
 }
 
-function door_toggle(pos, node, clicker)
+local function door_toggle(pos, node, clicker)
 	local meta = core.get_meta(pos)
 	node = node or core.get_node(pos)
 	local def = core.registered_nodes[node.name]
@@ -195,7 +194,7 @@ local function on_place_node(place_to, newnode,
 	end
 end
 
-function register_door(name, def)
+local function register_door(name, def)
 	if not name:find(":") then
 		name = "pex:" .. name
 	end
@@ -452,7 +451,7 @@ register_door("door_steel", {
 
 ----trapdoor----
 
-function trapdoor_toggle(pos, node, clicker)
+local function trapdoor_toggle(pos, node, clicker)
 	node = node or core.get_node(pos)
 
 	if clicker and not default.can_interact_with_node(clicker, pos) then
@@ -474,7 +473,7 @@ function trapdoor_toggle(pos, node, clicker)
 	end
 end
 
-function register_trapdoor(name, def)
+local function register_trapdoor(name, def)
 	if not name:find(":") then
 		name = "pex:" .. name
 	end

@@ -255,7 +255,6 @@ end)
 
 -- Check number of areas the user has and make sure it not above the max
 areas:registerProtectionCondition(function(pos1, pos2, name)
-	local privs = core.get_player_privs(name)
 	local count = 0
 	for _, area in pairs(areas.areas) do
 		if area.owner == name then

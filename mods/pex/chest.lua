@@ -12,7 +12,6 @@ core.register_node("pex:chest", {
 	legacy_facedir_simple = true,
 	is_ground_content = false,
 	sounds = default.node_sound_wood_defaults(),
-
 	on_construct = function(pos)
 		local meta = core.get_meta(pos)
 		local inv = meta:get_inventory()
@@ -20,7 +19,6 @@ core.register_node("pex:chest", {
 		meta:set_string("infotext", "Protected Chest")
 		inv:set_size("main", 8*4)
 	end,
-
 	can_dig = function(pos, player)
 		local meta = core.get_meta(pos)
 		local inv = meta:get_inventory()
@@ -31,19 +29,15 @@ core.register_node("pex:chest", {
 			end
 		end
 	end,
-
 	on_metadata_inventory_put = function(pos, listname, index, stack, player)
 		core.log("action", player:get_player_name().." moves stuff to protected chest at "..core.pos_to_string(pos))
 	end,
-
 	on_metadata_inventory_take = function(pos, listname, index, stack, player)
 		core.log("action", player:get_player_name().." takes stuff from protected chest at "..core.pos_to_string(pos))
 	end,
-
 	on_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
 		core.log("action", player:get_player_name().." moves stuff inside protected chest at "..core.pos_to_string(pos))
 	end,
-
 	allow_metadata_inventory_put = function(pos, listname, index, stack, player)
 		if core.is_protected(pos, player:get_player_name()) then
 			return 0
@@ -51,7 +45,6 @@ core.register_node("pex:chest", {
 
 		return stack:get_count()
 	end,
-
 	allow_metadata_inventory_take = function(pos, listname, index, stack, player)
 		if core.is_protected(pos, player:get_player_name()) then
 			return 0
@@ -59,7 +52,6 @@ core.register_node("pex:chest", {
 
 		return stack:get_count()
 	end,
-
 	allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
 		if core.is_protected(pos, player:get_player_name()) then
 			return 0
@@ -67,7 +59,6 @@ core.register_node("pex:chest", {
 
 		return count
 	end,
-
 	on_rightclick = function(pos, node, clicker, itemstack)
 		if core.is_protected(pos, clicker:get_player_name()) then
 			return
@@ -86,7 +77,6 @@ core.register_node("pex:chest", {
 
 		core.show_formspec(clicker:get_player_name(), "pex:chest", formspec)
 	end,
-
 	on_blast = function() end,
 })
 
@@ -104,13 +94,11 @@ core.register_node("pex:chest_hyper", {
 	legacy_facedir_simple = true,
 	is_ground_content = false,
 	sounds = default.node_sound_wood_defaults(),
-
 	on_construct = function(pos)
 		local meta = core.get_meta(pos)
 		meta:set_string("infotext", "Hyper Chest")
 		meta:set_int("delay", os.time())
 	end,
-
 	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
 		local meta = core.get_meta(pos)
 		local time_elapsed = os.time() - meta:get_int("delay")
@@ -119,10 +107,10 @@ core.register_node("pex:chest_hyper", {
 
 		if left > 3600 then
 			left = math.floor(left/3600).."h"
-		elseif left > 60 then 
+		elseif left > 60 then
 			left = math.floor(left/60).."m"
 		else
-			left = left.."s" 
+			left = left.."s"
 		end
 
 		if time_elapsed < delay then
@@ -143,26 +131,21 @@ core.register_node("pex:chest_hyper", {
 		local inv = clicker:get_inventory()
 		inv:set_size("pex:hyper_chest", 8*4)
 	end,
-
 	on_metadata_inventory_put = function(pos, listname, index, stack, player)
 		core.log("action", player:get_player_name().." moves stuff to hyper chest at "..core.pos_to_string(pos))
 	end,
-
 	on_metadata_inventory_take = function(pos, listname, index, stack, player)
-
 		core.log("action", player:get_player_name().." takes stuff from hyper chest at "..core.pos_to_string(pos))
 	end,
-
 	on_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
 		core.log("action", player:get_player_name().." moves stuff inside hyper chest at "..core.pos_to_string(pos))
 	end,
-
 	on_blast = function() end,
 })
 
 -- Mailbox
 
-function get_mailbox_form(pos)
+local function get_mailbox_form(pos)
 	local spos = pos.x .. "," .. pos.y .. "," ..pos.z
 	local formspec =
 		"size[8,9]"..
@@ -176,7 +159,7 @@ function get_mailbox_form(pos)
 	return formspec
 end
 
-function get_mailbox_insert_form(pos)
+local function get_mailbox_insert_form(pos)
 	local spos = pos.x .. "," .. pos.y .. "," ..pos.z
 	local formspec =
 		"size[8,9]"..
@@ -186,7 +169,7 @@ function get_mailbox_insert_form(pos)
 		"listring[nodemeta:".. spos .. ";drop]" ..
 		"listring[current_player;main]" ..
 		default.get_hotbar_bg(0,4.85)
- 
+
 	return formspec
 end
 
@@ -202,7 +185,6 @@ core.register_node("pex:mailbox", {
 	legacy_facedir_simple = true,
 	is_ground_content = false,
 	sounds = default.node_sound_wood_defaults(),
-
 	after_place_node = function(pos, placer, itemstack)
 		local meta = core.get_meta(pos)
 		local owner = placer:get_player_name()
@@ -212,61 +194,55 @@ core.register_node("pex:mailbox", {
 		inv:set_size("main", 8*4)
 		inv:set_size("drop", 1)
 	end,
-
 	can_dig = function(pos, player)
 		local meta = core.get_meta(pos)
 		local owner = meta:get_string("owner")
 		local inv = meta:get_inventory()
 
-		return (player:get_player_name() == owner or core.get_player_privs(player:get_player_name()).protection_bypass) 
+		return (player:get_player_name() == owner or core.get_player_privs(player:get_player_name()).protection_bypass)
 			and inv:is_empty("main")
 	end,
-
 	on_metadata_inventory_put = function(pos, listname, index, stack, player)
 		local meta = core.get_meta(pos)
 		local owner = meta:get_string("owner")
 		local inv = meta:get_inventory()
 		if listname == "drop" and inv:room_for_item("main", stack) then
-		  	inv:remove_item("drop", stack)
-		  	inv:add_item("main", stack)
+			inv:remove_item("drop", stack)
+			inv:add_item("main", stack)
 			core.log("action", player:get_player_name().. " added an item to "..owner.."'s Mailbox at "..core.pos_to_string(pos))
 		end
 	end,
-
 	allow_metadata_inventory_put = function(pos, listname, index, stack, player)
 		if listname == "main" then
 			return 0
 		end
 		if listname == "drop" then
-		  	local meta = core.get_meta(pos)
-		  	local inv = meta:get_inventory()
-		  	if inv:room_for_item("main", stack) then
+			local meta = core.get_meta(pos)
+			local inv = meta:get_inventory()
+			if inv:room_for_item("main", stack) then
 				return -1
-		  	else
+			else
 				return 0
-		  	end
+			end
 		end
 	end,
-
 	allow_metadata_inventory_take = function(pos, listname, index, stack, player)
 		local meta = core.get_meta(pos)
 		local owner = meta:get_string("owner")
 		if player:get_player_name() ~= owner then
-		  	return 0
+			return 0
 		end
 
 		return stack:get_count()
 	end,
-
 	on_rightclick = function(pos, node, clicker, itemstack)
 		local meta = core.get_meta(pos)
 		local owner  = meta:get_string("owner")
 		if owner == clicker:get_player_name() or core.get_player_privs(clicker:get_player_name()).protection_bypass then
-		  	core.show_formspec(clicker:get_player_name(), "pex:mailbox", get_mailbox_form(pos))
+			core.show_formspec(clicker:get_player_name(), "pex:mailbox", get_mailbox_form(pos))
 		else
-		  	core.show_formspec(clicker:get_player_name(),"default:chest_locked", get_mailbox_insert_form(pos))
+			core.show_formspec(clicker:get_player_name(),"default:chest_locked", get_mailbox_insert_form(pos))
 		end
 	end,
-
 	on_blast = function() end,
 })

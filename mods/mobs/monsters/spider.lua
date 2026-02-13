@@ -133,8 +133,8 @@ mobs:register_mob("mobs:spider", {
 mobs:spawn({
 	name = "mobs:spider",
 	nodes = {
-		"default:stone_with_mese", 
-		"default:mese", 
+		"default:stone_with_mese",
+		"default:mese",
 		"default:stone"
 	},
 	chance = 300, -- 0.3%

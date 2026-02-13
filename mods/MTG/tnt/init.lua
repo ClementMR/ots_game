@@ -86,7 +86,6 @@ local function add_drop(drops, item)
 		return
 	end
 
-	local name = item:get_name()
 	local drop = drops[name]
 	if drop == nil then
 		drops[name] = item

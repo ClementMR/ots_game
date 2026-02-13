@@ -27,7 +27,7 @@ armor:register_armor("3d_armor:helmet_mithril", {
     description = S("Mithril Helmet"),
     inventory_image = "3d_armor_inv_helmet_mithril.png",
     groups = {armor_head=1, armor_heal=13, armor_use=66},
-    armor_groups = {fleshy=16},
+    armor_groups = {fleshy=15},
     damage_groups = {cracky=2, snappy=1, level=3},
 })
 --- Mithril Chestplate
@@ -45,7 +45,7 @@ armor:register_armor("3d_armor:chestplate_mithril", {
     description = S("Mithril Chestplate"),
     inventory_image = "3d_armor_inv_chestplate_mithril.png",
     groups = {armor_torso=1, armor_heal=13, armor_use=66},
-    armor_groups = {fleshy=21},
+    armor_groups = {fleshy=20},
     damage_groups = {cracky=2, snappy=1, level=3},
 })
 --- Mithril Leggings
@@ -63,7 +63,7 @@ armor:register_armor("3d_armor:leggings_mithril", {
     description = S("Mithril Leggings"),
     inventory_image = "3d_armor_inv_leggings_mithril.png",
     groups = {armor_legs=1, armor_heal=13, armor_use=66},
-    armor_groups = {fleshy=21},
+    armor_groups = {fleshy=20},
     damage_groups = {cracky=2, snappy=1, level=3},
 })
 --- Mithril Boots
@@ -80,8 +80,8 @@ armor:register_armor("3d_armor:leggings_mithril", {
 armor:register_armor("3d_armor:boots_mithril", {
     description = S("Mithril Boots"),
     inventory_image = "3d_armor_inv_boots_mithril.png",
-    groups = {armor_feet=1, armor_heal=13, armor_use=66},
-    armor_groups = {fleshy=16},
+    groups = {armor_feet=1, armor_heal=13, armor_use=66, armor_feather = 15},
+    armor_groups = {fleshy=15},
     damage_groups = {cracky=2, snappy=1, level=3},
 })
 --- Mithril Shield
@@ -99,7 +99,7 @@ armor:register_armor(":shields:shield_mithril", {
     description = S("Mithril Shield"),
     inventory_image = "shields_inv_shield_mithril.png",
     groups = {armor_shield=1, armor_heal=13, armor_use=66},
-    armor_groups = {fleshy=16},
+    armor_groups = {fleshy=15},
     damage_groups = {cracky=2, snappy=1, level=3},
     reciprocate_damage = true,
     on_damage = function(player, index, stack)

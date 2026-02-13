@@ -45,4 +45,4 @@ core.register_craft({
 	burntime = 40,
 })
 
-print ("[MOD] Charcoal [521] loaded")
+print ("[MOD] Charcoal loaded")

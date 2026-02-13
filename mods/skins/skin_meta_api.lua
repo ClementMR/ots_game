@@ -123,20 +123,24 @@ function skin_class:apply_skin_to_player(player)
 	end
 
 	local playername = player:get_player_name()
-	local ver = self:get_meta("format") or "1.0"
+	--local ver = self:get_meta("format") or "1.0"
 
-	player_api.set_model(player, "skinsdb_3d_armor_character_5.b3d")
+	--player_api.set_model(player, "3d_armor_character.b3d")
 
-	local v10_texture = "blank.png"
-	local v18_texture = "blank.png"
+	--local v10_texture = "blank.png"
+	--local v18_texture = "blank.png"
 	local armor_texture = "blank.png"
 	local wielditem_texture = "blank.png"
 
+	--[[
 	if ver == "1.8" then
 		v18_texture = self:get_texture()
 	else
 		v10_texture = self:get_texture()
 	end
+	]]
+
+	local skin_texture = self:get_texture()
 
 	-- Support for armor
 	if skins.armor_loaded then
@@ -148,8 +152,7 @@ function skin_class:apply_skin_to_player(player)
 	end
 
 	player_api.set_textures(player, {
-		v10_texture,
-		v18_texture,
+		skin_texture,
 		armor_texture,
 		wielditem_texture,
 	})

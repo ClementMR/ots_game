@@ -119,4 +119,4 @@ core.register_craft({
 	}
 })
 
-print ("[MOD] Quartz [521] loaded")
+print ("[MOD] Quartz loaded")
