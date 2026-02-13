@@ -161,11 +161,9 @@ local function add_ore(modname, description, mineral_name, oredef, extra_node_de
 
 	if oredef.makes.chest then
 		core.register_craft( {
+			type = "shapeless",
 			output = "default:chest_locked",
-			recipe = {
-				{ingot},
-				{"default:chest"},
-			}
+			recipe = {"default:chest", ingot},
 		})
 
 		core.register_craft( {
