@@ -1,6 +1,3 @@
-local S = core.get_translator(core.get_current_modname())
-
-
 local function get_online_players()
     local players = {}
     for _, player in ipairs(core.get_connected_players()) do
@@ -69,26 +66,3 @@ core.register_chatcommand("s_all", {
 		core.log("action", "[Server] sent : "..param)
 	end,
 })
-
-core.register_on_mods_loaded(function()
-	local function empty_func() end
-
-	core.send_join_message = empty_func
-	core.send_leave_message = empty_func
-
-	core.register_on_joinplayer(function(player, last_login)
-        if not core.is_singleplayer() then
-            core.chat_send_all(core.colorize("#0F820F", S("@1 joined the game.", player:get_player_name())))
-        end
-	end)
-
-	core.register_on_leaveplayer(function(player, timed_out)
-        local name = player:get_player_name()
-        local announcement = core.colorize("#820B0B", S("@1 left the game.", name))
-        if timed_out then
-            announcement = core.colorize("#820B0B", S("@1 left the game (timed out).", name))
-        end
-
-        core.chat_send_all(announcement)
-	end)
-end)

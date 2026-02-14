@@ -1,5 +1,0 @@
-# textdomain: ots_main
-
-@1 joined the game.=
-@1 left the game.=
-@1 left the game (timed out).=
