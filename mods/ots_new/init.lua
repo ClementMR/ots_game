@@ -40,7 +40,8 @@ local function get_formspec()
         "no_prepend[]",
         "style_type[button_exit;noclip=true;bgcolor=#FF0000]",
         "button_exit[5.7,-0.8;0.8,1;btn_exit;X]",
-        "hypertext[0.1,0.1;6.4,10.3;;" .. core.formspec_escape(get_content(core.get_worldpath() .. "/news.txt")) .. "]"
+        "hypertext[0.1,0.1;6.4,10.3;;" .. core.formspec_escape(get_content(core.get_worldpath() .. "/news.txt")) .. "]",
+        "label[0.1,8.8;Current version : " .. get_news_version() .."]"
     }
 end
 
