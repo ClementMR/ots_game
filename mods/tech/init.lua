@@ -4,6 +4,15 @@ local MAXIMUM_DISTANCE = 20000
 local mod_prefix = "[Teleporter] "
 local C = core.colorize
 
+local function validate_setting(setting, default)
+    if setting ~= nil then
+        return setting
+    end
+    return default
+end
+
+local recipes_enabled = validate_setting(core.settings:get_bool("tech_enable_recipes"), true)
+
 local function show_teleporter_form(player, pos)
     local spos = pos.x .. "," .. pos.y .. "," .. pos.z
     local meta = core.get_meta(pos)
@@ -365,7 +374,8 @@ core.register_craftitem("tech:locator", {
         local pos = set_string(meta:get_string("pos"))
         local owner = set_string(meta:get_string("owner"))
 
-        core.chat_send_player(user:get_player_name(), ("Destination : %s %s | Owner : %s"):format(C("cyan", destination), pos, C("cyan", owner)))
+        core.chat_send_player(user:get_player_name(),
+            ("Destination : %s %s | Owner : %s"):format(C("cyan", destination), pos, C("cyan", owner)))
     end
 })
 
@@ -522,6 +532,8 @@ core.register_craftitem("tech:source", {
     stack_max = 8000,
 })
 
-dofile(core.get_modpath(core.get_current_modname()) .. "/recipes.lua")
+if recipes_enabled then
+    dofile(core.get_modpath(core.get_current_modname()) .. "/recipes.lua")
+end
 
 print ("[MOD] Tech loaded")

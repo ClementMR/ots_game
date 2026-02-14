@@ -247,3 +247,7 @@ stamina.heal_lvl         (minimum saturation needed for healing)                
 stamina.starve           (amount of HP a player loses per stamina.health_tick)    int 1 0 20
 stamina.starve_lvl       (maximum stamina needed for starving)                    int 3 0 19
 stamina.visual_max       (hud bar only extends to 20)                             int 20 2 20
+
+[Tech]
+#    Enables teleporter's recipes 
+tech_enable_recipes (Enable teleporter's recipes) bool true
