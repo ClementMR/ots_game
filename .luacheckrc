@@ -11,7 +11,7 @@ globals = {
     "bones", "bucket", "carts", "dungeon_loot", "creative",
     "spawn_falling_node", "doors", "dye", "fire", "flowers",
     "give_initial_stuff", "map", "nyancat", "screwdriver", "spawn",
-    "tnt", "walls", "weather", "xpanes", "mtg_craftguide", "table"
+    "tnt", "walls", "weather", "xpanes", "mtg_craftguide", "table", "xban"
 }
 
 read_globals = {
