@@ -76,6 +76,10 @@ local function get_formspec(player)
 	return table.concat(fs)
 end
 
+local function update_inventory(player)
+	player:set_inventory_formspec(get_formspec(player))
+end
+
 core.register_on_player_receive_fields(function(player, formname, fields)
 	if formname ~= "" then return end -- Only react to the inventory form
 	local player_name = player:get_player_name()
@@ -87,7 +91,6 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 			core.sound_play("ots_inv_buy_skins", {to_player = player_name, gain=1.0})
 
 			inventory:remove_item("main", SKINS_PAYMENT)
-			player:set_inventory_formspec(get_formspec(player))
 		else
 			core.chat_send_player(player_name, core.colorize("#8c0e0e",
 				"You need a mithril block to buy the skin extension!"))
@@ -101,7 +104,7 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 					skin_index = #skins.get_skinlist_for_player(player_name) -- Wrap around to the last skin if the index goes below 1
 				end
 				skins.set_player_skin(player, skins.get_skinlist_for_player(player_name)[skin_index])
-				player:set_inventory_formspec(get_formspec(player))
+				update_inventory(player)
 				break
 			end
 		end
@@ -114,19 +117,33 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 					skin_index = 1 -- Wrap around to the first skin if the index exceeds the list
 				end
 				skins.set_player_skin(player, skins.get_skinlist_for_player(player_name)[skin_index])
-				player:set_inventory_formspec(get_formspec(player))
+				update_inventory(player)
 				break
 			end
 		end
 	end
 end)
 
+core.register_privilege("skins", {
+	description = "Change the skin of your character",
+	give_to_singleplayer = false,
+	give_to_admin = false,
+	on_grant = function(name, granter_name)
+		local player = core.get_player_by_name(name)
+		update_inventory(player)
+	end,
+    on_revoke = function(name, revoker_name)
+		local player = core.get_player_by_name(name)
+		update_inventory(player)
+	end,
+})
+
 if armor_exists then
 	armor:register_on_update(function(player)
-		player:set_inventory_formspec(get_formspec(player))
+		update_inventory(player)
 	end)
 else
 	core.register_on_joinplayer(function(player, last_login)
-		player:set_inventory_formspec(get_formspec(player))
+		update_inventory(player)
 	end)
 end

@@ -1,8 +1,3 @@
-core.register_privilege("skins", {
-	description = "Change the skin of your character",
-	give_to_singleplayer = false,
-})
-
 --[[
 core.register_chatcommand("skins", {
 	params = "<value>",
