@@ -3,7 +3,6 @@ local modpath = core.get_modpath(core.get_current_modname())
 dofile(modpath .. "/chatcommands.lua")
 dofile(modpath .. "/recipes.lua")
 dofile(modpath .. "/nodes.lua")
---dofile(modpath .. "/expire.lua")
 
 core.hud_replace_builtin("breath", {
 	hud_elem_type = "statbar",
