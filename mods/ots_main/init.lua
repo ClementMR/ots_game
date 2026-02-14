@@ -16,4 +16,10 @@ core.hud_replace_builtin("breath", {
 	offset = {x = 25, y= -120},
 })
 
+core.register_on_newplayer(function(player)
+	local name = player:get_player_name()
+	core.chat_send_all((core.colorize("#31C950", "The player \"%s\" joined the server for the first time!")):format(name))
+	core.sound_play("ots_main_newplayer", {gain = 1.0}, true)
+end)
+
 print ("[MOD] OTS loaded")
