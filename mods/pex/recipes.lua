@@ -43,9 +43,9 @@ core.register_craft({
 core.register_craft({
 	output = "pex:chest_hyper",
 	recipe = {
-		{"group:wood", "default:goldblock", "group:wood"},
 		{"default:goldblock", "default:goldblock", "default:goldblock"},
-		{"group:wood", "default:goldblock", "group:wood"}
+		{"default:goldblock", "default:diamond", "default:goldblock"},
+		{"default:goldblock", "default:goldblock", "default:goldblock"}
 	}
 })
 
