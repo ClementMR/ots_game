@@ -318,15 +318,15 @@ local function get_formspec(player)
 
 	table.insert(fs, "container[9.5,4]")
 	if data.recipes then
+		if core.get_player_privs(name).creative then
+			table.insert(fs, "button[1,4;4,1;creative_btn;Add to inventory]"..
+				"tooltip[creative_btn;Requires creative privileges]")
+		end
 		recipe_fs(fs, data)
 	elseif data.prev_item then
 		table.insert(fs, ("label[0.5,1;%s]"):format(esc(data.show_usages
 			and S("No usages.").."\n"..S("Click again to show recipes.")
 			or S("No recipes.").."\n"..S("Click again to show usages."))))
-	end
-
-	if core.get_player_privs(name).creative then
-		table.insert(fs, "button[4,3;1,1;creative_btn;Add]")
 	end
 
 	table.insert(fs, "container_end[]")
