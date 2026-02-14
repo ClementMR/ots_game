@@ -277,7 +277,7 @@ end
 local function get_formspec(player)
 	local name = player:get_player_name()
 	local data = player_data[name]
-	data.pagemax = math.max(1, math.ceil(#data.items / 32))
+	data.pagemax = math.max(1, math.ceil(#data.items / 35))
 
 	local fs = {}
 	table.insert(fs,
