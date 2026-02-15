@@ -1,0 +1,31 @@
+# textdomain: pex
+
+[Protectors]=
+@1 is protected using protectors by @2=
+Protection located at @1=
+Members: @1=
+This area is not protected=
+You can build here=
+Overlaps into above players protected area=
+
+-- Protector interface --=
+Members:=
+Close=
+
+Protected Chest=
+Mailbox=
+Mailbox (owned by @1)=
+Hyper Chest=
+This @1 will be active in @2=
+Protected Wooden Door=
+Protected Steel Door=
+Protected Wooden Trapdoor=
+Protected Steel Trapdoor=
+
+@1 hour(s)=
+@1 minute(s)=
+@1 second(s)=
+
+Protection Block
+Protection Logo=
+Protection (owned by @1)=
