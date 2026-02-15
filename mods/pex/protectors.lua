@@ -1,13 +1,16 @@
+protector = {
+	-- Settings
+	max_shares = 12,
+	radius = tonumber(core.settings:get("protector_radius")) or 5,
+	protector_flip = core.settings:get_bool("protector_flip") or false,
+	protector_hurt = tonumber(core.settings:get("protector_hurt")) or 0
+}
+
 -- Radius limiter (core cannot handle node volume of more than 4096000)
 if protector.radius > 30 then protector.radius = 30 end
 
 -- Localize math
 local math_floor, math_pi = math.floor, math.pi
-
--- Settings
-local protector_flip = core.settings:get_bool("protector_flip") or false
-local protector_hurt = tonumber(core.settings:get("protector_hurt")) or 0
-local protector_msg = core.settings:get_bool("protector_msg") ~= false
 
 local F = core.formspec_escape
 local S = core.get_translator("pex")
@@ -103,18 +106,6 @@ local function protector_formspec(meta)
 	return table.concat(formspec, "")
 end
 
--- Show protection message if enabled
-local function show_msg(player_name, msg)
-	if protector_msg == false or not player_name or player_name == "" then
-		return
-	end
-	core.chat_send_player(player_name, prefix .. " " .. msg)
-end
-
--- Infolevel:
--- 0 for no info
--- 1 for "This area is owned by <owner> !" if you can't dig
--- 2 for "This area is owned by <owner>.
 function protector.can_dig(r, pos, digger, onlyowner, infolevel)
 	if not digger or not pos then
 		return false
@@ -140,8 +131,8 @@ function protector.can_dig(r, pos, digger, onlyowner, infolevel)
 		if infolevel == 1 and owner ~= digger then -- Node change and digger isn't owner
 			-- And you aren't on the member list
 			if onlyowner or not is_member(meta, digger) then
-				show_msg(digger, S("@1 is protected using protectors by @2",
-				core.pos_to_string(selected_pos), owner))
+				core.chat_send_player(digger,
+				prefix .. " " .. S("@1 is protected using protectors by @2", core.pos_to_string(selected_pos), owner))
 				return false
 			end
 		end
@@ -173,14 +164,14 @@ core.register_on_protection_violation(function(pos, name)
 	local player = core.get_player_by_name(name)
 	if player and player:is_player() then
 		-- Hurt player if protection violated
-		if protector_hurt > 0 and player:get_hp() > 0 then
+		if protector.protector_hurt > 0 and player:get_hp() > 0 then
 			-- This delay fixes item duplication bug (thanks luk3yx)
 			core.after(0.1, function()
-				player:set_hp(player:get_hp() - protector_hurt)
+				player:set_hp(player:get_hp() - protector.protector_hurt)
 			end, player)
 		end
 		-- Flip player when protection violated
-		if protector_flip then
+		if protector.protector_flip then
 			local yaw = player:get_look_horizontal() + math_pi -- yaw + 180°
 			if yaw > 2 * math_pi then
 				yaw = yaw - 2 * math_pi
