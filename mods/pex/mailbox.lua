@@ -1,3 +1,5 @@
+local S = core.get_translator("pex")
+
 local function get_mailbox_form(pos)
 	local spos = pos.x .. "," .. pos.y .. "," ..pos.z
 	local formspec =
@@ -27,7 +29,7 @@ local function get_mailbox_insert_form(pos)
 end
 
 core.register_node("pex:mailbox", {
-	description = "Mailbox",
+	description = S("Mailbox"),
 	tiles = {
 		"xdecor_mailbox_top.png", "xdecor_mailbox_bottom.png",
 		"xdecor_mailbox_side.png", "xdecor_mailbox_side.png",
@@ -42,7 +44,7 @@ core.register_node("pex:mailbox", {
 		local meta = core.get_meta(pos)
 		local owner = placer:get_player_name()
 		meta:set_string("owner", owner)
-		meta:set_string("infotext", "Mailbox (owned by "..owner..")")
+		meta:set_string("infotext", S("Mailbox (owned by @1)", owner))
 		local inv = meta:get_inventory()
 		inv:set_size("main", 8*4)
 		inv:set_size("drop", 1)

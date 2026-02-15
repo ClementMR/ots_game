@@ -1,16 +1,18 @@
 local ACTIVATION_DELAY = 86450 -- ~= 1 Day
 
+local S = core.get_translator("pex")
+
 local function time_format(time)
 	if time >= 3600 then
-		return string.format("%d hour(s)", math.floor(time/3600)) -- hours
+		return S("@1 hour(s)", math.floor(time/3600)) -- hours
 	elseif time >= 60 then
-		return string.format("%d minute(s)", math.floor(time/60)) -- minutes
+		return S("@1 minute(s)", math.floor(time/60)) -- minutes
 	end
-	return string.format("%d second(s)", time) -- seconds
+	return S("@1 second(s)", time) -- seconds
 end
 
 core.register_node("pex:chest_hyper", {
-	description = core.colorize("yellow", "Hyper Chest"),
+	description = core.colorize("yellow", S("Hyper Chest")),
 	tiles = {
 		"pex_hyper_chest_top.png", "pex_hyper_chest_top.png",
 		"pex_hyper_chest_side.png", "pex_hyper_chest_side.png",
@@ -23,7 +25,7 @@ core.register_node("pex:chest_hyper", {
 	sounds = default.node_sound_metal_defaults(),
 	on_construct = function(pos)
 		local meta = core.get_meta(pos)
-		meta:set_string("infotext", "Hyper Chest")
+		meta:set_string("infotext", S("Hyper Chest"))
 		meta:set_int("delay", os.time())
 	end,
 	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
@@ -33,8 +35,8 @@ core.register_node("pex:chest_hyper", {
 
 		if time_elapsed < ACTIVATION_DELAY then
 			core.chat_send_player(player_name,
-			("This %s will be active in %s"):format(
-			core.colorize("yellow", "Hyper Chest"),
+			S("This @1 will be active in @2",
+			core.colorize("yellow", S("Hyper Chest")),
 			time_format(ACTIVATION_DELAY - time_elapsed)))
 			return
 		end

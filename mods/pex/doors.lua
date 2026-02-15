@@ -7,6 +7,8 @@ local function is_doors_upper_node(pos)
 	return core.get_node(pos).name == "pex:hidden"
 end
 
+local S = core.get_translator("pex")
+
 --[[
 -- returns an object to a door object or nil
 local function get(pos)
@@ -430,7 +432,7 @@ end
 
 register_door("door_wood", {
 	tiles = {{ name = "doors_door_wood.png", backface_culling = true }},
-	description = "Protected Wooden Door",
+	description = S("Protected Wooden Door"),
 	inventory_image = "doors_item_wood.png^protector_logo.png",
 	groups = {node = 1, choppy = 2, oddly_breakable_by_hand = 2, flammable = 2},
 	gain_open = 0.06,
@@ -439,7 +441,7 @@ register_door("door_wood", {
 
 register_door("door_steel", {
 	tiles = {{name = "doors_door_steel.png", backface_culling = true}},
-	description = "Protected Steel Door",
+	description = S("Protected Steel Door"),
 	inventory_image = "doors_item_steel.png^protector_logo.png",
 	groups = {node = 1, cracky = 1, level = 2},
 	sounds = default.node_sound_metal_defaults(),
@@ -578,7 +580,7 @@ local function register_trapdoor(name, def)
 end
 
 register_trapdoor("pex:trapdoor", {
-	description = "Protected Wooden Trapdoor",
+	description = S("Protected Wooden Trapdoor"),
 	inventory_image = "doors_trapdoor.png^protector_logo.png",
 	wield_image = "doors_trapdoor.png^protector_logo.png",
 	tile_front = "doors_trapdoor.png",
@@ -589,7 +591,7 @@ register_trapdoor("pex:trapdoor", {
 })
 
 register_trapdoor("pex:trapdoor_steel", {
-	description = "Protected Steel Trapdoor",
+	description = S("Protected Steel Trapdoor"),
 	inventory_image = "doors_trapdoor_steel.png^protector_logo.png",
 	wield_image = "doors_trapdoor_steel.png^protector_logo.png",
 	tile_front = "doors_trapdoor_steel.png",
