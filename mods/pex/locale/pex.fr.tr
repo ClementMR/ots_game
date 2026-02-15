@@ -1,0 +1,31 @@
+# textdomain: pex
+
+[Protectors]=[Protecteurs]
+@1 is protected using protectors by @2=@1 est protégée par @2
+Protection located at @1=Protection située à @1
+Members: @1=Membres: @1
+This area is not protected=Cette zone n'est pas protégée
+You can build here=Vous pouvez construire ici
+Overlaps into above players protected area=Votre protection chevauche d'autres zones protégées
+
+-- Protector interface --=-- Inteface de la protection --
+Members:=Membres:
+Close=Fermer
+
+Protected Chest=Coffre protégé
+Mailbox=Boîte aux lettres
+Mailbox (owned by @1)=Boîte aux lettres (possédée par @1)
+Hyper Chest=Hyper coffre
+This @1 will be active in @2=Cet @1 sera actif dans @2
+Protected Wooden Door=Porte en bois protégée
+Protected Steel Door=Porte en acier protégée
+Protected Wooden Trapdoor=Trappe en bois protégée
+Protected Steel Trapdoor=Trappe en acier protégée
+
+@1 hour(s)=@1 heure(s)
+@1 minute(s)=@1 minute(s)
+@1 second(s)=@1 seconde(s)
+
+Protection Block=Bloc de protection
+Protection Logo=Logo de protection
+Protection (owned by @1)=Protection (possédée par @1)
