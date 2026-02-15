@@ -231,9 +231,6 @@ protector_flip (Protector Flip) bool false
 #    Hurts player by amount entered when accessing protected area, 0 to disable
 protector_hurt (Protector Hurt) int 0
 
-#    Enables protection messages in player chat
-protector_msg (Enable Protector Messages) bool true
-
 [Stamina]
 stamina.enabled          (Is stamina enabled?)                                    bool true
 stamina.tick             (time in seconds after that 1 saturation point is taken) float 800
