@@ -35,6 +35,9 @@ end
 -- Update skin on join
 core.register_on_joinplayer(function(player)
 	skins.update_player_skin(player)
+	if not core.check_player_privs(player, "skins") then
+		skins.set_player_skin(player, "character")
+	end
 end)
 
 --[[
