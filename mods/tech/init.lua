@@ -1,7 +1,6 @@
 local selected_destination = {}
 
 local MAXIMUM_DISTANCE = 20000
-local mod_prefix = "[Teleporter] "
 local C = core.colorize
 
 local function validate_setting(setting, default)
@@ -216,7 +215,7 @@ local function teleport_player(player, pos)
     -- Teleport the player
     player:set_pos(core.string_to_pos(destination))
     core.chat_send_player(name, "Teleport to " .. destination .. " complete")
-    core.log("action", mod_prefix .. name .. " teleported to " .. destination)
+    core.log("action", "[Teleporter] " .. name .. " teleported to " .. destination)
 
     -- Add particles
     core.add_particlespawner({
@@ -280,6 +279,10 @@ core.register_node("tech:teleporter", {
         local inv = meta:get_inventory()
 
         if not default.can_interact_with_node(player, pos) then
+            return false
+        end
+
+        if not inv:is_empty("source") or not inv:is_empty("core") or not inv:is_empty("locator") then
             return false
         end
 
@@ -419,12 +422,10 @@ local function save_locator(player, destination)
         new_stack:get_meta():set_string("locator_name", destination)
         new_stack:get_meta():set_string("pos", pos)
         new_stack:get_meta():set_string("owner", player:get_player_name())
-        --new_stack:get_meta():set_string("description", ("Locator\n" ..
-        --C("grey", "Destination : %s %s\nOwner : %s")):format(destination, pos, player:get_player_name()))
 
         player:set_wielded_item(new_stack)
         core.chat_send_player(name, ("Locator saved as : %s"):format(C("cyan", destination)))
-        core.log("action", mod_prefix .. name .. " saved locator as " .. destination .. " at " .. pos)
+        core.log("action", "[Teleporter] " .. name .. " saved locator as " .. destination .. " at " .. pos)
     end
 end
 
