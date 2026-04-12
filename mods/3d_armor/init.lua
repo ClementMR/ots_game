@@ -1,5 +1,5 @@
 local modpath = core.get_modpath(core.get_current_modname())
-dofile(modpath .. "/src/api.lua")
+dofile(modpath .. "/api.lua")
 
 local last_punch_time = {}
 local timer = 0
@@ -423,10 +423,10 @@ end
 
 -- Register armors
 for mat, _ in pairs(armor.materials) do
-	dofile(modpath .. "/src/" .. mat .. "_armor.lua")
+	dofile(modpath .. "/armors/" .. mat .. "_armor.lua")
 end
 
-dofile(modpath .. "/src/admin_armor.lua")
-dofile(modpath .. "/src/armor_description.lua")
-dofile(modpath .. "/src/recipes.lua")
-dofile(modpath .. "/src/aliases.lua")
+dofile(modpath .. "/armors/admin_armor.lua")
+dofile(modpath .. "/armor_description.lua")
+dofile(modpath .. "/recipes.lua")
+dofile(modpath .. "/aliases.lua")
