@@ -53,6 +53,78 @@ armor_transparent (Transparent armor) bool false
 
 shields_disable_sounds (Disable shield sounds) bool false
 
+[Animalia]
+#    How many chunks can generate before adding another to spawn queue
+chunk_spawn_add_int (Chunk Spawning Addition Interval) float 6
+
+#    How often (in seconds) the spawn queue is executed and cleared
+chunk_spawn_queue_int (Chunk Spawning Queue Execution Interval) float 16
+
+#    If true, mobs will spawn in the wild
+spawn_mobs (Spawn Mobs) bool true
+
+#    If true, items from mobs_redo and mobs_animal will be converted to Animalia items
+convert_redo_items(Convert Mobs Redo Items) bool false
+
+#    If true, Guano will accumulate under resting bats
+guano_accumulation (Guano Accumulation) bool true
+
+#    If true, Guano can be used as fertilizer
+guano_fertilization (Guano Fertilization) bool true
+
+#    Chance for Common Mobs to spawn (1 in x nodes will spawn a mob every minute)
+animalia_common_chance (Common Mob Spawn Chance) int 40000 20000 60000
+
+#    Chance for Ambient Mobs to spawn (1 in x nodes will spawn a mob every minute)
+animalia_ambient_chance (Ambient Mob Spawn Chance) int 15000 5000 25000
+
+#    Chance for Pest Mobs to spawn (1 in x nodes will spawn a mob every minute)
+animalia_pest_chance (Pest Mob Spawn Chance) int 5000 100 15000
+
+#    Chance for Common Mobs to spawn (1 in x nodes will spawn a mob every minute)
+animalia_predator_chance (Predator Mob Spawn Chance) int 40000 20000 50000
+
+[Anvil]
+anvil_hammer_is_repairable (Hammer can be repaired on anvil) bool true
+
+[Awards]
+# Add default achievements from the awards mod
+awards.add_defaults (Add Default Achievements) bool true
+
+[Creatura]
+# How mobs step up nodes. 
+#
+# - Simple means mobs use Minetests builtin stepping.
+# - Fancy means mobs will step up nodes with a quick hop but can cause lag.
+creatura_step_type (Step Type) enum simple simple,fancy
+
+# How often (in seconds) the spawn ABM is called
+creatura_spawn_interval (Spawn ABM Interval) int 10
+
+# Allows Mobs to spawn during chunk generation (If dependent mods use spawn_on_gen)
+creatura_mapgen_spawning (Mapgen Spawning) bool true
+
+# How many chunks are generated before a Mob can spawn
+creatura_mapgen_spawn_interval (Mapgen Spawning Interval) int 64
+
+# How many Mobs can be a in a Mapblock before ABM spawning is blocked
+creatura_mapblock_limit (Max Mobs per Mapblock) int 12
+
+# How many Mobs can be within Active Block Send Range of an attempted spawn before stopping attempt
+creatura_abr_limit (Max Mobs within ABR) int 24
+
+# Minimum distance to a player for ABM Spawning
+creatura_min_abm_dist (Minimum ABM Spawning Distance) int 32
+
+# Allows Mobs to spawn in protected areas
+creatura_protected_spawn (Protected Area Spawning) bool true
+
+# Allotted time (in μs) per step for A* pathfinding (lower means less lag but slower pathfinding)
+creatura_a_star_alloted_time (A* Pathfinding Alloted time per step) int 500
+
+# Allotted time (in μs) per step for Theta* pathfinding (lower means less lag but slower pathfinding)
+creatura_theta_star_alloted_time (Theta* Pathfinding Alloted time per step) int 700
+
 [MTG]
 #    In creative mode players are able to dig all kind of blocks nearly
 #    instantly, and have access to unlimited resources.
@@ -140,6 +212,10 @@ log_non_player_actions (Log non-player action) bool false
 [3D_armor]
 #    Enable 3d armor's wieldview
 enable_wieldview (Enable wieldview) bool true
+
+[i3]
+# The progressive mode shows recipes you can craft from items you ever had in your inventory.
+i3_progressive_mode (Learn crafting recipes progressively) bool false
 
 [Mobs]
 #    Enable setting so that Mobs Redo mobs can attack Creatura mobs

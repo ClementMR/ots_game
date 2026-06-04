@@ -12,6 +12,29 @@ end
 
 local recipes_enabled = validate_setting(core.settings:get_bool("tech_enable_recipes"), true)
 
+local slots = {
+    locator = {["tech:locator"] = true},
+    core = {["tech:core"] = true},
+    source = {["tech:source"] = true, ["tech:infinite_source"] = true},
+}
+
+local function can_use_teleporter_inventory(player, pos)
+    local meta = core.get_meta(pos)
+    local name = player:get_player_name()
+
+    return default.can_interact_with_node(player, pos)
+        and (meta:get_string("owner") ~= "" or core.get_player_privs(name).protection_bypass)
+end
+
+local function stack_matches_list(listname, stack)
+    local allowed = slots[listname]
+    if not allowed then
+        return false
+    end
+
+    return allowed[stack:get_name()] == true
+end
+
 local function show_teleporter_form(player, pos)
     local spos = pos.x .. "," .. pos.y .. "," .. pos.z
     local meta = core.get_meta(pos)
@@ -44,32 +67,31 @@ local function show_teleporter_form(player, pos)
     local form =
         "formspec_version[4]" ..
         "size[15.62,11.30]" ..
-        --"no_prepend[]" ..
-        "list[nodemeta:" .. spos .. ";locator;0.35,0.125;4,4;]" ..
-        "list[nodemeta:" .. spos .. ";core;0.35,5.40;1,4;]" ..
-        "list[nodemeta:" .. spos .. ";source;14.25,5.40;1,1;]" ..
-        "list[current_player;main;2.74,5.40;8.0,1;]" ..
-        "list[current_player;main;2.74,6.75;8.0,3;8]" ..
-        "button[0.35,10.40;2.30,0.70;settings_btn;Settings]" ..
+        "no_prepend[]" ..
+        "bgcolor[#00000000]" ..
+        "background[0,0;15.62,11.30;tech_teleporter_gui.png;true]" ..
+        "listcolors[#5c646999;#7f878b99;#4dd8e866;#4dd8e8aa;#ffffff]" ..
+        "style_type[label;font_size=16;textcolor=#d8e4e8]" ..
+        "style_type[button,button_exit;border=false;font=bold;font_size=16;textcolor=#e8f6f8;" ..
+            "bgimg=tech_gui_btn.png;bgimg_hovered=tech_gui_btn_hover.png;" ..
+            "bgimg_pressed=tech_gui_btn_pressed.png;bgimg_middle=6]" ..
+        "style[teleport;textcolor=#fff]" ..
+        "tooltip[0.75,0.25;5,5;Locator slots: tech:locator;#32333899;#fff]" ..
+        "tooltip[0.75,5.45;1,5;Core slots: tech:core;#32333899;#fff]" ..
+        "tooltip[14.17,5.65;1,1;Source slot: tech:source;#32333899;#fff]" ..
+        "tableoptions[background=#00000000;highlight=#4dd8e866;border=false]" ..
+        "tablecolumns[text]" ..
+        "list[nodemeta:" .. spos .. ";locator;0.75,0.25;4,4;]" ..
+        "list[nodemeta:" .. spos .. ";core;0.75,5.45;1,4;]" ..
+        "list[nodemeta:" .. spos .. ";source;14.17,5.65;1,1;]" ..
+        "list[current_player;main;3.27,5.40;8.0,1;]" ..
+        "list[current_player;main;3.27,6.75;8.0,3;8]" ..
+        "button[0.35,10.38;2.30,0.70;settings_btn;Settings]" ..
         "button_exit[5.20,10.38;2.30,0.70;exit_btn;Exit]" ..
         "button_exit[7.70,10.38;2.30,0.70;teleport;Teleport]" ..
-        "table[5.20,0.125;10.30,4.725;destinations;" .. table.concat(destinations, ",") .. "]" ..
+        "table[6,0.25;9.45,4.725;destinations;" .. table.concat(destinations, ",") .. "]" ..
         "listring[nodemeta:" .. spos .. ";locator]" ..
         "listring[current_player;main]"
-
-    if inv:get_stack("source", 1):is_empty() then
-        form = form .. "image[14.25,5.40;1,1;tech_source_empty_slot.png]"
-    end
-
-    local y = 5.40
-    for i=1, 4 do
-        local stack = inv:get_stack("core", i)
-        if stack:is_empty() then
-            form = form .. "image[0.35," .. y .. ";1,1;tech_core_empty_slot.png]"
-        end
-
-        y = y + 1.25
-    end
 
     core.show_formspec(player:get_player_name(), "tech:teleporter_" .. spos, form)
 end
@@ -295,36 +317,31 @@ core.register_node("tech:teleporter", {
         return true
     end,
     allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
-        local meta = core.get_meta(pos)
-        local name = player:get_player_name()
-
-        if not default.can_interact_with_node(player, pos)
-            or (meta:get_string("owner") == "" and not
-            core.get_player_privs(name).protection_bypass) then
+        if not can_use_teleporter_inventory(player, pos) then
             return 0
         end
-        return count
+
+        local inv = core.get_meta(pos):get_inventory()
+        local stack = inv:get_stack(from_list, from_index)
+
+        if not stack_matches_list(to_list, stack) then
+            return 0
+        end
+
+        return math.min(count, stack:get_count())
     end,
     allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-        local meta = core.get_meta(pos)
-        local name = player:get_player_name()
-
-        if not default.can_interact_with_node(player, pos)
-            or (meta:get_string("owner") == "" and not
-            core.get_player_privs(name).protection_bypass) then
+        if not can_use_teleporter_inventory(player, pos) or not stack_matches_list(listname, stack) then
             return 0
         end
+
         return stack:get_count()
     end,
     allow_metadata_inventory_take = function(pos, listname, index, stack, player)
-        local meta = core.get_meta(pos)
-        local name = player:get_player_name()
-
-        if not default.can_interact_with_node(player, pos)
-            or (meta:get_string("owner") == "" and not
-            core.get_player_privs(name).protection_bypass) then
+        if not can_use_teleporter_inventory(player, pos) then
             return 0
         end
+
         return stack:get_count()
     end,
     on_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
@@ -499,7 +516,7 @@ core.register_craftitem("tech:core", {
 
 core.register_craftitem("tech:infinite_source", {
     description = "Infinite Source",
-    inventory_image = "default_mese_crystal_fragment.png",
+    inventory_image = "tech_infinite_source.png",
     stack_max = 1,
 })
 
@@ -529,7 +546,7 @@ core.register_craftitem("tech:basic_component", {
 
 core.register_craftitem("tech:source", {
     description = "Source",
-    inventory_image = "default_mese_crystal_fragment.png",
+    inventory_image = "tech_source.png",
     stack_max = 8000,
 })
 

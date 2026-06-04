@@ -1,6 +1,6 @@
 local storage = core.get_mod_storage()
-local NEWS_VERSION_KEY = "news_version"
-local NEWS_KEY = "news_seen_version"
+local NEWS_VERSION_KEY = "ots_new:news_version"
+local NEWS_KEY = "ots_news:seen_version"
 
 local function get_news_version()
     local version = storage:get_int(NEWS_VERSION_KEY)
@@ -36,12 +36,17 @@ end
 
 local function get_formspec()
     return {
-        "size[6,9]",
+        "formspec_version[6]",
+        "size[9,10.4]",
+        "position[0.5,0.5]",
         "no_prepend[]",
-        "style_type[button_exit;noclip=true;bgcolor=#FF0000]",
-        "button_exit[5.7,-0.8;0.8,1;btn_exit;X]",
-        "hypertext[0.1,0.1;6.4,10.3;;" .. core.formspec_escape(get_content(core.get_worldpath() .. "/news.txt")) .. "]",
-        "label[0.1,8.8;Current version : " .. get_news_version() .."]"
+        "bgcolor[#00000000;false]",
+        "background[0,0;9,10.4;ots_news_bg.png;true]",
+        "style_type[button_exit;border=false;bgcolor=#C11007;textcolor=#FFFFFF]",
+        "style_type[label;textcolor=#EEF3F8]",
+        "label[0.45,0.43;Server News]",
+        "button_exit[8.25,0.25;0.45,0.45;btn_exit;X]",
+        "hypertext[0.55,1.25;7.9,8.05;news;" .. core.formspec_escape(get_content(core.get_worldpath() .. "/news.txt")) .. "]"
     }
 end
 
