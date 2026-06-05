@@ -125,6 +125,10 @@ creatura_a_star_alloted_time (A* Pathfinding Alloted time per step) int 500
 # Allotted time (in μs) per step for Theta* pathfinding (lower means less lag but slower pathfinding)
 creatura_theta_star_alloted_time (Theta* Pathfinding Alloted time per step) int 700
 
+[Ghost Purge]
+#    Defines the maximum time of inactivity in days
+ghost_purge_max_inactivity (Maximum Inactivity) int 90
+
 [MTG]
 #    In creative mode players are able to dig all kind of blocks nearly
 #    instantly, and have access to unlimited resources.
@@ -163,10 +167,6 @@ enable_fence_tall (Tall fences and walls) bool false
 #    When TNT explodes, it destroys nearby nodes and damages nearby players.
 #    This setting is disabled by default on servers.
 enable_tnt (TNT) bool true
-
-[Ghost Purge]
-#    Defines the maximum time of inactivity in days
-ghost_purge_max_inactivity (Maximum Inactivity) int 90
 
 #    The radius in which nodes will be destroyed by a TNT explosion.
 tnt_radius (TNT radius) int 4 0
@@ -208,10 +208,6 @@ enable_weather (Enable weather) bool true
 
 #    If enabled, non-player actions are logged
 log_non_player_actions (Log non-player action) bool false
-
-[3D_armor]
-#    Enable 3d armor's wieldview
-enable_wieldview (Enable wieldview) bool true
 
 [i3]
 # The progressive mode shows recipes you can craft from items you ever had in your inventory.
