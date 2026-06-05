@@ -35,6 +35,16 @@ local function stack_matches_list(listname, stack)
     return allowed[stack:get_name()] == true
 end
 
+local function is_riding_horse(player)
+    local attached = player:get_attach()
+    if not attached then
+        return false
+    end
+
+    local entity = attached:get_luaentity()
+    return entity and entity.name == "animalia:horse"
+end
+
 local function show_teleporter_form(player, pos)
     local spos = pos.x .. "," .. pos.y .. "," .. pos.z
     local meta = core.get_meta(pos)
@@ -155,6 +165,11 @@ local function teleport_player(player, pos)
     local mode = meta:get_string("teleport_mode") or "private"
     local name = player:get_player_name()
     local owner = meta:get_string("owner")
+
+    if is_riding_horse(player) then
+        core.chat_send_player(name, "Unable to teleport : You cannot use a teleporter while riding a horse.")
+        return false
+    end
 
     if not selected_destination or not selected_destination[name] then
         core.chat_send_player(name, "Unable to teleport : No destination selected.")

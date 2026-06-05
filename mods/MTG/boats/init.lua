@@ -13,6 +13,11 @@ local function is_water(pos)
 end
 
 
+local function is_ice(pos)
+	return minetest.get_node(pos).name == "default:ice"
+end
+
+
 local function get_velocity(v, yaw, y)
 	local x = -math.sin(yaw) * v
 	local z =  math.cos(yaw) * v
@@ -173,9 +178,19 @@ function boat.on_step(self, dtime)
 		self.object:set_pos(self.object:get_pos())
 		return
 	end
+
+	local p = self.object:get_pos()
+	p.y = p.y - 0.5
+	local on_ice = is_ice(p)
+
 	-- We need to preserve velocity sign to properly apply drag force
 	-- while moving backward
-	local drag = dtime * math.sign(self.v) * (0.01 + 0.0796 * self.v * self.v)
+	local drag
+	if on_ice then
+		drag = dtime * math.sign(self.v) * (0.002 + 0.015 * self.v * self.v)
+	else
+		drag = dtime * math.sign(self.v) * (0.01 + 0.0796 * self.v * self.v)
+	end
 	-- If drag is larger than velocity, then stop horizontal movement
 	if math.abs(self.v) <= math.abs(drag) then
 		self.v = 0
@@ -183,21 +198,30 @@ function boat.on_step(self, dtime)
 		self.v = self.v - drag
 	end
 
-	local p = self.object:get_pos()
-	p.y = p.y - 0.5
 	local new_velo
 	local new_acce = {x = 0, y = 0, z = 0}
 	if not is_water(p) then
-		local nodedef = minetest.registered_nodes[minetest.get_node(p).name]
-		if (not nodedef) or nodedef.walkable then
-			self.v = 0
-			new_acce = {x = 0, y = 1, z = 0}
-		else
+		if on_ice then
 			new_acce = {x = 0, y = -9.8, z = 0}
+		else
+			local nodedef = minetest.registered_nodes[minetest.get_node(p).name]
+			if (not nodedef) or nodedef.walkable then
+				self.v = 0
+				new_acce = {x = 0, y = 1, z = 0}
+			else
+				new_acce = {x = 0, y = -9.8, z = 0}
+			end
 		end
 		new_velo = get_velocity(self.v, self.object:get_yaw(),
 			self.object:get_velocity().y)
-		self.object:set_pos(self.object:get_pos())
+		if on_ice and math.abs(self.object:get_velocity().y) < 1 then
+			local pos = self.object:get_pos()
+			pos.y = math.floor(pos.y) + 0.85
+			self.object:set_pos(pos)
+			new_velo = get_velocity(self.v, self.object:get_yaw(), 0)
+		else
+			self.object:set_pos(self.object:get_pos())
+		end
 	else
 		p.y = p.y + 1
 		if is_water(p) then
@@ -255,10 +279,15 @@ minetest.register_craftitem("boats:boat", {
 		if pointed_thing.type ~= "node" then
 			return itemstack
 		end
-		if not is_water(pointed_thing.under) then
+		if not is_water(pointed_thing.under)
+				and not is_ice(pointed_thing.under) then
 			return itemstack
 		end
-		pointed_thing.under.y = pointed_thing.under.y + 0.5
+		if is_ice(pointed_thing.under) then
+			pointed_thing.under.y = pointed_thing.under.y + 0.85
+		else
+			pointed_thing.under.y = pointed_thing.under.y + 0.5
+		end
 		boat = minetest.add_entity(pointed_thing.under, "boats:boat")
 		if boat then
 			if placer then

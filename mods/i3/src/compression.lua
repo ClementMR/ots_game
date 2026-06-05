@@ -8,6 +8,10 @@ local material_tools = {
 	"bronze", "diamond", "mese", "stone", "wood",
 }
 
+local armor_materials = {
+	"wood", "cactus", "bronze", "diamond", "gold",
+}
+
 local material_stairs = {
 	"acacia_wood", "aspen_wood", "brick", "bronzeblock", "cobble", "copperblock",
 	"desert_cobble", "desert_sandstone", "desert_sandstone_block", "desert_sandstone_brick",
@@ -24,6 +28,9 @@ local colors = {
 	"black", "blue", "brown", "cyan", "dark_green", "dark_grey", "green",
 	"grey", "magenta", "orange", "pink", "red", "violet", "yellow",
 }
+
+local stained_glass_colors = copy(colors)
+insert(stained_glass_colors, "white")
 
 local to_compress = {
 	["default:wood"] = {
@@ -88,7 +95,12 @@ local to_compress = {
 
 	["farming:hoe_steel"] = {
 		replace = "steel",
-		by = {"wood", "stone"}
+		by = material_tools
+	},
+
+	["default:glass"] = {
+		replace = "default:glass",
+		by = {"default:obsidian_glass"},
 	},
 
 	["stairs:slab_wood"] = {
@@ -116,6 +128,88 @@ local to_compress = {
 		by = {"desertcobble", "mossycobble"}
 	},
 }
+
+if core.get_modpath("moreores") then
+	local moreores_materials = {"silver", "mithril"}
+
+	for _, tool in ipairs({"axe", "pick", "shovel", "sword"}) do
+		local extras = to_compress["default:" .. tool .. "_steel"].extra or {}
+		to_compress["default:" .. tool .. "_steel"].extra = extras
+
+		for _, material in ipairs(moreores_materials) do
+			insert(extras, "moreores:" .. tool .. "_" .. material)
+		end
+	end
+
+	local hoe_extras = to_compress["farming:hoe_steel"].extra or {}
+	to_compress["farming:hoe_steel"].extra = hoe_extras
+
+	for _, material in ipairs(moreores_materials) do
+		insert(hoe_extras, "moreores:hoe_" .. material)
+	end
+
+	insert(armor_materials, "mithril")
+end
+
+if core.get_modpath("ethereal") then
+	insert(armor_materials, "crystal")
+end
+
+if core.get_modpath("nether") then
+	insert(armor_materials, "nether")
+end
+
+if core.get_modpath("3d_armor") then
+	to_compress["3d_armor:helmet_steel"] = {
+		replace = "steel",
+		by = armor_materials,
+	}
+
+	to_compress["3d_armor:chestplate_steel"] = {
+		replace = "steel",
+		by = armor_materials,
+	}
+
+	to_compress["3d_armor:leggings_steel"] = {
+		replace = "steel",
+		by = armor_materials,
+	}
+
+	to_compress["3d_armor:boots_steel"] = {
+		replace = "steel",
+		by = armor_materials,
+	}
+
+	to_compress["shields:shield_steel"] = {
+		replace = "steel",
+		by = armor_materials,
+		extra = {
+			"shields:shield_enhanced_wood",
+			"shields:shield_enhanced_cactus",
+		},
+	}
+end
+
+if core.get_modpath("stainedglass") then
+	for _, color in ipairs(stained_glass_colors) do
+		insert(to_compress["default:glass"].by, "stainedglass:stained_glass_" .. color)
+	end
+end
+
+if core.get_modpath("xpanes") then
+	local pane_types = {"xpanes:obsidian_pane_flat"}
+
+	if core.get_modpath("stainedglass") then
+		for _, color in ipairs(stained_glass_colors) do
+			insert(pane_types, "xpanes:pane_" .. color .. "_flat")
+		end
+	end
+
+	to_compress["xpanes:pane_flat"] = {
+		replace = "xpanes:pane_flat",
+		by = pane_types,
+	}
+end
 
 local circular_saw_names = {
 	{"micro", "_1"},
@@ -298,6 +392,10 @@ for k, v in pairs(to_compress) do
 
 	for _, str in ipairs(v.by) do
 		local it = k:gsub(v.replace, str)
+		insert(compressed[k], it)
+	end
+
+	for _, it in ipairs(v.extra or {}) do
 		insert(compressed[k], it)
 	end
 end

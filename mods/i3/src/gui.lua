@@ -289,16 +289,25 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 
 		fs("list[detached:%s_armor;armor;0,%f;5,1;]", esc_name, yextra + 0.7)
 
+		local armor_slots = {
+			{tooltip = FS("Helmet"), texture = "3d_armor_inv_helmet_steel.png"},
+			{tooltip = FS("Chest"), texture = "3d_armor_inv_chestplate_steel.png"},
+			{tooltip = FS("Leggings"), texture = "3d_armor_inv_leggings_steel.png"},
+			{tooltip = FS("Boots"), texture = "3d_armor_inv_boots_steel.png"},
+			{tooltip = FS("Shield"), texture = "shields_inv_shield_steel.png"},
+		}
+
 		for i = 1, 5 do
 			local stack = armor_inv:get_stack("armor", i)
 
 			if stack:is_empty() then
-				local tips = {FS("Helmet"), FS("Chest"), FS("Leggings"), FS("Boots"), FS("Shield")}
 				local x = (i - 1) + ((i - 1) * 0.15)
 				local y = yextra + 0.7
+				local slot = armor_slots[i]
 
-				image(x, y, 1, 1, fmt("i3_armor_%u.png", i))
-				tooltip(x, y, 1, 1, tips[i])
+				image(x, y, 1, 1, slot.texture)
+
+				tooltip(x, y, 1, 1, slot.tooltip)
 			end
 		end
 

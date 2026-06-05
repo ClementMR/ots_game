@@ -173,6 +173,14 @@ local function select_item(player, data, fields)
 						a = a:sub(2)
 					end
 
+					if b:sub(1, 1) == "_" then
+						b = b:sub(2)
+					end
+
+					if a == b then
+						return false
+					end
+
 					return a < b
 				end)
 
