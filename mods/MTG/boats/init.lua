@@ -14,7 +14,7 @@ end
 
 
 local function is_ice(pos)
-	return minetest.get_node(pos).name == "default:ice"
+	return minetest.get_item_group(minetest.get_node(pos).name, "slippery") ~= 0
 end
 
 
