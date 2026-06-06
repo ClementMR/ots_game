@@ -519,11 +519,11 @@ minetest.register_node("anvil:anvil", {
 		end
 
 		-- do the actual repair
-		input:add_wear(-5000) -- equals to what technic toolshop does in 5 seconds
+		input:add_wear(-3000) -- equals to what technic toolshop does in 5 seconds
 		inv:set_stack("input", 1, input)
 
 		-- damage the hammer slightly
-		wielded:add_wear(100)
+		wielded:add_wear(20000)
 		puncher:set_wielded_item(wielded)
 	end,
 	is_ground_content = false,
