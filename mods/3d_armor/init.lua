@@ -349,16 +349,19 @@ core.register_on_player_hpchange(function(player, hp_change, reason)
 	end
 
 	if reason.type == "fall" then
+		local fall_change = hp_change
 		if armor.config.feather_fall then
 			local attenuation = hp_change + feather
 			if attenuation < 0 then
-				return attenuation
+				fall_change = attenuation
 			else
-				return 0
+				fall_change = 0
 			end
-		else
-			return hp_change
 		end
+		if fall_change < 0 or feather > 0 then
+			armor:punch(player)
+		end
+		return fall_change
 	end
 
 	if hp + hp_change < properties.hp_max then
