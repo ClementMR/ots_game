@@ -3217,6 +3217,7 @@ function mobs:register_mob(name, def)
 		initial_properties = {
 			hp_max = max(1, (def.hp_max or 10) * difficulty),
 			physical = true,
+			collide_with_objects = false,
 			collisionbox = collisionbox,
 			selectionbox = def.selectionbox or collisionbox,
 			visual = def.visual,

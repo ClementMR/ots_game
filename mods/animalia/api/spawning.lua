@@ -90,7 +90,7 @@ creatura.register_abm_spawn("animalia:cow", {
 })
 
 creatura.register_abm_spawn("animalia:fox", {
-	chance = predator_spawn_chance,
+	chance = 80000,
 	min_height = 0,
 	max_height = 1024,
 	min_group = 1,
@@ -100,13 +100,13 @@ creatura.register_abm_spawn("animalia:fox", {
 })
 
 creatura.register_abm_spawn("animalia:horse", {
-	chance = common_spawn_chance,
+	chance = 80000,
 	spawn_active = true,
 	min_height = 0,
 	max_height = 1024,
-	min_group = 3,
-	max_group = 4,
-	spawn_cap = 3,
+	min_group = 2,
+	max_group = 3,
+	spawn_cap = 2,
 	biomes = animalia.registered_biome_groups["grassland"].biomes,
 	nodes = {"group:soil"},
 	neighbors = {"air", "group:grass", "group:flora"}

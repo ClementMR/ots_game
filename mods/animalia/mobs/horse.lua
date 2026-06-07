@@ -4,6 +4,13 @@
 
 local random = math.random
 
+local function random_range(a, b)
+	if a > b then
+		a, b = b, a
+	end
+	return random(a, b)
+end
+
 -- Horse Inventory
 
 local form_obj = {}
@@ -297,25 +304,28 @@ creatura.register_mob("animalia:horse", {
 	add_child = function(self, mate)
 		local pos = self.object:get_pos()
 		if not pos then return end
-		local obj = minetest.add_entity(pos, self.name)
-		local ent = obj and obj:get_luaentity()
-		if not ent then return end
-		ent.growth_scale = 0.7
-		local tex_no = self.texture_no
-		local mate_ent = mate and mate:get_luaentity()
-		if mate_ent
+		local mate_ent = mate
+		if mate and mate.get_luaentity then
+			mate_ent = mate:get_luaentity()
+		end
+		if not mate_ent
 		or not mate_ent.speed
 		or not mate_ent.jump_power
 		or not mate_ent.max_health then
 			return
 		end
+		local obj = minetest.add_entity(pos, self.name)
+		local ent = obj and obj:get_luaentity()
+		if not ent then return end
+		ent.growth_scale = 0.7
+		local tex_no = self.texture_no
 		if random(2) < 2 then
 			tex_no = mate_ent.texture_no
 		end
 		ent:memorize("texture_no", tex_no)
-		ent:memorize("speed", random(mate_ent.speed, self.speed))
-		ent:memorize("jump_power", random(mate_ent.jump_power, self.jump_power))
-		ent:memorize("max_health", random(mate_ent.max_health, self.max_health))
+		ent:memorize("speed", random_range(mate_ent.speed, self.speed))
+		ent:memorize("jump_power", random_range(mate_ent.jump_power, self.jump_power))
+		ent:memorize("max_health", random_range(mate_ent.max_health, self.max_health))
 		ent.speed = ent:recall("speed")
 		ent.jump_power = ent:recall("jump_power")
 		ent.max_health = ent:recall("max_health")
