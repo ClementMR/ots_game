@@ -101,11 +101,12 @@ creatura.register_abm_spawn("animalia:fox", {
 
 creatura.register_abm_spawn("animalia:horse", {
 	chance = 80000,
+	interval = 300,
 	spawn_active = true,
 	min_height = 0,
 	max_height = 1024,
-	min_group = 2,
-	max_group = 3,
+	min_group = 1,
+	max_group = 2,
 	spawn_cap = 2,
 	biomes = animalia.registered_biome_groups["grassland"].biomes,
 	nodes = {"group:soil"},
