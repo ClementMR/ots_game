@@ -2,19 +2,20 @@
 
 tnt = {}
 
--- Load support for MT game translation.
 local S = minetest.get_translator("tnt")
 
 
--- Default to enabled when in singleplayer
-local enable_tnt = minetest.settings:get_bool("enable_tnt") or true
-if enable_tnt == nil then
+-- Default to enabled in singleplayer
+local enable_tnt = minetest.settings:get("enable_tnt") or "auto"
+if enable_tnt == "auto" then
 	enable_tnt = minetest.is_singleplayer()
+else
+	enable_tnt = minetest.is_yes(enable_tnt)
 end
 
-local tnt_radius = tonumber(minetest.settings:get("tnt_radius") or 4)
+local tnt_radius = tonumber(minetest.settings:get("tnt_radius") or 3)
 
--- Fill a list with data for content IDs, after all nodes are registered
+-- Fill a table with data for all content IDs, after all nodes are registered
 local cid_data = {}
 minetest.register_on_mods_loaded(function()
 	for name, def in pairs(minetest.registered_nodes) do
@@ -78,7 +79,6 @@ end
 
 local function add_drop(drops, item)
 	item = ItemStack(item)
-	local name = item:get_name()
 	-- Note that this needs to be set on the dropped item, not the node.
 	-- Value represents "one in X will be lost"
 	local lost = item:get_definition()._tnt_loss or 0
@@ -86,6 +86,7 @@ local function add_drop(drops, item)
 		return
 	end
 
+	local name = item:get_name()
 	local drop = drops[name]
 	if drop == nil then
 		drops[name] = item
@@ -332,6 +333,9 @@ local function tnt_explode(pos, radius, ignore_protection, ignore_on_blast, owne
 
 	vm1:set_data(data)
 	vm1:write_to_map()
+	if vm1.close ~= nil then
+		vm1:close()
+	end
 
 	-- recalculate new radius
 	radius = math.floor(radius * math.pow(count, 1/3))
@@ -386,8 +390,10 @@ local function tnt_explode(pos, radius, ignore_protection, ignore_on_blast, owne
 
 	vm:set_data(data)
 	vm:write_to_map()
-	vm:update_map()
 	vm:update_liquids()
+	if vm.close ~= nil then
+		vm:close()
+	end
 
 	-- call check_single_for_falling for everything within 1.5x blast radius
 	for y = -radius * 1.5, radius * 1.5 do
@@ -581,7 +587,7 @@ minetest.register_node("tnt:gunpowder_burning", {
 })
 
 minetest.register_craft({
-	output = "tnt:gunpowder 2",
+	output = "tnt:gunpowder 5",
 	type = "shapeless",
 	recipe = {"default:coal_lump", "default:gravel"}
 })
@@ -592,25 +598,36 @@ minetest.register_craftitem("tnt:tnt_stick", {
 	groups = {flammable = 5},
 })
 
-minetest.register_craft({
-	output = "tnt:tnt",
-	recipe = {
-		{"group:wood", "tnt:gunpowder", "group:wood"},
-		{"tnt:gunpowder", "group:wood", "tnt:gunpowder"},
-		{"group:wood", "tnt:gunpowder", "group:wood"}
-	}
-})
+if enable_tnt then
+	minetest.register_craft({
+		output = "tnt:tnt_stick 2",
+		recipe = {
+			{"tnt:gunpowder", "", "tnt:gunpowder"},
+			{"tnt:gunpowder", "default:paper", "tnt:gunpowder"},
+			{"tnt:gunpowder", "", "tnt:gunpowder"},
+		}
+	})
 
-minetest.register_abm({
-	label = "TNT ignition",
-	nodenames = {"group:tnt", "tnt:gunpowder"},
-	neighbors = {"fire:basic_flame", "default:lava_source", "default:lava_flowing"},
-	interval = 4,
-	chance = 1,
-	action = function(pos, node)
-		tnt.burn(pos, node.name)
-	end,
-})
+	minetest.register_craft({
+		output = "tnt:tnt",
+		recipe = {
+			{"tnt:tnt_stick", "tnt:tnt_stick", "tnt:tnt_stick"},
+			{"tnt:tnt_stick", "tnt:tnt_stick", "tnt:tnt_stick"},
+			{"tnt:tnt_stick", "tnt:tnt_stick", "tnt:tnt_stick"}
+		}
+	})
+
+	minetest.register_abm({
+		label = "TNT ignition",
+		nodenames = {"group:tnt", "tnt:gunpowder"},
+		neighbors = {"fire:basic_flame", "default:lava_source", "default:lava_flowing"},
+		interval = 4,
+		chance = 1,
+		action = function(pos, node)
+			tnt.burn(pos, node.name)
+		end,
+	})
+end
 
 function tnt.register_tnt(def)
 	local name
