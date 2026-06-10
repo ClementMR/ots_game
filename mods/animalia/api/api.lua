@@ -346,12 +346,16 @@ function animalia.add_food_particle(self, item_name)
 		z = pos.z + cos(yaw) * offset_h
 	}
 	local def = minetest.registered_items[item_name]
+	if not def then return end
+
 	local image = def.inventory_image
-	if def.tiles then
-		image = def.tiles[1].name or def.tiles[1]
+	if (not image or image == "") and def.tiles then
+		image = type(def.tiles[1]) == "table"
+			and def.tiles[1].name
+			or def.tiles[1]
 	end
-	if image then
-		local crop = "^[sheet:4x4:" .. random(4) .. "," .. random(4)
+
+	if image and image ~= "" then
 		minetest.add_particlespawner({
 			pos = head_pos,
 			time = 0.5,
@@ -361,7 +365,7 @@ function animalia.add_food_particle(self, item_name)
 			vel = {min = {x = -1, y = 1, z = -1}, max = {x = 1, y = 2, z = 1}},
 			acc = {x = 0, y = -9.8, z = 0},
 			size = {min = 1, max = 2},
-			texture = image .. crop
+			texture = image
 		})
 	end
 end
