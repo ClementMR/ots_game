@@ -17,7 +17,6 @@ for k, _ in pairs(armor.materials) do
             local protection = def.armor_groups.fleshy
             local feather = def.groups.armor_feather
             local healing = def.groups.armor_heal
-            local immortal = def.groups.immortal
 
             local new_desc = ""
 
@@ -29,9 +28,6 @@ for k, _ in pairs(armor.materials) do
             end
             if healing and healing ~= 0 then
                 new_desc = new_desc .. "\n" .. C("#016630", S("Healing Factor @1", healing))
-            end
-            if immortal and immortal ~= 0 then
-                new_desc = new_desc .. "\n" .. C("#E7180B", S("Immortality @1", immortal))
             end
 
             core.override_item(item, {description =  def.description .. new_desc})

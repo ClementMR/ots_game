@@ -233,7 +233,7 @@ local function init_data(player, info)
 	data.lang_code       = get_lang_code(info)
 	data.fs_version      = info.formspec_version
 
-	update_inv_size(player, data)
+	update_inv_size(player)
 
 	core.after(0, set_fs, player)
 end

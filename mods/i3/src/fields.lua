@@ -1,5 +1,4 @@
 local set_fs = i3.set_fs
-local SKINS_PAYMENT = "moreores:mithril_block"
 
 IMPORT("min", "max")
 IMPORT("reg_items", "reg_aliases")
@@ -8,7 +7,8 @@ IMPORT("S", "compressible", "ItemStack")
 IMPORT("fmt", "find", "match", "sub", "lower")
 IMPORT("valid_item", "get_stack", "craft_stack", "clean_name")
 IMPORT("msg", "is_fav", "play_sound", "reset_data")
-IMPORT("search", "sort_inventory", "sort_by_category", "get_recipes", "update_inv_size")
+IMPORT("search", "sort_inventory", "sort_by_category", "get_recipes")
+IMPORT("skins_payment")
 
 local function inv_fields(player, data, fields)
 	local name = data.player_name
@@ -40,9 +40,7 @@ local function inv_fields(player, data, fields)
 				data[str] = true
 			end
 
-			if str == "legacy_inventory" then
-				update_inv_size(player, data)
-			elseif str == "collapse" then
+			if str == "collapse" then
 				search(data)
 			end
 
@@ -57,11 +55,12 @@ local function inv_fields(player, data, fields)
 				play_sound(name, "i3_cannot", 0.8)
 				return msg(name, S("Unlock skin access first"))
 			end
-
 			local id = tonumber(field:match("%d+"))
 			local _skins = skins.get_skinlist_for_player(name)
 			local skin = _skins[id]
-			if not skin then return end
+			if not skin or (skins.get_player_skin(player):get_key() == skin:get_key()) then 
+				return
+			end
 
 			play_sound(name, "i3_skin_change", 0.6)
 			skins.set_player_skin(player, skin)
@@ -112,12 +111,12 @@ local function inv_fields(player, data, fields)
 			return
 		end
 
-		if not inv:contains_item("main", SKINS_PAYMENT) then
+		if not inv:contains_item("main", skins_payment) then
 			play_sound(name, "i3_cannot", 0.8)
 			return msg(name, S("You need 1 Mithril Block to unlock skins"))
 		end
 
-		inv:remove_item("main", SKINS_PAYMENT)
+		inv:remove_item("main", skins_payment)
 		core.change_player_privs(name, {skins = true})
 		data.scrbar_inv = 0
 		play_sound(name, "i3_achievement", 1.0)
@@ -189,7 +188,7 @@ local function select_item(player, data, fields)
 				for _, v in ipairs(items) do
 					if valid_item(reg_items[clean_name(v)]) then
 						insert(data.alt_items, idx + i, v)
-						i++
+						i = i + 1
 					end
 				end
 			end
@@ -275,7 +274,7 @@ local function rcp_fields(player, data, fields)
 
 	elseif fields.prev_page or fields.next_page then
 		if data.pagemax == 1 then return end
-		data.pagenum -= (fields.prev_page and 1 or -1)
+		data.pagenum = data.pagenum - (fields.prev_page and 1 or -1)
 
 		if data.pagenum > data.pagemax then
 			data.pagenum = 1
@@ -287,7 +286,7 @@ local function rcp_fields(player, data, fields)
 		if not core.get_player_privs(data.player_name).skins or not data.skin_pagemax or
 		   data.skin_pagemax == 1 then return end
 
-		data.skin_pagenum -= (fields.prev_skin and 1 or -1)
+		data.skin_pagenum = data.skin_pagenum - (fields.prev_skin and 1 or -1)
 
 		if data.skin_pagenum > data.skin_pagemax then
 			data.skin_pagenum = 1

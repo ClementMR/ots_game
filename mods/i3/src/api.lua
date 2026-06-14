@@ -81,7 +81,7 @@ function i3.register_craft(def)
 		end
 
 		for symbol in gmatch(concat(def.grid), ".") do
-			c++
+			c = c + 1
 			def.items[c] = def.key[symbol]
 		end
 	else
@@ -105,7 +105,7 @@ function i3.register_craft(def)
 
 		for _, line in ipairs(lines) do
 			for _, v in ipairs(line) do
-				c++
+				c = c + 1
 				def.items[c] = clean_name(v)
 			end
 		end

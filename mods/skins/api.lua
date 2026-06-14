@@ -1,6 +1,8 @@
--- get current skin
+-- Get current skin
 local storage = core.get_mod_storage()
 
+-- Get the skin of a player
+-- @return skin object
 function skins.get_player_skin(player)
 	local player_name = player:get_player_name()
 	local meta = player:get_meta()
@@ -25,6 +27,8 @@ function skins.get_player_skin(player)
 end
 
 -- Assign skin to player
+-- @return boolean
+-- @return skin object
 function skins.assign_player_skin(player, skin)
 	local skin_obj
 	if type(skin) == "string" then
@@ -49,7 +53,7 @@ function skins.assign_player_skin(player, skin)
 	return true, skin_obj
 end
 
--- update visuals
+-- Update visuals
 function skins.update_player_skin(player)
 	if skins.armor_loaded then
 		-- all needed is wrapped and implemented in 3d_armor mod
@@ -61,33 +65,13 @@ function skins.update_player_skin(player)
 end
 
 -- Assign and update - should be used on selection externally
+-- @return boolean
 function skins.set_player_skin(player, skin)
 	local success, skin_obj = skins.assign_player_skin(player, skin)
 	if success then
 		skins.get_player_skin(player):set_skin(player)
 		skins.update_player_skin(player)
-		core.log("action", player:get_player_name().." set skin to "..skin_obj:get_key(""))
+		core.log("action", player:get_player_name().." set skin to " .. skin_obj:get_skin_name())
 	end
 	return success
 end
-
--- Check Skin format (code stohlen from stu's multiskin)
---[[
-function skins.get_skin_format(file)
-	file:seek("set", 1)
-	if file:read(3) == "PNG" then
-		file:seek("set", 16)
-		local ws = file:read(4)
-		local hs = file:read(4)
-		local w = ws:sub(3, 3):byte() * 256 + ws:sub(4, 4):byte()
-		local h = hs:sub(3, 3):byte() * 256 + hs:sub(4, 4):byte()
-		if w >= 64 then
-			if w == h then
-				return "1.8"
-			elseif w == h * 2 then
-				return "1.0"
-			end
-		end
-	end
-end
-]]

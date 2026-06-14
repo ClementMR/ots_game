@@ -110,6 +110,18 @@ function skin_class:get_preview()
 	return skin
 end
 
+function skin_class:get_skin_name()
+	return self.name or ""
+end
+
+function skin_class:get_skin_author()
+	return self.author or "Unknown"
+end
+
+function skin_class:get_skin_license()
+	return self.license or "Unknown"
+end
+
 function skin_class:apply_skin_to_player(player)
 
 	local function concat_texture(base, ext)
@@ -123,23 +135,8 @@ function skin_class:apply_skin_to_player(player)
 	end
 
 	local playername = player:get_player_name()
-	--local ver = self:get_meta("format") or "1.0"
-
-	--player_api.set_model(player, "3d_armor_character.b3d")
-
-	--local v10_texture = "blank.png"
-	--local v18_texture = "blank.png"
 	local armor_texture = "blank.png"
 	local wielditem_texture = "blank.png"
-
-	--[[
-	if ver == "1.8" then
-		v18_texture = self:get_texture()
-	else
-		v10_texture = self:get_texture()
-	end
-	]]
-
 	local skin_texture = self:get_texture()
 
 	-- Support for armor
@@ -157,12 +154,14 @@ function skin_class:apply_skin_to_player(player)
 		wielditem_texture,
 	})
 
+--[[	
 	player:set_properties({
 		visual_size = {
 			x = self:get_meta("visual_size_x") or 1,
 			y = self:get_meta("visual_size_y") or 1
 		}
 	})
+]]
 end
 
 function skin_class:set_skin(player)

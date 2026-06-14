@@ -81,7 +81,7 @@ local function utf8_len(str)
 	local c = 0
 
 	for _ in str:gmatch"[%z\1-\127\194-\244][\128-\191]*" do -- Arguably working duct-tape code
-		c++
+		c = c + 1
 	end
 
 	return c
@@ -127,7 +127,7 @@ local function search(data)
 						temp[item] = true
 					end
 
-					j++
+					j = j + 1
 				end
 			end
 		else
@@ -146,7 +146,7 @@ local function search(data)
 		end
 
 		if to_add then
-			c++
+			c = c + 1
 			filtered_list[c] = item
 		end
 	end
@@ -174,7 +174,7 @@ local function table_merge(t1, t2, hash)
 		local c = #t1
 
 		for i = 1, #t2 do
-			c++
+			c = c + 1
 			t1[c] = t2[i]
 		end
 	end
@@ -200,7 +200,7 @@ local function array_diff(t1, t2)
 	for i = 1, #t1 do
 		local v = t1[i]
 		if hash[v] then
-			c++
+			c = c + 1
 			diff[c] = v
 		end
 	end
@@ -427,7 +427,7 @@ local function craft_stack(player, data, craft_rcp)
 					if item == _name and remaining > 0 then
 						local c = min(remaining, _count)
 						items[item] = c
-						remaining -= c
+						remaining = remaining - c
 					end
 
 					if remaining == 0 then break end
@@ -466,7 +466,7 @@ local function craft_stack(player, data, craft_rcp)
 		local c = min(stackmax, leftover)
 		local stack = ItemStack(fmt("%s %s", stackname, c))
 		get_stack(player, stack)
-		leftover -= stackmax
+		leftover = leftover - stackmax
 	end
 end
 
@@ -482,7 +482,7 @@ local function safe_teleport(player, pos)
 	player:add_velocity(-vel)
 
 	local p = vec(pos)
-	      p.y += 0.25
+	      p.y = p.y + 0.25
 
 	player:set_pos(p)
 end
@@ -543,7 +543,7 @@ local function compress_items(list, start_i)
 				insert(special, stack)
 			else
 				hash[name] = hash[name] or 0
-				hash[name] += count
+				hash[name] = hash[name] + count
 			end
 		end
 	end
@@ -555,7 +555,7 @@ local function compress_items(list, start_i)
 
 		for _ = 1, iter do
 			insert(new_inv, ItemStack(fmt("%s %u", name, min(stackmax, leftover))))
-			leftover -= stackmax
+			leftover = leftover - stackmax
 		end
 	end
 
@@ -567,7 +567,7 @@ local function sort_inventory(player, data)
 	local inv = player:get_inventory()
 	local list = inv:get_list"main"
 	local size = inv:get_size"main"
-	local start_i = data.ignore_hotbar and (data.hotbar_len + 1) or 1
+	local start_i = data.ignore_hotbar and 9 or 1
 
 	list = data.inv_compress and compress_items(list, start_i) or pre_sorting(list, start_i)
 
@@ -613,7 +613,7 @@ end
 
 local function add_hud_waypoint(player, name, pos, color, image)
 	return player:hud_add {
-		hud_elem_type = image and "image_waypoint" or "waypoint",
+		type = image and "image_waypoint" or "waypoint",
 		name = name,
 		text = image or "m",
 		scale = {x = 5, y = 5},
@@ -627,7 +627,7 @@ end
 local function init_hud_notif(player)
 	return {
 		bg = player:hud_add {
-			hud_elem_type = "image",
+			type = "image",
 			position      = {x = 0,   y = 1},
 			offset        = {x = 10,  y = 0},
 			alignment     = {x = 1,   y = 1},
@@ -637,7 +637,7 @@ local function init_hud_notif(player)
 		},
 
 		img = player:hud_add {
-			hud_elem_type = "image",
+			type = "image",
 			position      = {x = 0,  y = 1},
 			offset        = {x = 20, y = 20},
 			alignment     = {x = 1,  y = 1},
@@ -647,7 +647,7 @@ local function init_hud_notif(player)
 		},
 
 		text = player:hud_add {
-			hud_elem_type = "text",
+			type = "text",
 			position      = {x = 0,   y = 1},
 			offset        = {x = 100, y = 40},
 			alignment     = {x = 1,   y = 1},
@@ -666,17 +666,17 @@ local function get_detached_inv(name, player_name)
 	}
 end
 
-local function update_inv_size(player, data)
-	data.hotbar_len = data.legacy_inventory and 8 or 9
-	data.inv_size = 4 * data.hotbar_len
+local function update_inv_size(player)
+	local hotbar_len = 8
+	local inv_size = 4 * hotbar_len
 
 	local inv = player:get_inventory()
-	inv:set_size("main", data.inv_size)
+	inv:set_size("main", inv_size)
 
-	player:hud_set_hotbar_itemcount(data.hotbar_len)
+	player:hud_set_hotbar_itemcount(hotbar_len)
 
 	core.after(0, function()
-		player:hud_set_hotbar_image(data.legacy_inventory and (core.global_exists("default") and "gui_hotbar.png" or "") or "i3_hotbar.png")
+		player:hud_set_hotbar_image((core.global_exists("default") and "gui_hotbar.png" or "") or "i3_hotbar.png")
 	end)
 end
 
@@ -819,6 +819,9 @@ local _ = {
 	-- Vectors
 	vec = vector.new,
 	vec_round = vector.round,
+
+	-- Skins
+	skins_payment = "moreores:mithril_block"
 }
 
 function i3.get(...)

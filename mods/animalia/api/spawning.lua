@@ -44,6 +44,7 @@ minetest.register_on_mods_loaded(function()
 	insert_all(frog_biomes, animalia.registered_biome_groups["tropical"].biomes)
 end)
 
+--[[
 creatura.register_abm_spawn("animalia:grizzly_bear", {
 	chance = predator_spawn_chance,
 	min_height = -1,
@@ -53,6 +54,7 @@ creatura.register_abm_spawn("animalia:grizzly_bear", {
 	biomes = animalia.registered_biome_groups["boreal"].biomes,
 	nodes = {"group:sand"},
 })
+]]
 
 creatura.register_abm_spawn("animalia:chicken", {
 	chance = common_spawn_chance,
@@ -100,7 +102,7 @@ creatura.register_abm_spawn("animalia:fox", {
 })
 
 creatura.register_abm_spawn("animalia:horse", {
-	chance = 80000,
+	chance = 120000,
 	interval = 300,
 	spawn_active = true,
 	min_height = 0,
@@ -124,6 +126,7 @@ creatura.register_abm_spawn("animalia:rat", {
 	nodes = {"group:crop"}
 })
 
+--[[
 creatura.register_abm_spawn("animalia:owl", {
 	chance = predator_spawn_chance,
 	interval = 60,
@@ -145,6 +148,7 @@ creatura.register_abm_spawn("animalia:opossum", {
 	biomes = animalia.registered_biome_groups["boreal"].biomes,
 	nodes = {"group:soil", "group:leaves"}
 })
+]]
 
 creatura.register_abm_spawn("animalia:pig", {
 	chance = common_spawn_chance,
@@ -183,6 +187,7 @@ creatura.register_abm_spawn("animalia:sheep", {
 	neighbors = {"air", "group:grass", "group:flora"}
 })
 
+--[[
 creatura.register_abm_spawn("animalia:turkey", {
 	chance = common_spawn_chance,
 	spawn_active = true,
@@ -204,6 +209,7 @@ creatura.register_abm_spawn("animalia:wolf", {
 	biomes = animalia.registered_biome_groups["boreal"].biomes,
 	nodes = {"group:soil"},
 })
+]]
 
 -- Ambient Spawning
 
@@ -287,6 +293,7 @@ creatura.register_on_spawn("animalia:frog", function(self, pos)
 	activate(self)
 end)
 
+--[[
 creatura.register_abm_spawn("animalia:tropical_fish", {
 	chance = ambient_spawn_chance,
 	min_height = -128,
@@ -296,6 +303,7 @@ creatura.register_abm_spawn("animalia:tropical_fish", {
 	nodes = {"group:water"},
 	neighbors = {"group:coral"}
 })
+]]
 
 -- World Gen Spawning
 

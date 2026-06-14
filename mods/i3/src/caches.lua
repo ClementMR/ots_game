@@ -49,7 +49,7 @@ local function cache_groups(group, groups)
 		if texture then
 			texture = texture:gsub("%^", "\\^"):gsub(":", "\\:") .. fmt("\\^[resize\\:%ux%u", px, px)
 			sprite = sprite .. fmt(":0,%u=%s", c * px, texture)
-			c++
+			c = c + 1
 			if c == lim then break end
 		end
 	end
@@ -145,7 +145,7 @@ local function drop_table(name, drop)
 		end
 
 		if not di.rarity then
-			count_sure++
+			count_sure = count_sure + 1
 		end
 	end
 end

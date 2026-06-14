@@ -45,7 +45,6 @@ i3 = {
 		wielditem_hud = true,
 		ignore_hotbar = true,
 		reverse_sorting = true,
-		legacy_inventory = true,
 	},
 
 	default_data = {

@@ -34,17 +34,6 @@ end
 local t_set_elements = armor.config.set_elements
 armor.config.set_elements = string.split(t_set_elements, " ")
 
--- Remove torch damage if fire_protect_torch == false
-if armor.config.fire_protect_torch == false and armor.config.fire_protect == true then
-	for k,v in pairs(armor.fire_nodes) do
-		for k2,v2 in pairs(v) do
-			if string.find (v2,"torch") then
-				armor.fire_nodes[k] = nil
-			end
-		end
-	end
-end
-
 -- Mod Compatibility
 
 if core.get_modpath("technic") then
@@ -302,9 +291,33 @@ if armor.config.drop == true or armor.config.destroy == true then
 		armor:set_player_armor(player)
 		local pos = player:get_pos()
 		if pos then
-			for _,stack in ipairs(drop) do
-				armor.drop_armor(pos, stack)
-			end
+			core.after(armor.config.bones_delay, function()
+				local meta = nil
+				local maxp = vector.add(pos, 16)
+				local minp = vector.subtract(pos, 16)
+				local bones = core.find_nodes_in_area(minp, maxp, {"bones:bones"})
+				for _, p in pairs(bones) do
+					local m = core.get_meta(p)
+					if m:get_string("owner") == name then
+						meta = m
+						break
+					end
+				end
+				if meta then
+					local inv = meta:get_inventory()
+					for _,stack in ipairs(drop) do
+						if inv:room_for_item("main", stack) then
+							inv:add_item("main", stack)
+						else
+							armor.drop_armor(pos, stack)
+						end
+					end
+				else
+					for _,stack in ipairs(drop) do
+						armor.drop_armor(pos, stack)
+					end
+				end
+			end)
 		end
 	end)
 
@@ -397,26 +410,25 @@ core.register_globalstep(function(dtime)
 	timer = 0
 end)
 
-if armor.config.fire_protect == true then
+if armor.config.fire_protect then
 
-	-- make torches hurt
-	core.override_item("default:torch", {damage_per_second = 1})
-	core.override_item("default:torch_wall", {damage_per_second = 1})
-	core.override_item("default:torch_ceiling", {damage_per_second = 1})
+	if core.get_modpath("default") and armor.config.fire_protect_torch then
+		-- make torches hurt
+		minetest.override_item("default:torch", {damage_per_second = 1})
+		minetest.override_item("default:torch_wall", {damage_per_second = 1})
+		minetest.override_item("default:torch_ceiling", {damage_per_second = 1})
+	end
 
 	-- check player damage for any hot nodes we may be protected against
-	core.register_on_player_hpchange(function(player, hp_change, reason)
+	minetest.register_on_player_hpchange(function(player, hp_change, reason)
 
 		if reason.type == "node_damage" and reason.node then
 			-- fire protection
-			if armor.config.fire_protect == true and hp_change < 0 then
+			if armor.config.fire_protect and hp_change < 0 then
 				local name = player:get_player_name()
-				for _, igniter in pairs(armor.fire_nodes) do
-					if reason.node == igniter[1] then
-						if armor.def[name].fire >= igniter[2] then
-							hp_change = 0
-						end
-					end
+				local fire_prot = armor.fire_nodes[reason.node]
+				if fire_prot and armor.def[name].fire >= fire_prot then
+					hp_change = 0
 				end
 			end
 		end

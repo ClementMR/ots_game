@@ -1,6 +1,5 @@
 local damage_enabled = i3.settings.damage_enabled
 local debug_mode = i3.settings.debug_mode
-local SKINS_PAYMENT = "moreores:mithril_block"
 
 local model_aliases = i3.files.model_alias()
 local PNG, styles, fs_elements, colors = i3.files.styles()
@@ -17,6 +16,7 @@ IMPORT("S", "FS", "translate", "ItemStack", "toupper", "utf8_len")
 IMPORT("true_str", "true_table", "is_fav", "is_num")
 IMPORT("maxn", "sort", "concat", "copy", "insert", "remove", "unpack")
 IMPORT("extract_groups", "groups_to_items", "is_group", "item_has_groups")
+IMPORT("skins_payment")
 
 local function fmt(elem, ...)
 	if not fs_elements[elem] then
@@ -36,7 +36,7 @@ local function weird_desc(str)
 end
 
 local function snip(str, limit, font_size)
-	limit -= (font_size > 3 and font_size + 1 or font_size)
+	limit = limit - (font_size > 3 and font_size + 1 or font_size)
 
 	if utf8_len(str) > limit then
 		return fmt("%s...", sub(str, 1, limit - 3))
@@ -189,7 +189,7 @@ local function get_award_list(data, fs, ctn_len, yextra, award_list, awards_unlo
 			insert(fs, "style_type[label;font_size=14]")
 			insert(fs, fmt("label", icon_size + 0.55, y + 0.97, fmt("%u / %u", current, target)))
 
-			y -= 0.14
+			y = y - 0.14
 		end
 
 		local end_title = ESC(_title or title)
@@ -211,7 +211,7 @@ end
 local function get_skin_unlock_fs(fs, yextra, ctn_len)
 	fs"style[buy_skins;font=bold;font_size=16]"
 	button(0.65, yextra + 0.95, 4.4, 0.85, "buy_skins", FS("Unlock skins"))
-	item_image(0.95, yextra + 2.1, 0.8, 0.8, SKINS_PAYMENT)
+	item_image(0.95, yextra + 2.1, 0.8, 0.8, skins_payment)
 	label(1.95, yextra + 2.5, FS("1 Mithril Block"))
 	tooltip(0.65, yextra + 0.95, 4.4, 0.85, FS("Spend 1 mithril block to unlock skin selection"))
 end
@@ -241,7 +241,7 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 				(half == 1 and i == floor(hearts)) and PNG.heart_half or PNG.heart)
 		end
 	else
-		yoffset -= 0.5
+		yoffset = yoffset - 0.5
 	end
 
 	fs("list[current_player;craft;%f,%f;3,3;]", 0, yoffset + 1.45)
@@ -290,11 +290,11 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 		fs("list[detached:%s_armor;armor;0,%f;5,1;]", esc_name, yextra + 0.7)
 
 		local armor_slots = {
-			{tooltip = FS("Helmet"), texture = "3d_armor_inv_helmet_steel.png"},
-			{tooltip = FS("Chest"), texture = "3d_armor_inv_chestplate_steel.png"},
-			{tooltip = FS("Leggings"), texture = "3d_armor_inv_leggings_steel.png"},
-			{tooltip = FS("Boots"), texture = "3d_armor_inv_boots_steel.png"},
-			{tooltip = FS("Shield"), texture = "shields_inv_shield_steel.png"},
+			{tooltip = FS("Helmet"), texture = "3d_armor_inv_helmet_steel.png^[multiply:#777777^[opacity:180"},
+			{tooltip = FS("Chest"), texture = "3d_armor_inv_chestplate_steel.png^[multiply:#777777^[opacity:180"},
+			{tooltip = FS("Leggings"), texture = "3d_armor_inv_leggings_steel.png^[multiply:#777777^[opacity:180"},
+			{tooltip = FS("Boots"), texture = "3d_armor_inv_boots_steel.png^[multiply:#777777^[opacity:180"},
+			{tooltip = FS("Shield"), texture = "shields_inv_shield_steel.png^[multiply:#777777^[opacity:180"},
 		}
 
 		for i = 1, 5 do
@@ -331,7 +331,7 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 
 	elseif subcat == "skins" then
 		if not i3.modules.skins then
-			return not_installed "skinsdb"
+			return not_installed "skins"
 		end
 
 		if not has_skins_priv(player) then
@@ -344,7 +344,7 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 
 		if #_skins > spp then
 			local btn_y = yextra + 0.75
-			add_y += 0.6
+			add_y = add_y + 0.6
 
 			data.skin_pagemax = max(1, ceil(#_skins / spp))
 
@@ -372,7 +372,7 @@ local function get_container(fs, data, player, yoffset, ctn_len, award_list, awa
 			local X = (i % 3) * 1.93
 
 			local Y = ceil((i % spp - X) / 3 + 1)
-			      Y += (Y * 2.45) + yextra - 2.75 + add_y
+			      Y = Y + (Y * 2.45) + yextra - 2.75 + add_y
 
 			image_button(X, Y, 1.86, 3.4, "", btn_name, "")
 			fs("tooltip[%s;%s;#32333899;#fff]", btn_name, ESC(skin.name))
@@ -420,11 +420,11 @@ local function show_settings(fs, data)
 
 		if show_style then
 			checkbox(2.6, 9.95, "cb_hide_tabs", FS("Hide tabs"), tostring(data.hide_tabs))
-			checkbox(2.6, 10.4, "cb_legacy_inventory", FS("Legacy inventory"), tostring(data.legacy_inventory))
-			checkbox(2.6, 10.85, "cb_wielditem_hud", FS("HUD description"), tostring(data.wielditem_hud))
+			--checkbox(2.6, 10.4, "cb_legacy_inventory", FS("Legacy inventory"), tostring(data.legacy_inventory))
+			checkbox(2.6, 10.4, "cb_wielditem_hud", FS("HUD description"), tostring(data.wielditem_hud))
 
 			if not recipe_filter_set() then
-				checkbox(5.3, 10.85, "cb_collapse", "Collapse list", tostring(data.collapse))
+				checkbox(2.6, 10.85, "cb_collapse", "Collapse list", tostring(data.collapse))
 			end
 
 			local sign = (data.font_size > 0 and "+") or (data.font_size > 0 and "-") or ""
@@ -436,8 +436,8 @@ local function show_settings(fs, data)
 
 			fs("tooltip[cb_hide_tabs;%s;#32333899;#fff]",
 				FS("Enable this option to change the style of the right panel"))
-			fs("tooltip[cb_legacy_inventory;%s;#32333899;#fff]",
-				FS("Enable this option to set the classic inventory size in Minetest"))
+			--fs("tooltip[cb_legacy_inventory;%s;#32333899;#fff]",
+			--	FS("Enable this option to set the classic inventory size in Minetest"))
 			fs("tooltip[cb_wielditem_hud;%s;#32333899;#fff]",
 				FS("Enable this option to show the wielded item description in your HUD"))
 			fs("tooltip[cb_collapse;%s;#32333899;#fff]",
@@ -497,11 +497,11 @@ local function get_footer(fs, data)
 end
 
 local function get_slots(fs, data)
-	local legacy_inventory = data.legacy_inventory
-	local hotbar_len = data.hotbar_len
-	local inv_x = legacy_inventory and 0.23 or 0.22
-	local inv_y = legacy_inventory and 6.7 or 6.9
-	local spacing = legacy_inventory and 0.25 or 0.1
+	local hotbar_len = 8
+	local inv_size = hotbar_len * 4
+	local inv_x = 0.23
+	local inv_y = 6.7
+	local spacing = 0.25
 	local size = 1
 
 	fs"style_type[box;colors=#77777710,#77777710,#777,#777]"
@@ -513,10 +513,10 @@ local function get_slots(fs, data)
 	fs("style_type[list;size=%f;spacing=%f]", size, spacing)
 	fs("list[current_player;main;%f,%f;%u,1;]", inv_x, inv_y, hotbar_len)
 
-	fs("style_type[list;size=%f;spacing=%f,%f]", size, spacing, legacy_inventory and 0.15 or spacing)
+	fs("style_type[list;size=%f;spacing=%f,%f]", size, spacing, 0.15)
 
-	fs("list[current_player;main;%f,%f;%u,%u;%u]", inv_x, inv_y + (legacy_inventory and 1.25 or 1.15),
-		hotbar_len, data.inv_size / hotbar_len, hotbar_len)
+	fs("list[current_player;main;%f,%f;%u,%u;%u]", inv_x, inv_y + (1.25),
+		hotbar_len, inv_size / hotbar_len, hotbar_len)
 
 	fs"listring[current_player;craft]listring[current_player;main]"
 
@@ -526,7 +526,8 @@ end
 local function get_inventory_fs(player, data, fs)
 	local props = player:get_properties()
 	local ctn_len = 5.7
-	local ctn_hgt = data.legacy_inventory and 6.1 or 6.3
+	--local ctn_hgt = data.legacy_inventory and 6.1 or 6.3
+	local ctn_hgt = 6.3
 	local yoffset = 0
 
 	if props.mesh ~= "" then
@@ -550,26 +551,28 @@ local function get_inventory_fs(player, data, fs)
 	end
 
 	local awards_unlocked, award_list, award_list_nb = 0
+	--local max_val = damage_enabled and 12 or 7
+	--      max_val += (data.legacy_inventory and 2 or 0)
 	local max_val = damage_enabled and 12 or 7
-	      max_val += (data.legacy_inventory and 2 or 0)
+	      max_val = max_val + (0)
 
 	if i3.modules.armor and i3.categories[data.subcat] == "armor" then
 		if data.scrbar_inv >= max_val then
-			data.scrbar_inv += 10
+			data.scrbar_inv = data.scrbar_inv + 10
 		end
 
-		max_val += 10
+		max_val = max_val + 10
 
 	elseif i3.modules.skins and i3.categories[data.subcat] == "skins" then
 		if not has_skins_priv(player) then
-			max_val += 35
+			max_val = max_val + 35
 		else
 			local spp = 24
 			local _skins = skins.get_skinlist_for_player(data.player_name)
 			local nb = #_skins
 			local num = max(1, min(spp, nb - ((data.skin_pagenum - 1) * spp)))
 
-			max_val += 20 + (ceil(num / 3) * 42)
+			max_val = max_val + 20 + (ceil(num / 3) * 42)
 		end
 
 	elseif i3.modules.awards and i3.categories[data.subcat] == "awards" then
@@ -579,11 +582,11 @@ local function get_inventory_fs(player, data, fs)
 		for i = 1, award_list_nb do
 			local award = award_list[i]
 			if award.unlocked then
-				awards_unlocked++
+				awards_unlocked = awards_unlocked + 1
 			end
 		end
 
-		max_val += (award_list_nb * 13)
+		max_val = max_val + (award_list_nb * 13)
 
 	end
 
@@ -683,7 +686,7 @@ local function get_true_count(data, count, is_recipe, is_usage)
 	end
 
 	if count_mul then
-		count *= count_mul
+		count = count * count_mul
 	end
 
 	return count
@@ -834,10 +837,10 @@ local function get_grid_fs(fs, data, rcp, is_recipe, is_usage)
 			Y = btn_size * yi + data.yoffset + 0.2 + (yi * 0.05) + add_y
 		else
 			X = ceil((i - 1) % width - width)
-			X += (X * 0.2) + data.inv_width + 3.9
+			X = X + (X * 0.2) + data.inv_width + 3.9
 
 			Y = ceil(i / width) - min(2, rows)
-			Y += (Y * 0.15) + data.yoffset + 1.4
+			Y = Y + (Y * 0.15) + data.yoffset + 1.4
 		end
 
 		if X > right then
@@ -1323,7 +1326,7 @@ local function get_minitabs(fs, data, player, full_height)
 	local tab_len, tab_hgh, i = 1.8, 0.5, 0
 
 	for id, title in pairs(minitabs) do
-		i++
+		i = i + 1
 		local top = i > 3
 		local X = top and i - 3 or i
 		local selected = id == data.itab
@@ -1379,10 +1382,10 @@ local function get_items_fs(fs, data, player, full_height)
 			local name = _compressed and item:sub(2) or item
 
 			local X = i % rows
-			      X -= (X * 0.045) + data.inv_width + 0.28
+			      X = X - (X * 0.045) + data.inv_width + 0.28
 
 			local Y = round((i % ipp - X) / rows + 1, 0)
-			      Y -= (Y * 0.085) + 0.92
+			      Y = Y - (Y * 0.085) + 0.92
 
 			local item_btn = fmt("item_image_button", X, Y, size, size, name, item, "")
 
@@ -1447,7 +1450,7 @@ local function get_panels(fs, data, player)
 
 	for i, panel in ipairs(panels) do
 		if i > 1 then
-			data.yoffset += panels[i - 1].height + 0.1
+			data.yoffset = data.yoffset + panels[i - 1].height + 0.1
 		end
 
 		bg9(data.inv_width + 0.1, data.yoffset, 7.9, panel.height, PNG.bg_full)
@@ -1510,7 +1513,7 @@ local function get_tabs_fs(fs, player, data, full_height)
 			fs"style_type[image;noclip=false]"
 		end
 
-		c++
+		c = c + 1
 	end
 end
 
@@ -1525,7 +1528,7 @@ local function get_debug_grid(data, fs, full_height)
 	for x = 0, data.inv_width + 8, spacing do
 		box(x, 0, 0.01, full_height, "#ff0")
 		label(x, full_height + 0.1, tostring(i))
-		i++
+		i = i + 1
 	end
 
 	i = 61
@@ -1533,7 +1536,7 @@ local function get_debug_grid(data, fs, full_height)
 	for y = 0, full_height, spacing do
 		box(0, y, data.inv_width + 8, 0.01, "#ff0")
 		label(-0.15, y, tostring(i))
-		i -= 1
+		i = i - 1
 	end
 
 	box(data.inv_width / 2, 0, 0.01, full_height, "#f00")
@@ -1594,7 +1597,7 @@ local function make_fs(player, data)
 
 	for _, def in ipairs(i3.tabs) do
 		if def.access and not def.access(player, data) then
-			visible_tabs -= 1
+			visible_tabs = visible_tabs - 1
 		end
 	end
 

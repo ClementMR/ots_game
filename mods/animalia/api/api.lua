@@ -121,7 +121,7 @@ function animalia.move_head(self, tyaw, pitch)
 	local yaw = self.object:get_yaw()
 	local pitch_offset = data.pitch_correction or 0
 	local bone = data.bone or "Head.CTRL"
-	local _, rot = self.object:get_bone_position(bone)
+	local _, rot = self.object:get_bone_override(bone)
 	if not rot then return end
 	local n_yaw = (tyaw ~= yaw and diff(tyaw, yaw) / 2) or 0
 	if abs(deg(n_yaw)) > 45 then n_yaw = 0 end
@@ -138,7 +138,7 @@ function animalia.move_head(self, tyaw, pitch)
 	end
 	local pitch_max = pitch_offset + 45
 	local pitch_min = pitch_offset - 45
-	self.object:set_bone_position(bone, data.offset,
+	self.object:set_bone_override(bone, data.offset,
 		{x = clamp(deg(n_pitch), pitch_min, pitch_max), y = 0, z = clamp(deg(n_yaw), -45, 45)})
 end
 

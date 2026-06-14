@@ -17,9 +17,6 @@ Skin previews for public and private skins:
 	player.[nick].preview.png
 	player.[nick].[number or name].preview.png
 
-	Note: This is optional and overrides automatically generated preciewws.
-
-
 Legacy texture names
 --------------------
 

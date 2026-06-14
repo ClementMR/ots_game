@@ -7,16 +7,16 @@ local function init_hud(player)
 	local wdesc_y = -90
 
 	if core.global_exists"hb" then
-		wdesc_y -= ceil(hb.hudbars_count / 2) * 5
+		wdesc_y = wdesc_y - ceil(hb.hudbars_count / 2) * 5
 	elseif not i3.settings.damage_enabled then
-		wdesc_y += 15
+		wdesc_y = wdesc_y + 15
 	end
 
 	data.hud = {
 		notifs = {},
 
 		wielditem = player:hud_add {
-			hud_elem_type = "text",
+			type = "text",
 			position      = {x = 0.5, y = 1},
 			offset        = {x = 0,   y = wdesc_y},
 			alignment     = {x = 0,   y = -1},
@@ -39,7 +39,7 @@ local function show_hud(player, data, notif, idx, dt)
 
 	if offset.y < notif.max.y then
 		notif.show = false
-		notif.hud_timer += dt
+		notif.hud_timer = notif.hud_timer + dt
 	end
 
 	player:hud_change(notif.elems.text, "text", notif.hud_msg)

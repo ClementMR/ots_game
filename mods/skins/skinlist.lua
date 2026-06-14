@@ -47,7 +47,7 @@ function skins.register_skin(path, filename)
 		sort_id = 0 + (tonumber(splits[2]) or 0)
 
 		if #splits > 1 and sep == "_" then
-			core.log("warning", "skinsdb: The skin name '" .. filename .. "' is ambigous." ..
+			core.log("warning", "skins: The skin name '" .. filename .. "' is ambigous." ..
 				" Please use the separator '.' to lock it down to the correct player name.")
 		end
 	else -- Public skin "character*"
@@ -68,19 +68,9 @@ function skins.register_skin(path, filename)
 	end
 
 	if playername then
-		skin_obj:set_meta("assignment", "player:"..playername)
+		skin_obj:set_meta("assignment", "player:" .. playername)
 		skin_obj:set_meta("playername", playername)
 	end
-
-	--[[
-	if path then
-		-- Get type of skin based on dimensions
-		local file = io.open(path .. "/" .. filename, "r")
-		local skin_format = skins.get_skin_format(file)
-		skin_obj:set_meta("format", skin_format)
-		file:close()
-	end
-	]]
 
 	skin_obj:set_meta("name", identifier)
 
@@ -134,14 +124,14 @@ function skins.__fuzzy_match_skin_name(player_name, skin_name, be_noisy)
 	end
 
 	if be_noisy then
-		core.log("warning", "skinsdb: cannot find matching skin '" ..
+		core.log("warning", "skins: cannot find matching skin '" ..
 			skin_name .. "' for player '" .. player_name .. "'.")
 	end
 end
 
 do
 	-- Load skins from the current mod directory
-	local skins_path = skins.modpath.."/textures"
+	local skins_path = skins.modpath .. "/textures"
 	local skins_dir_list = core.get_dir_list(skins_path)
 
 	for _, fn in pairs(skins_dir_list) do
@@ -150,7 +140,7 @@ do
 end
 
 local function skins_sort(skinslist)
-	table.sort(skinslist, function(a,b)
+	table.sort(skinslist, function(a, b)
 		local a_id = a:get_meta("_sort_id") or 10000
 		local b_id = b:get_meta("_sort_id") or 10000
 		if a_id ~= b_id then
@@ -159,22 +149,6 @@ local function skins_sort(skinslist)
 			return (a:get_meta("name") or 'ZZ') < (b:get_meta("name") or 'ZZ')
 		end
 	end)
-end
-
--- (obsolete) get skinlist. If assignment given ("mod:wardrobe" or "player:bell07")
--- select skins matches the assignment. select_unassigned selects the skins without any assignment too
-function skins.get_skinlist(assignment, select_unassigned)
-	core.log("deprecated", "skins.get_skinlist() is deprecated. Use skins.get_skinlist_for_player() instead")
-	local skinslist = {}
-	for _, skin in pairs(skins.meta) do
-		if not assignment or
-				assignment == skin:get_meta("assignment") or
-				(select_unassigned and skin:get_meta("assignment") == nil) then
-			table.insert(skinslist, skin)
-		end
-	end
-	skins_sort(skinslist)
-	return skinslist
 end
 
 -- Get skinlist for player. If no player given, public skins only selected
@@ -201,3 +175,16 @@ function skins.get_skinlist_with_meta(key, value)
 	skins_sort(skinslist)
 	return skinslist
 end
+
+core.register_chatcommand("get_skins_for", {
+	description = "Get skins for player",
+	func = function(name, param)
+		if not core.get_player_by_name(param) then return false, "Player '" .. param .. "' not found" end
+		local skinslist = skins.get_skinlist_for_player(param)
+		local result = {}
+		for _, skin in pairs(skinslist) do
+			table.insert(result, skin:get_key())
+		end
+		return true, "Skins for player '" .. param .. "': " .. table.concat(result, ", ")
+	end
+})
