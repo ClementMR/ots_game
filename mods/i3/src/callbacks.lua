@@ -83,7 +83,7 @@ if core.global_exists"armor" then
 
 			if i == idx and check_group(def, group) then
 				data.armor_allow = sound
-				return armor:register_on_update(set_fs)
+				return
 			end
 		end
 
@@ -111,6 +111,8 @@ if core.global_exists"armor" then
 			end
 		end
 	end)
+
+	armor:register_on_update(set_fs)
 
 	core.register_on_player_inventory_action(function(player, action, _, info)
 		if action ~= "take" then return end

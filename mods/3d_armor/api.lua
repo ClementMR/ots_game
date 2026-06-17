@@ -192,6 +192,12 @@ armor.config = {
 --    damage_groups = {cracky=3, snappy=2, choppy=3, crumbly=2, level=1},
 --  })
 armor.register_armor = function(self, name, def)
+	if not def.on_use then
+		def.on_use = function(itemstack, player)
+			return armor:equip(player, itemstack)
+		end
+	end
+
 	def.on_secondary_use = function(itemstack, player)
 		return armor:equip(player, itemstack)
 	end

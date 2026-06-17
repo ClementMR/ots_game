@@ -18,6 +18,7 @@ local material_stairs = {
 	"desert_stone", "desert_stone_block", "desert_stonebrick",
 	"glass", "goldblock", "ice", "junglewood", "mossycobble", "obsidian",
 	"obsidian_block", "obsidian_glass", "obsidianbrick", "pine_wood",
+	"quartzblock", "quartzstair",
 	"sandstone", "sandstone_block", "sandstonebrick",
 	"silver_sandstone", "silver_sandstone_block", "silver_sandstone_brick",
 	"snowblock", "steelblock", "stone", "stone_block", "stonebrick",
@@ -61,6 +62,20 @@ local to_compress = {
 	["doors:gate_wood_closed"] = {
 		replace = "wood",
 		by = wood_types,
+	},
+
+	["doors:door_wood"] = {
+		replace = "wood",
+		by = {
+			"steel",
+			"glass",
+			"obsidian_glass",
+		},
+	},
+
+	["doors:trapdoor"] = {
+		replace = "trapdoor",
+		by = {"trapdoor_steel"},
 	},
 
 	["wool:white"] = {
