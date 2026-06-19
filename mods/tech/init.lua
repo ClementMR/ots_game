@@ -2,6 +2,7 @@ local selected_destination = {}
 
 local MAXIMUM_DISTANCE = 20000
 local C = core.colorize
+local S = core.get_translator("tech")
 
 local function validate_setting(setting, default)
     if setting ~= nil then
@@ -67,10 +68,10 @@ local function show_teleporter_form(player, pos)
 
                 table.insert(destinations, core.formspec_escape(string))
             else
-                table.insert(destinations, "Error")
+                table.insert(destinations, core.formspec_escape(S("Error")))
             end
         else
-            table.insert(destinations, "Empty")
+            table.insert(destinations, core.formspec_escape(S("Empty")))
         end
     end
 
@@ -86,9 +87,9 @@ local function show_teleporter_form(player, pos)
             "bgimg=tech_gui_btn.png;bgimg_hovered=tech_gui_btn_hover.png;" ..
             "bgimg_pressed=tech_gui_btn_pressed.png;bgimg_middle=6]" ..
         "style[teleport;textcolor=#fff]" ..
-        "tooltip[0.75,0.25;5,5;Locator slots: tech:locator;#32333899;#fff]" ..
-        "tooltip[0.75,5.45;1,5;Core slots: tech:core;#32333899;#fff]" ..
-        "tooltip[14.17,5.65;1,1;Source slot: tech:source;#32333899;#fff]" ..
+        "tooltip[0.75,0.25;5,5;" .. core.formspec_escape(S("Locator slots: tech:locator")) .. ";#32333899;#fff]" ..
+        "tooltip[0.75,5.45;1,5;" .. core.formspec_escape(S("Core slots: tech:core")) .. ";#32333899;#fff]" ..
+        "tooltip[14.17,5.65;1,1;" .. core.formspec_escape(S("Source slot: tech:source")) .. ";#32333899;#fff]" ..
         "tableoptions[background=#00000000;highlight=#4dd8e866;border=false]" ..
         "tablecolumns[text]" ..
         "list[nodemeta:" .. spos .. ";locator;0.75,0.25;4,4;]" ..
@@ -96,9 +97,9 @@ local function show_teleporter_form(player, pos)
         "list[nodemeta:" .. spos .. ";source;14.17,5.65;1,1;]" ..
         "list[current_player;main;3.27,5.40;8.0,1;]" ..
         "list[current_player;main;3.27,6.75;8.0,3;8]" ..
-        "button[0.35,10.38;2.30,0.70;settings_btn;Settings]" ..
-        "button_exit[5.20,10.38;2.30,0.70;exit_btn;Exit]" ..
-        "button_exit[7.70,10.38;2.30,0.70;teleport;Teleport]" ..
+        "button[0.35,10.38;2.30,0.70;settings_btn;" .. core.formspec_escape(S("Settings")) .. "]" ..
+        "button_exit[5.20,10.38;2.30,0.70;exit_btn;" .. core.formspec_escape(S("Exit")) .. "]" ..
+        "button_exit[7.70,10.38;2.30,0.70;teleport;" .. core.formspec_escape(S("Teleport")) .. "]" ..
         "table[6,0.25;9.45,4.725;destinations;" .. table.concat(destinations, ",") .. "]" ..
         "listring[nodemeta:" .. spos .. ";locator]" ..
         "listring[current_player;main]"
@@ -150,11 +151,11 @@ local function show_settings_form(player, pos)
     local form =
         "formspec_version[4]" ..
         "size[8.0,4.0]" ..
-        "label[0.5,0.5;Select a mode :]" ..
+        "label[0.5,0.5;" .. core.formspec_escape(S("Select a mode:")) .. "]" ..
         "dropdown[0.5,1.5;7.0;teleport_mode;private,protected,public;" ..
         ((current_mode == "private" and 1) or (current_mode == "protected" and 2) or 3) .. "]" ..
-        "label[0.5,3.0;Range : " .. teleporter_range(count) .. "]" ..
-        "button_exit[3.0,3.0;2.0,0.75;save_btn;Save]"
+        "label[0.5,3.0;" .. core.formspec_escape(S("Range: @1", teleporter_range(count))) .. "]" ..
+        "button_exit[3.0,3.0;2.0,0.75;save_btn;" .. core.formspec_escape(S("Save")) .. "]"
 
     core.show_formspec(player:get_player_name(), "tech:teleporter_settings_" .. spos, form)
 end
@@ -167,21 +168,21 @@ local function teleport_player(player, pos)
     local owner = meta:get_string("owner")
 
     if is_riding_horse(player) then
-        core.chat_send_player(name, "Unable to teleport : You cannot use a teleporter while riding a horse.")
+        core.chat_send_player(name, S("Unable to teleport: You cannot use a teleporter while riding a horse."))
         return false
     end
 
     if not selected_destination or not selected_destination[name] then
-        core.chat_send_player(name, "Unable to teleport : No destination selected.")
+        core.chat_send_player(name, S("Unable to teleport: No destination selected."))
         return false
     end
 
     if name ~= owner then
         if mode == "private" then
-            core.chat_send_player(name, ("Unable to teleport : This teleporter is private (Owner : %s)"):format(owner))
+            core.chat_send_player(name, S("Unable to teleport: This teleporter is private (owner: @1).", owner))
             return false
         elseif mode == "protected" and core.is_protected(pos, name) then
-            core.chat_send_player(name, "Unable to teleport : This teleporter is protected.")
+            core.chat_send_player(name, S("Unable to teleport: This teleporter is protected."))
             return false
         end
     end
@@ -190,13 +191,13 @@ local function teleport_player(player, pos)
     local destination = locator_stack:get_meta():get_string("pos")
 
     if destination == "" or locator_stack:is_empty() or locator_stack:get_name() ~= "tech:locator" then
-        core.chat_send_player(name, "Unable to teleport: Empty slot selected.")
+        core.chat_send_player(name, S("Unable to teleport: Empty slot selected."))
         return false
     end
 
     local distance = vector.distance(vector.new(pos), core.string_to_pos(destination))
     if distance > MAXIMUM_DISTANCE then
-        core.chat_send_player(name, "Unable to teleport: Too far away.")
+        core.chat_send_player(name, S("Unable to teleport: Too far away."))
         return false
     end
 
@@ -216,7 +217,7 @@ local function teleport_player(player, pos)
 
     -- Check if there are enough cores
     if count < required_core then
-        core.chat_send_player(name, "Unable to teleport : Not enough core. Missing : " .. (required_core - count))
+        core.chat_send_player(name, S("Unable to teleport: Not enough core. Missing: @1", required_core - count))
         return false
     end
 
@@ -233,8 +234,7 @@ local function teleport_player(player, pos)
 
     if not has_infinite_source and not has_enough_in_slot and not has_enough_in_hand then
         core.chat_send_player(name,
-        ("Unable to teleport : You need to hold %d coal blocks or sources in your hand to teleport.")
-        :format(required_source))
+            S("Unable to teleport: You need to hold @1 coal blocks or sources in your hand to teleport.", required_source))
         return false
     end
 
@@ -251,7 +251,7 @@ local function teleport_player(player, pos)
 
     -- Teleport the player
     player:set_pos(core.string_to_pos(destination))
-    core.chat_send_player(name, "Teleport to " .. destination .. " complete")
+    core.chat_send_player(name, S("Teleport to @1 complete.", destination))
     core.log("action", "[Teleporter] " .. name .. " teleported to " .. destination)
 
     -- Add particles
@@ -289,7 +289,7 @@ local function teleport_player(player, pos)
 end
 
 core.register_node("tech:teleporter", {
-    description = "Teleporter",
+    description = S("Teleporter"),
     tiles = {"tech_teleporter.png"},
     groups = {cracky = 1, level = 3},
     paramtype2 = "facedir",
@@ -299,7 +299,7 @@ core.register_node("tech:teleporter", {
         local meta = core.get_meta(pos)
         local inv = meta:get_inventory()
 
-        meta:set_string("infotext", "Teleporter")
+        meta:set_string("infotext", S("Teleporter"))
         meta:set_string("owner", "")
         inv:set_size("locator", 16)
         inv:set_size("core", 4)
@@ -309,7 +309,7 @@ core.register_node("tech:teleporter", {
         local meta = core.get_meta(pos)
 
         meta:set_string("owner", placer:get_player_name() or "")
-        meta:set_string("infotext", "Teleporter (owned by " .. meta:get_string("owner") .. ")")
+        meta:set_string("infotext", S("Teleporter (owned by @1)", meta:get_string("owner")))
     end,
     can_dig = function(pos, player)
         local meta = core.get_meta(pos)
@@ -377,27 +377,27 @@ local function set_string(string)
 end
 
 core.register_craftitem("tech:locator", {
-    description = "Locator",
+    description = S("Locator"),
     inventory_image = "tech_locator.png",
     stack_max = 1,
     groups = {not_in_creative_inventory=1},
     on_use = function(itemstack, user, pointed_thing)
         local name = user:get_player_name()
         local meta = itemstack:get_meta()
-        local destination = set_string(meta:get_string("locator_name"))
+        local destination = core.formspec_escape(set_string(meta:get_string("locator_name")))
         local owner = meta:get_string("owner")
 
         if owner and owner ~= name then
-            core.chat_send_player(name, C("red", ("You cannot edit this locator. Owner : %s"):format(owner)))
+            core.chat_send_player(name, C("red", S("You cannot edit this locator. Owner: @1", owner)))
             return
         end
 
         local form =
             "formspec_version[4]" ..
             "size[8.0,4.0]" ..
-            "field[1.0,1.0;6.0,1.0;locator_name;Name :;" .. destination .. "]" ..
-            "button_exit[2.5,3.0;1.5,0.75;resave_locator;Save]" ..
-            "button_exit[4.4,3.0;1.5,0.75;clear_locator;Clear]"
+            "field[1.0,1.0;6.0,1.0;locator_name;" .. core.formspec_escape(S("Name:")) .. ";" .. destination .. "]" ..
+            "button_exit[2.5,3.0;1.5,0.75;resave_locator;" .. core.formspec_escape(S("Save")) .. "]" ..
+            "button_exit[4.4,3.0;1.5,0.75;clear_locator;" .. core.formspec_escape(S("Clear")) .. "]"
 
         core.show_formspec(name, "tech:locator", form)
 
@@ -410,12 +410,12 @@ core.register_craftitem("tech:locator", {
         local owner = set_string(meta:get_string("owner"))
 
         core.chat_send_player(user:get_player_name(),
-            ("Destination : %s %s | Owner : %s"):format(C("cyan", destination), pos, C("cyan", owner)))
+            S("Destination: @1 @2 | Owner: @3", C("cyan", destination), pos, C("cyan", owner)))
     end
 })
 
 core.register_craftitem("tech:blank_locator", {
-    description = "Blank Locator",
+    description = S("Blank Locator"),
     inventory_image = "tech_blank_locator.png",
     stack_max = 1,
     on_use = function(itemstack, user, pointed_thing)
@@ -426,9 +426,9 @@ core.register_craftitem("tech:blank_locator", {
             local form =
                 "formspec_version[4]" ..
                 "size[8.0,4.0]" ..
-                "field[1.0,1.0;6.0,1.0;locator_name;Name :;]" ..
-                "label[1.0,2.5;Position : " .. core.pos_to_string(pos) .. "]" ..
-                "button_exit[3.0,3.0;2.25,0.75;save_locator;Save]"
+                "field[1.0,1.0;6.0,1.0;locator_name;" .. core.formspec_escape(S("Name:")) .. ";]" ..
+                "label[1.0,2.5;" .. core.formspec_escape(S("Position: @1", core.pos_to_string(pos))) .. "]" ..
+                "button_exit[3.0,3.0;2.25,0.75;save_locator;" .. core.formspec_escape(S("Save")) .. "]"
 
             core.show_formspec(user:get_player_name(), "tech:blank_locator", form)
 
@@ -456,7 +456,7 @@ local function save_locator(player, destination)
         new_stack:get_meta():set_string("owner", player:get_player_name())
 
         player:set_wielded_item(new_stack)
-        core.chat_send_player(name, ("Locator saved as : %s"):format(C("cyan", destination)))
+        core.chat_send_player(name, S("Locator saved as: @1", C("cyan", destination)))
         core.log("action", "[Teleporter] " .. name .. " saved locator as " .. destination .. " at " .. pos)
     end
 end
@@ -524,43 +524,43 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 end)
 
 core.register_craftitem("tech:core", {
-    description = "Core",
+    description = S("Core"),
     inventory_image = "tech_core.png",
     stack_max = 1,
 })
 
 core.register_craftitem("tech:infinite_source", {
-    description = "Infinite Source",
+    description = S("Infinite Source"),
     inventory_image = "tech_infinite_source.png",
     stack_max = 1,
 })
 
 core.register_craftitem("tech:advanced_combination", {
-    description = "Advanced Combination",
+    description = S("Advanced Combination"),
     inventory_image = "tech_advanced_combination.png",
     stack_max = 2,
 })
 
 core.register_craftitem("tech:advanced_component", {
-    description = "Advanced Component",
+    description = S("Advanced Component"),
     inventory_image = "tech_advanced_component.png",
     stack_max = 2,
 })
 
 core.register_craftitem("tech:basic_combination", {
-    description = "Basic Combination",
+    description = S("Basic Combination"),
     inventory_image = "tech_basic_combination.png",
     stack_max = 4,
 })
 
 core.register_craftitem("tech:basic_component", {
-    description = "Basic Component",
+    description = S("Basic Component"),
     inventory_image = "tech_basic_component.png",
     stack_max = 4,
 })
 
 core.register_craftitem("tech:source", {
-    description = "Source",
+    description = S("Source"),
     inventory_image = "tech_source.png",
     stack_max = 8000,
 })

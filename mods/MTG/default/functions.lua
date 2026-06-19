@@ -2,6 +2,17 @@
 -- Sounds
 --
 
+local use_current_sounds = minetest.settings:get_bool("default_use_current_sounds", true)
+
+function default.sound_name(name)
+	if use_current_sounds then
+		return name
+	else
+		-- Import legacy MTG sounds as mtg_old_<current sound name>.ogg.
+		return "mtg_old_" .. name
+	end
+end
+
 function default.node_sound_defaults(tbl)
 	tbl = tbl or {}
 	tbl.footstep = tbl.footstep or
@@ -16,9 +27,9 @@ end
 function default.node_sound_stone_defaults(tbl)
 	tbl = tbl or {}
 	tbl.footstep = tbl.footstep or
-			{name = "default_hard_footstep", gain = 0.2}
+			{name = default.sound_name("default_hard_footstep"), gain = 0.2}
 	tbl.dug = tbl.dug or
-			{name = "default_hard_footstep", gain = 1.0}
+			{name = default.sound_name("default_hard_footstep"), gain = 1.0}
 	default.node_sound_defaults(tbl)
 	return tbl
 end
@@ -40,9 +51,9 @@ end
 function default.node_sound_sand_defaults(tbl)
 	tbl = tbl or {}
 	tbl.footstep = tbl.footstep or
-			{name = "default_sand_footstep", gain = 0.05}
+			{name = default.sound_name("default_sand_footstep"), gain = 0.05}
 	tbl.dug = tbl.dug or
-			{name = "default_sand_footstep", gain = 0.15}
+			{name = default.sound_name("default_sand_footstep"), gain = 0.15}
 	tbl.place = tbl.place or
 			{name = "default_place_node", gain = 1.0}
 	default.node_sound_defaults(tbl)
@@ -68,7 +79,7 @@ function default.node_sound_wood_defaults(tbl)
 	tbl.footstep = tbl.footstep or
 			{name = "default_wood_footstep", gain = 0.15}
 	tbl.dig = tbl.dig or
-			{name = "default_dig_choppy", gain = 0.4}
+			{name = default.sound_name("default_dig_choppy"), gain = 0.4}
 	tbl.dug = tbl.dug or
 			{name = "default_wood_footstep", gain = 1.0}
 	default.node_sound_defaults(tbl)
@@ -102,11 +113,11 @@ end
 function default.node_sound_ice_defaults(tbl)
 	tbl = tbl or {}
 	tbl.footstep = tbl.footstep or
-			{name = "default_ice_footstep", gain = 0.15}
+			{name = default.sound_name("default_ice_footstep"), gain = 0.15}
 	tbl.dig = tbl.dig or
-			{name = "default_ice_dig", gain = 0.5}
+			{name = default.sound_name("default_ice_dig"), gain = 0.5}
 	tbl.dug = tbl.dug or
-			{name = "default_ice_dug", gain = 0.5}
+			{name = default.sound_name("default_ice_dug"), gain = 0.5}
 	default.node_sound_defaults(tbl)
 	return tbl
 end
@@ -114,7 +125,7 @@ end
 function default.node_sound_metal_defaults(tbl)
 	tbl = tbl or {}
 	tbl.footstep = tbl.footstep or
-			{name = "default_metal_footstep", gain = 0.2}
+			{name = default.sound_name("default_metal_footstep"), gain = 0.2}
 	tbl.dig = tbl.dig or
 			{name = "default_dig_metal", gain = 0.5}
 	tbl.dug = tbl.dug or

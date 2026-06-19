@@ -1,0 +1,6 @@
+# textdomain: ots_news
+There are new things on the server, go see /news=
+Server News=
+Force everyone to see the news again=
+News version bumped to @1=
+See the news=

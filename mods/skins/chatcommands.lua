@@ -15,3 +15,17 @@ core.register_chatcommand("skin_info", {
 		end
 	end,
 })
+
+core.register_chatcommand("get_skins_for", {
+	privs = {server = true},
+	description = "Get skins for player",
+	func = function(name, param)
+		if not core.get_player_by_name(param) then return false, "Player '" .. param .. "' not found" end
+		local skinslist = skins.get_skinlist_for_player(param)
+		local result = {}
+		for _, skin in pairs(skinslist) do
+			table.insert(result, skin:get_key())
+		end
+		return true, "Skins for player '" .. param .. "': " .. table.concat(result, ", ")
+	end
+})

@@ -5,6 +5,7 @@ local set_fs = i3.set_fs
 
 IMPORT("slz", "min", "insert", "copy")
 IMPORT("reset_data", "play_sound", "update_inv_size")
+IMPORT("S", "FS")
 
 core.register_on_player_hpchange(function(player, hpchange)
 	local name = player:get_player_name()
@@ -137,7 +138,7 @@ if core.global_exists"skins" then
 end
 
 core.register_privilege("skins", {
-	description = "Can change player skin from the inventory",
+	description = S("Can change player skin from the inventory"),
 	give_to_singleplayer = false,
 	give_to_admin = false,
 	on_grant = function(name)
@@ -200,9 +201,11 @@ local function get_formspec_version(info)
 end
 
 local function outdated(name)
+	local message = FS("Your Minetest client is outdated.") .. "\n" ..
+		FS("Get the latest version on minetest.net to play the game.")
 	core.show_formspec(name, "i3_outdated",
 		("size[6.5,1.3]image[0,0;1,1;i3_book.png]label[1,0;%s]button_exit[2.6,0.8;1,1;;OK]"):format(
-		"Your Minetest client is outdated.\nGet the latest version on minetest.net to play the game."))
+		message))
 end
 
 local function init_data(player, info)

@@ -1,5 +1,6 @@
 local PLAYERS_MSG = {}
 local PLAYERS_FREQ = {}
+local S = minetest.get_translator("antispam")
 local SPAM_SPEED = 5
 local SPAM_SPEED_MSECS = SPAM_SPEED * 1e6
 local SPAM_WARN = 5
@@ -24,9 +25,10 @@ minetest.register_on_chat_message(function(name, message)
 		local amount = PLAYERS_MSG[name][message][1] + 1
 		PLAYERS_MSG[name][message][1] = amount
 		PLAYERS_MSG[name][message][2] = minetest.get_us_time()
-		if amount >= SPAM_KICK then minetest.kick_player(name, "Kicked for spamming.")
+		if amount >= SPAM_KICK then minetest.kick_player(name, S("Kicked for spamming."))
 		elseif amount >= SPAM_WARN then
-			minetest.chat_send_player(name, WARNING_COLOR .. "Warning! You've sent the message '" .. message .. "' too often. Wait at least " .. RESET_TIME .. " seconds before sending it again.")
+			minetest.chat_send_player(name, WARNING_COLOR ..
+				S("Warning! You've sent the message '@1' too often. Wait at least @2 seconds before sending it again.", message, RESET_TIME))
 		end
 	else PLAYERS_MSG[name][message] = { 1, minetest.get_us_time() } end
 	if not PLAYERS_FREQ[name] then
@@ -44,9 +46,10 @@ minetest.register_on_chat_message(function(name, message)
     local delay = minetest.get_us_time() - PLAYERS_FREQ[name][3]
     speed = (speed * amount + delay) / (amount + 1)
     if amount >= SPAM_WARN then
-        if warns + 1 == SPAM_KICK - SPAM_WARN then minetest.kick_player(name, "Kicked for spamming.")
+        if warns + 1 == SPAM_KICK - SPAM_WARN then minetest.kick_player(name, S("Kicked for spamming."))
         elseif speed <= SPAM_SPEED_MSECS then
-            minetest.chat_send_player(name, WARNING_COLOR .. "Warning! You are sending messages too fast. Wait at least " .. SPAM_SPEED .. " seconds before sending another message.")
+            minetest.chat_send_player(name, WARNING_COLOR ..
+				S("Warning! You are sending messages too fast. Wait at least @1 seconds before sending another message.", SPAM_SPEED))
             warns = warns + 1
             speed = SPAM_SPEED_MSECS
             amount = SPAM_WARN

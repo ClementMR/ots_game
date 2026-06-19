@@ -9,9 +9,12 @@ local fmt, find, match, gmatch, sub, split, lower, upper =
 	string.format, string.find, string.match, string.gmatch,
 	string.sub, string.split, string.lower, string.upper
 
+local S = core.get_translator"i3"
+local FS = function(...) return core.formspec_escape(S(...)) end
+
 if not core.registered_privileges.creative then
 	core.register_privilege("creative", {
-		description = "Allow player to use creative inventory",
+		description = S("Allow player to use creative inventory"),
 		give_to_singleplayer = false,
 		give_to_admin = false,
 	})
@@ -26,9 +29,6 @@ function core.is_creative_enabled(name)
 
 	return core.check_player_privs(name, {creative = true}) or old_is_creative_enabled(name)
 end
-
-local S = core.get_translator"i3"
-local FS = function(...) return core.formspec_escape(S(...)) end
 
 local function is_num(x)
 	return type(x) == "number"

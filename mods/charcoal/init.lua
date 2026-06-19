@@ -1,10 +1,12 @@
+local S = core.get_translator("charcoal")
+
 core.register_craftitem("charcoal:charcoal", {
-    description = "Charcoal",
+    description = S("Charcoal"),
     inventory_image = "default_coal_lump.png",
 })
 
 core.register_node("charcoal:charcoalblock", {
-	description = "Charcoal Block",
+	description = S("Charcoal Block"),
 	tiles = {"default_coal_block.png"},
 	is_ground_content = false,
 	groups = {cracky = 3},

@@ -188,6 +188,50 @@ local function may_replace(pos, player)
 end
 
 local player_inventory_lists = { "main", "craft" }
+local death_drop_sources = {}
+
+function bones.register_inventory_list(list_name)
+	if type(list_name) ~= "string" or list_name == "" then
+		return
+	end
+
+	for _, registered_name in ipairs(player_inventory_lists) do
+		if registered_name == list_name then
+			return
+		end
+	end
+
+	table.insert(player_inventory_lists, list_name)
+end
+
+function bones.register_death_drop_source(source_name, collect_func)
+	if type(source_name) ~= "string" or source_name == ""
+	or type(collect_func) ~= "function" then
+		return
+	end
+
+	death_drop_sources[source_name] = collect_func
+end
+
+local function collect_death_drops(player)
+	local stacks = {}
+
+	for source_name, collect_func in pairs(death_drop_sources) do
+		local ok, result = pcall(collect_func, player)
+		if not ok then
+			minetest.log("error", "[bones] Death drop source '" .. source_name .. "' failed: " .. result)
+		elseif type(result) == "table" then
+			for _, stack in ipairs(result) do
+				if stack and stack:get_count() > 0 then
+					table.insert(stacks, stack)
+				end
+			end
+		end
+	end
+
+	return stacks
+end
+
 local function is_all_empty(player_inv)
 	for _, list_name in ipairs(player_inventory_lists) do
 		if not player_inv:is_empty(list_name) then
@@ -197,9 +241,9 @@ local function is_all_empty(player_inv)
 	return true
 end
 
-local function make_bones(player)
+local function make_bones(player, include_death_drops)
 	local name = player:get_player_name()
-	if minetest.is_creative_enabled(name) or minetest.get_player_privs(player:get_player_name()).protection_bypass then
+	if minetest.is_creative_enabled(name) or minetest.get_player_privs(player:get_player_name()).creative then
 		return
 	end
 
@@ -208,7 +252,8 @@ local function make_bones(player)
 	local pos_string = minetest.pos_to_string(pos)
 
 	local player_inv = player:get_inventory()
-	if is_all_empty(player_inv) then
+	local extra_drops = include_death_drops and collect_death_drops(player) or {}
+	if is_all_empty(player_inv) and #extra_drops == 0 then
 		minetest.log("action", player_name .. "'s inventory is empty. No bones placed")
 		return
 	end
@@ -224,6 +269,9 @@ local function make_bones(player)
 					drop(pos, player_inv:get_stack(list_name, i))
 				end
 				player_inv:set_list(list_name, {})
+			end
+			for _, stack in ipairs(extra_drops) do
+				drop(pos, stack)
 			end
 			minetest.log("action", player_name .. " dropped their inventory at " .. pos_string)
 			return
@@ -250,6 +298,13 @@ local function make_bones(player)
 		end
 		player_inv:set_list(list_name, {})
 	end
+	for _, stack in ipairs(extra_drops) do
+		if inv:room_for_item("main", stack) then
+			inv:add_item("main", stack)
+		else
+			drop(pos, stack)
+		end
+	end
 
 	meta:set_string("formspec", bones_formspec)
 	meta:set_string("owner", player_name)
@@ -270,12 +325,12 @@ local function make_bones(player)
 end
 
 minetest.register_on_dieplayer(function(player)
-	make_bones(player)
+	make_bones(player, true)
 end)
 
 minetest.register_on_leaveplayer(function(player, timed_out)
 	-- if the player timed out, we don't want to create bones
 	if not timed_out then
-		make_bones(player)
+		make_bones(player, true)
 	end
 end)

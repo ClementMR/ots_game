@@ -1,9 +1,11 @@
+local S = core.get_translator("ots_main")
+
 core.register_node(":light:lamp", {
-    description = "Lamp",
-    drawtype = "glasslike_framed_optional",
-    tiles = {"light_lamp.png"},
+	description = S("Lamp"),
+	drawtype = "glasslike_framed_optional",
+	tiles = {"light_lamp.png"},
 	paramtype = "light",
-    light_source = 14,
+	light_source = 14,
 	sunlight_propagates = true,
 	is_ground_content = false,
 	groups = {cracky = 3, oddly_breakable_by_hand = 3},
@@ -11,10 +13,10 @@ core.register_node(":light:lamp", {
 })
 
 core.register_craft({
-    output = "light:lamp",
-    recipe = {
-        {"", "default:glass", ""},
-        {"", "default:torch", ""},
-        {"", "default:steel_ingot", ""}
-    }
+	output = "light:lamp",
+	recipe = {
+		{"", "default:glass", ""},
+		{"", "default:torch", ""},
+		{"", "default:steel_ingot", ""},
+	},
 })

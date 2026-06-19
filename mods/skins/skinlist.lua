@@ -175,16 +175,3 @@ function skins.get_skinlist_with_meta(key, value)
 	skins_sort(skinslist)
 	return skinslist
 end
-
-core.register_chatcommand("get_skins_for", {
-	description = "Get skins for player",
-	func = function(name, param)
-		if not core.get_player_by_name(param) then return false, "Player '" .. param .. "' not found" end
-		local skinslist = skins.get_skinlist_for_player(param)
-		local result = {}
-		for _, skin in pairs(skinslist) do
-			table.insert(result, skin:get_key())
-		end
-		return true, "Skins for player '" .. param .. "': " .. table.concat(result, ", ")
-	end
-})

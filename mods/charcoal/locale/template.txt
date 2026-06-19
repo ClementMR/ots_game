@@ -1,0 +1,3 @@
+# textdomain: charcoal
+Charcoal=
+Charcoal Block=

@@ -4,12 +4,13 @@ local POLL_FREQ = 0.25
 
 IMPORT("reg_items", "reg_nodes", "fmt", "table_merge", "array_diff")
 IMPORT("is_group", "extract_groups", "item_has_groups", "apply_recipe_filters", "sort_by_category")
+IMPORT("S", "FS")
 
 i3.remove_minitab"nodes"
 i3.remove_minitab"items"
 
 i3.new_minitab("unlocked", {
-	description = "Unlocked",
+	description = FS("Unlocked"),
 
 	sorter = function(item, data)
 		return data.items_progress[item]
@@ -142,7 +143,7 @@ local function poll_new_items(player, data, join)
 		data.discovered = data.known_recipes - oldknown
 
 		if data.discovered > 0 then
-			local msg = fmt("%u new recipe%s unlocked!", data.discovered, data.discovered > 1 and "s" or "")
+			local msg = S("@1 new recipe(s) unlocked!", data.discovered)
 			local last_discovered = diff[1]
 			local img = reg_items[last_discovered].inventory_image
 

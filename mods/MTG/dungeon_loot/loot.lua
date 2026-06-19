@@ -12,15 +12,15 @@ dungeon_loot.registered_loot = {
 		types = {"sandstone", "desert"}},
 
 	-- minerals
-	{name = "default:coal_lump", chance = 0.9, count = {1, 12}},
-	{name = "default:gold_ingot", chance = 0.5},
-	{name = "default:steel_ingot", chance = 0.4, count = {1, 6}},
-	{name = "default:mese_crystal", chance = 0.1, count = {2, 3}},
+	{name = "default:coal_lump", chance = 0.65, count = {1, 6}},
+	{name = "default:gold_lump", chance = 0.18},
+	{name = "default:steel_ingot", chance = 0.25, count = {1, 3}},
+	{name = "default:mese_crystal_fragment", chance = 0.08, count = {1, 2}},
 
 	-- tools
 	{name = "default:sword_wood", chance = 0.6},
 	{name = "default:pick_stone", chance = 0.3},
-	{name = "default:axe_diamond", chance = 0.05},
+	{name = "default:pick_steel", chance = 0.04},
 
 	-- natural materials
 	{name = "default:sand", chance = 0.8, count = {4, 32}, y = {-64, 32768},
@@ -33,8 +33,8 @@ dungeon_loot.registered_loot = {
 		types = {"ice"}},
 	{name = "default:dirt", chance = 0.6, count = {2, 16}, y = {-64, 32768},
 		types = {"normal", "sandstone", "desert"}},
-	{name = "default:obsidian", chance = 0.25, count = {1, 3}, y = {-32768, -512}},
-	{name = "default:mese", chance = 0.15, y = {-32768, -512}},
+	{name = "default:obsidian_shard", chance = 0.18, count = {1, 3}, y = {-32768, -512}},
+	{name = "default:mese_crystal_fragment", chance = 0.06, count = {1, 3}, y = {-32768, -512}},
 }
 
 function dungeon_loot.register(t)

@@ -1,53 +1,79 @@
-local GOLDEN_APPLE_BONUS = 10
-local GOLDEN_APPLE_DURATION = 120
-local ACTIVE_KEY = "ots_main:golden_apple_active"
-local BASE_HP_KEY = "ots_main:golden_apple_base_hp"
-local EXPIRES_KEY = "ots_main:golden_apple_expires"
+local S = core.get_translator("ots_main")
 
-local function get_hp_max(player)
-	return (player:get_properties() or {}).hp_max or 20
+local GOLDEN_APPLE_ABSORPTION = 8
+local absorption_huds = {}
+
+local function get_absorption(player)
+	return math.max(0, player:get_meta():get_int("ots_main:golden_apple_absorption"))
 end
 
-local function clear_golden_apple(player)
-	local meta = player:get_meta()
-	if meta:get_int(ACTIVE_KEY) ~= 1 then
+local function set_absorption(player, amount)
+	player:get_meta():set_int("ots_main:golden_apple_absorption", math.max(0, math.min(GOLDEN_APPLE_ABSORPTION, amount)))
+end
+
+local function remove_absorption_hud(player)
+	local name = player:get_player_name()
+	local hud_id = absorption_huds[name]
+	if hud_id then
+		player:hud_remove(hud_id)
+		absorption_huds[name] = nil
+	end
+end
+
+local function update_absorption_hud(player)
+	local amount = get_absorption(player)
+	if amount <= 0 then
+		remove_absorption_hud(player)
 		return
 	end
 
-	local base_hp = meta:get_int(BASE_HP_KEY)
-	if base_hp <= 0 then
-		base_hp = 20
+	local name = player:get_player_name()
+	local hud_id = absorption_huds[name]
+	if not hud_id then
+		hud_id = player:hud_add({
+			type = "statbar",
+			position = {x = 0.5, y = 1},
+			text = "heart.png^[colorize:#FFD43B:190",
+			number = amount,
+			item = GOLDEN_APPLE_ABSORPTION,
+			direction = 0,
+			size = {x = 24, y = 24},
+			offset = {x = -262, y = -112},
+			z_index = 10,
+		})
+		absorption_huds[name] = hud_id
+	else
+		player:hud_change(hud_id, "number", amount)
+		player:hud_change(hud_id, "item", GOLDEN_APPLE_ABSORPTION)
 	end
-	player:set_properties({hp_max = base_hp})
-	if player:get_hp() > base_hp then
-		player:set_hp(base_hp, {type = "set_hp", cause = "ots_main:golden_apple_expire"})
-	end
-	meta:set_int(ACTIVE_KEY, 0)
-	meta:set_int(BASE_HP_KEY, 0)
-	meta:set_int(EXPIRES_KEY, 0)
+end
+
+local function clear_golden_apple(player)
+	set_absorption(player, 0)
+	update_absorption_hud(player)
 end
 
 local function apply_golden_apple(player)
-	local meta = player:get_meta()
-	local base_hp = meta:get_int(BASE_HP_KEY)
-	if meta:get_int(ACTIVE_KEY) ~= 1 or base_hp <= 0 then
-		base_hp = get_hp_max(player)
-		meta:set_int(BASE_HP_KEY, base_hp)
+	set_absorption(player, GOLDEN_APPLE_ABSORPTION)
+
+	local props = player:get_properties() or {}
+	local hp_max = props.hp_max or 20
+	player:set_hp(hp_max, {type = "set_hp", cause = "ots_main:golden_apple"})
+
+	if rawget(_G, "stamina") and stamina.update_saturation then
+		local stamina_max = (stamina.settings and stamina.settings.visual_max) or 20
+		stamina.update_saturation(player, stamina_max)
+		if stamina.set_exhaustion then
+			stamina.set_exhaustion(player, 0)
+		end
 	end
 
-	local new_max = base_hp + GOLDEN_APPLE_BONUS
-	player:set_properties({hp_max = new_max})
-	player:set_hp(math.min(new_max, player:get_hp() + GOLDEN_APPLE_BONUS), {
-		type = "set_hp",
-		cause = "ots_main:golden_apple",
-	})
-	meta:set_int(ACTIVE_KEY, 1)
-	meta:set_int(EXPIRES_KEY, core.get_gametime() + GOLDEN_APPLE_DURATION)
+	update_absorption_hud(player)
 end
 
 core.register_craftitem("ots_main:golden_apple", {
-	description = "Golden Apple",
-	inventory_image = "default_apple.png^[colorize:#FFD700:120",
+	description = S("Golden Apple"),
+	inventory_image = "ots_golden_apple.png",
 	on_use = function(itemstack, user)
 		if not user or not user:is_player() then
 			return itemstack
@@ -70,21 +96,36 @@ core.register_craft({
 	},
 })
 
-core.register_globalstep(function()
-	local now = core.get_gametime()
-	for _, player in ipairs(core.get_connected_players()) do
-		local meta = player:get_meta()
-		local expires = meta:get_int(EXPIRES_KEY)
-		if meta:get_int(ACTIVE_KEY) == 1 and expires > 0 and now >= expires then
-			clear_golden_apple(player)
-		end
+core.register_on_player_hpchange(function(player, hp_change)
+	if hp_change >= 0 then
+		return hp_change
 	end
-end)
+
+	local absorption = get_absorption(player)
+	if absorption <= 0 then
+		return hp_change
+	end
+
+	local damage = -hp_change
+	local absorbed = math.min(absorption, damage)
+	set_absorption(player, absorption - absorbed)
+	update_absorption_hud(player)
+	core.sound_play("player_damage", {to_player = player:get_player_name(), gain = 0.5})
+	return hp_change + absorbed
+end, true)
 
 core.register_on_dieplayer(function(player)
 	clear_golden_apple(player)
 end)
 
 core.register_on_joinplayer(function(player)
-	core.after(0, clear_golden_apple, player)
+	core.after(0, function()
+		if player and player:is_player() then
+			update_absorption_hud(player)
+		end
+	end)
+end)
+
+core.register_on_leaveplayer(function(player)
+	absorption_huds[player:get_player_name()] = nil
 end)

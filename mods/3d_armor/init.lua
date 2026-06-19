@@ -268,27 +268,56 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 	end
 end)
 
-if armor.config.drop == true or armor.config.destroy == true then
-	core.register_on_dieplayer(function(player)
-		local name, armor_inv = armor:get_valid_player(player, "[on_dieplayer]")
-		if not name then return end
+local function collect_death_armor(player)
+	local name, armor_inv = armor:get_valid_player(player, "[on_dieplayer]")
+	if not name then return {} end
 
-		if core.is_creative_enabled(player:get_player_name()) then return end
+	if core.is_creative_enabled(player:get_player_name()) then return {} end
 
-		local drop = {}
-		for i=1, armor_inv:get_size("armor") do
-			local stack = armor_inv:get_stack("armor", i)
-			if stack:get_count() > 0 then
-				--soulbound armors remain equipped after death
-				if core.get_item_group(stack:get_name(), "soulbound") == 0 then
+	local drop = {}
+	for i=1, armor_inv:get_size("armor") do
+		local stack = armor_inv:get_stack("armor", i)
+		if stack:get_count() > 0 then
+			--soulbound armors remain equipped after death
+			if core.get_item_group(stack:get_name(), "soulbound") == 0 then
+				if armor.config.destroy == false then
 					table.insert(drop, stack)
-					armor:run_callbacks("on_unequip", player, i, stack)
-					armor_inv:set_stack("armor", i, nil)
 				end
+				armor:run_callbacks("on_unequip", player, i, stack)
+				armor_inv:set_stack("armor", i, nil)
 			end
 		end
-		armor:save_armor_inventory(player)
-		armor:set_player_armor(player)
+	end
+	armor:save_armor_inventory(player)
+	armor:set_player_armor(player)
+
+	return drop
+end
+
+if armor.config.drop == true or armor.config.destroy == true then
+	core.register_on_mods_loaded(function()
+		if armor.config.drop == true
+		and rawget(_G, "bones")
+		and bones.register_death_drop_source then
+			bones.register_death_drop_source("3d_armor", collect_death_armor)
+		end
+	end)
+
+	core.register_on_dieplayer(function(player)
+		local player_name = player:get_player_name()
+		if armor.config.drop == true
+		and rawget(_G, "bones")
+		and bones.register_death_drop_source
+		and not core.is_creative_enabled(player_name) then
+			return
+		end
+
+		local drop = collect_death_armor(player)
+		if #drop == 0 then
+			return
+		end
+
+		local name = player_name
 		local pos = player:get_pos()
 		if pos then
 			core.after(armor.config.bones_delay, function()
@@ -355,7 +384,10 @@ core.register_on_player_hpchange(function(player, hp_change, reason)
 	local heal = def.heal
 	local feather = def.feather
 
-	if def.groups["immortal"] ~= 0 then return 0 end -- Admin armor
+	-- Admin armor
+	if def.groups["immortal"] ~= 0 then
+		return 0
+	end
 
 	if reason.type == "drown" or reason.hunger or hp_change >= 0 then
 		return hp_change

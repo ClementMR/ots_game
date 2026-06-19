@@ -55,10 +55,10 @@ shields_disable_sounds (Disable shield sounds) bool false
 
 [Animalia]
 #    How many chunks can generate before adding another to spawn queue
-chunk_spawn_add_int (Chunk Spawning Addition Interval) float 6
+chunk_spawn_add_int (Chunk Spawning Addition Interval) float 12
 
 #    How often (in seconds) the spawn queue is executed and cleared
-chunk_spawn_queue_int (Chunk Spawning Queue Execution Interval) float 16
+chunk_spawn_queue_int (Chunk Spawning Queue Execution Interval) float 30
 
 #    If true, mobs will spawn in the wild
 spawn_mobs (Spawn Mobs) bool true
@@ -76,13 +76,13 @@ guano_fertilization (Guano Fertilization) bool true
 animalia_common_chance (Common Mob Spawn Chance) int 40000 20000 60000
 
 #    Chance for Ambient Mobs to spawn (1 in x nodes will spawn a mob every minute)
-animalia_ambient_chance (Ambient Mob Spawn Chance) int 15000 5000 25000
+animalia_ambient_chance (Ambient Mob Spawn Chance) int 25000 5000 25000
 
 #    Chance for Pest Mobs to spawn (1 in x nodes will spawn a mob every minute)
-animalia_pest_chance (Pest Mob Spawn Chance) int 5000 100 15000
+animalia_pest_chance (Pest Mob Spawn Chance) int 15000 100 15000
 
 #    Chance for Common Mobs to spawn (1 in x nodes will spawn a mob every minute)
-animalia_predator_chance (Predator Mob Spawn Chance) int 40000 20000 50000
+animalia_predator_chance (Predator Mob Spawn Chance) int 50000 20000 50000
 
 [Anvil]
 anvil_hammer_is_repairable (Hammer can be repaired on anvil) bool true
@@ -114,20 +114,84 @@ creatura_mapblock_limit (Max Mobs per Mapblock) int 12
 creatura_abr_limit (Max Mobs within ABR) int 24
 
 # Minimum distance to a player for ABM Spawning
-creatura_min_abm_dist (Minimum ABM Spawning Distance) int 32
+creatura_min_abm_dist (Minimum ABM Spawning Distance) int 48
 
 # Allows Mobs to spawn in protected areas
 creatura_protected_spawn (Protected Area Spawning) bool true
 
 # Allotted time (in μs) per step for A* pathfinding (lower means less lag but slower pathfinding)
-creatura_a_star_alloted_time (A* Pathfinding Alloted time per step) int 500
+creatura_a_star_alloted_time (A* Pathfinding Alloted time per step) int 350
 
 # Allotted time (in μs) per step for Theta* pathfinding (lower means less lag but slower pathfinding)
-creatura_theta_star_alloted_time (Theta* Pathfinding Alloted time per step) int 700
+creatura_theta_star_alloted_time (Theta* Pathfinding Alloted time per step) int 450
 
 [Ghost Purge]
 #    Defines the maximum time of inactivity in days
 ghost_purge_max_inactivity (Maximum Inactivity) int 90
+
+[i3]
+# The progressive mode shows recipes you can craft from items you ever had in your inventory.
+i3_progressive_mode (Learn crafting recipes progressively) bool false
+
+[Mobs]
+#    Enable setting so that Mobs Redo mobs can attack Creatura mobs
+mobs_attack_creatura (Attack Creatura Mobs) bool false
+
+#    How often mobs get nodes around them (default is 0.25, 1/4 second)
+mob_node_timer_interval (Mob Node Timer Interval) float 0.5
+
+#    How often mobs run main functions (default is 1.00, 1 second)
+mob_main_timer_interval (Mob Node Timer Interval) float 1.5
+
+#    If false then mobs no longer spawn in world without spawner or spawn egg
+mobs_spawn (Spawn Mobs) bool true
+
+#    If disabled then Mobs no longer destroy world blocks
+mobs_griefing (Griefing Mobs) bool true
+
+#    If false then Mobs no longer spawn inside player protected areas
+mobs_spawn_protected (Spawn Mobs in protected areas) bool false
+
+#    If false then Monsters no longer spawn inside player protected areas
+mobs_spawn_monster_protected (Spawn Monsters in protected areas) bool false
+
+#    If true Mobs will be removed once a map chunk is out of view
+remove_far_mobs (Remove far Mobs) bool true
+
+#    Sets Mob difficulty level by multiplying punch damage
+mob_difficulty (Mob difficulty) float 1.15
+
+#    Contains a value used to multiply Mob spawn values
+mob_chance_multiplier (Mob chance multiplier) float 2.0
+
+#    When false Mob no longer drop items when killed
+mobs_drop_items (Mob drops) bool true
+
+#    Sets minimum distance around player that mobs cannot spawn
+mob_nospawn_range (Mob no-spawn range) float 18.0
+
+#    Sets maximum number of active mobs in game (0 for unlimited)
+mob_active_limit (Mob Active Limit) float 24
+
+#    Enables area check when spawning mobs
+mob_area_spawn (Mob Area Spawn) bool true
+
+#    Enable mobs smooth rotation
+mob_smooth_rotate (Smooth rotation for mobs) bool true
+
+#   Fix Mob Height if too low so they cannot escape through specific nodes
+mob_height_fix (Fix Mob Height) bool false
+
+mob_log_spawn (Log Mob Spawning) bool false
+
+#   Mob hearing, when enabled will override minetest.sound_play for mobs to hear
+mobs_can_hear (Enable Mob hearing) bool true
+
+#   Node hearing, when enabled will allow nodes to hear nearby sounds
+mobs_can_hear_node (Enable Node hearing) bool false
+
+#   By default mobs are dealt knockback from damage, this lets you disable it
+mobs_disable_damage_kb (Disable knockback from damage only) bool false
 
 [MTG]
 #    In creative mode players are able to dig all kind of blocks nearly
@@ -144,6 +208,10 @@ enable_fire (Fire) bool true
 
 #    Enable flame sound.
 flame_sound (Flame sound) bool true
+
+#    Use the current default sound names. Disable after importing legacy MTG
+#    sounds as mtg_old_<current sound name>.ogg.
+default_use_current_sounds (Use current default sounds) bool true
 
 #    Enable lavacooling.
 enable_lavacooling (Lavacooling) bool true
@@ -204,70 +272,6 @@ enable_weather (Enable weather) bool true
 
 #    If enabled, non-player actions are logged
 log_non_player_actions (Log non-player action) bool false
-
-[i3]
-# The progressive mode shows recipes you can craft from items you ever had in your inventory.
-i3_progressive_mode (Learn crafting recipes progressively) bool false
-
-[Mobs]
-#    Enable setting so that Mobs Redo mobs can attack Creatura mobs
-mobs_attack_creatura (Attack Creatura Mobs) bool false
-
-#    How often mobs get nodes around them (default is 0.25, 1/4 second)
-mob_node_timer_interval (Mob Node Timer Interval) float 0.25
-
-#    How often mobs run main functions (default is 1.00, 1 second)
-mob_main_timer_interval (Mob Node Timer Interval) float 1.00
-
-#    If false then mobs no longer spawn in world without spawner or spawn egg
-mobs_spawn (Spawn Mobs) bool true
-
-#    If disabled then Mobs no longer destroy world blocks
-mobs_griefing (Griefing Mobs) bool true
-
-#    If false then Mobs no longer spawn inside player protected areas
-mobs_spawn_protected (Spawn Mobs in protected areas) bool true
-
-#    If false then Monsters no longer spawn inside player protected areas
-mobs_spawn_monster_protected (Spawn Monsters in protected areas) bool true
-
-#    If true Mobs will be removed once a map chunk is out of view
-remove_far_mobs (Remove far Mobs) bool true
-
-#    Sets Mob difficulty level by multiplying punch damage
-mob_difficulty (Mob difficulty) float 1.0
-
-#    Contains a value used to multiply Mob spawn values
-mob_chance_multiplier (Mob chance multiplier) float 1.0
-
-#    When false Mob no longer drop items when killed
-mobs_drop_items (Mob drops) bool true
-
-#    Sets minimum distance around player that mobs cannot spawn
-mob_nospawn_range (Mob no-spawn range) float 12.0
-
-#    Sets maximum number of active mobs in game (0 for unlimited)
-mob_active_limit (Mob Active Limit) float 0
-
-#    Enables area check when spawning mobs
-mob_area_spawn (Mob Area Spawn) bool false
-
-#    Enable mobs smooth rotation
-mob_smooth_rotate (Smooth rotation for mobs) bool true
-
-#   Fix Mob Height if too low so they cannot escape through specific nodes
-mob_height_fix (Fix Mob Height) bool false
-
-mob_log_spawn (Log Mob Spawning) bool false
-
-#   Mob hearing, when enabled will override minetest.sound_play for mobs to hear
-mobs_can_hear (Enable Mob hearing) bool true
-
-#   Node hearing, when enabled will allow nodes to hear nearby sounds
-mobs_can_hear_node (Enable Node hearing) bool false
-
-#   By default mobs are dealt knockback from damage, this lets you disable it
-mobs_disable_damage_kb (Disable knockback from damage only) bool false
 
 [Pathfinding]
 #    Enable pathfinding (default Enabled)

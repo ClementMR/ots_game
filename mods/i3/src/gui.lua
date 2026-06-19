@@ -1183,7 +1183,7 @@ local function get_rcp_extra(fs, data, player, panel, is_recipe, is_usage)
 
 		get_rcp_lbl(fs, data, panel, rn, is_recipe, is_usage)
 	else
-		local lbl = is_recipe and FS("No recipes" or FS("No usages"))
+		local lbl = is_recipe and FS("No recipes") or FS("No usages")
 		button(data.inv_width + 0.1, data.yoffset + (panel.height / 2) - 0.5, 7.8, 1, "no_rcp", lbl)
 	end
 
@@ -1261,7 +1261,7 @@ local function get_header_items_fs(fs, data)
 			fs("style[itab_%u;bgimg=%s;bgimg_hovered=%s;bgimg_pressed=%s;sound=i3_tab]",
 				i, data.itab == i and active or PNG[name], active, active)
 			image_button(X + 1.25 + ((i - 1) * 0.7), 0.2, 0.5, 0.5, "", fmt("itab_%s", i), "")
-			fs("tooltip[itab_%u;Show %s;#32333899;#fff]", i, desc)
+			fs("tooltip[itab_%u;%s %s;#32333899;#fff]", i, FS("Show"), desc)
 		end
 	else
 		fs("style[search;bgimg=%s]", PNG.search_hover)
@@ -1519,7 +1519,7 @@ end
 
 local function get_debug_grid(data, fs, full_height)
 	fs"style[hide_debug_grid;noclip=true]"
-	button(-2, full_height - 1, 2, 1, "hide_debug_grid", "Toggle grid")
+	button(-2, full_height - 1, 2, 1, "hide_debug_grid", FS("Toggle grid"))
 	if data.hide_debug_grid then return end
 
 	fs"style_type[label;font_size=8;noclip=true]"

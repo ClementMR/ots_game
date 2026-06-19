@@ -1,0 +1,26 @@
+# textdomain: ots_main
+Golden Apple=
+The player "@1" joined the server for the first time!=
+Viscous Liquid Source=
+Flowing Viscous Liquid=
+Viscous Liquid Bucket=
+Show online players=
+Player(s): @1=
+Clear your bed spawn position=
+Your bed spawn position has been cleared.=
+You don't have a bed spawn position set.=
+Send a direct message to a player (Admin tunnel)=
+Invalid usage, see /help s_msg.=
+The player @1 is not online.=
+Message sent to @1.=
+Send a message to all players (Admin tunnel)=
+Invalid usage, see /help s_all.=
+Lamp=
+Player settings=
+Save=
+No settings available=
+Open player settings=
+You are now unvanished!=
+You are now vanished!=
+Toggle the vanish state for a player or yourself=
+The player @1 does not exist or is not online.=

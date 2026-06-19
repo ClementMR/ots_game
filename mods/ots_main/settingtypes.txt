@@ -1,2 +1,0 @@
-# Generate viscous liquid lakes during mapgen.
-ots_main_viscous_lakes (Generate viscous lakes) bool true

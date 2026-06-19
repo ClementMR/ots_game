@@ -1,3 +1,5 @@
+local S = core.get_translator("ots_main")
+
 local function get_online_players()
     local players = {}
     for _, player in ipairs(core.get_connected_players()) do
@@ -9,56 +11,56 @@ local function get_online_players()
 end
 
 core.register_chatcommand("online", {
-    description = "Show online players",
+    description = S("Show online players"),
     func = function(name)
         local players = get_online_players()
-        return true, core.colorize("grey", "Player(s): "..table.concat(players, ", "))
+        return true, core.colorize("grey", S("Player(s): @1", table.concat(players, ", ")))
     end
 })
 
 core.register_chatcommand("clear_bed", {
-    description = "Clear your bed spawn position",
+    description = S("Clear your bed spawn position"),
     privs = {interact = true},
     func = function(name)
         if beds.spawn[name] then
             beds.spawn[name] = nil
             beds.save_spawns()
-            return true, "Your bed spawn position has been cleared."
+            return true, S("Your bed spawn position has been cleared.")
         else
-            return false, "You don't have a bed spawn position set."
+            return false, S("You don't have a bed spawn position set.")
         end
     end,
 })
 
 core.register_chatcommand("s_msg", {
 	params = "<name> <message>",
-	description = "Send a direct message to a player (Admin tunnel)",
+	description = S("Send a direct message to a player (Admin tunnel)"),
 	privs = {server=true},
 	func = function(name, param)
 		local sendto, message = param:match("^(%S+)%s(.+)$")
 		if not sendto then
-			return false, "Invalid usage, see /help s_msg."
+			return false, S("Invalid usage, see /help s_msg.")
 		end
 
 		if not core.get_player_by_name(sendto) then
-			return false, "The player "..sendto.." is not online."
+			return false, S("The player @1 is not online.", sendto)
 		end
 
 		core.chat_send_player(sendto, core.colorize("yellow", "[Server] "..message))
 
 		core.log("action", "[Server] sent to "..sendto..": "..message)
 
-		return true, "Message sent to "..sendto.."."
+		return true, S("Message sent to @1.", sendto)
 	end,
 })
 
 core.register_chatcommand("s_all", {
 	params = "<message>",
-	description = "Send a message to all players (Admin tunnel)",
+	description = S("Send a message to all players (Admin tunnel)"),
 	privs = {server=true},
 	func = function(name, param)
 		if not param or param == "" then
-			return false, "Invalid usage, see /help s_all."
+			return false, S("Invalid usage, see /help s_all.")
 		end
 
 		core.chat_send_all(core.colorize("yellow", "[Server] "..param))

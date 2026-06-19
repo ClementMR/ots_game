@@ -1,11 +1,12 @@
 local NODE_USED = "default:chest"
+local S = core.get_translator("ghost_purge")
 
 local function unlock_chests(pos, node, oldinfotext, items)
     core.set_node(pos, {name = NODE_USED, param2 = node.param2 or 0})
     core.sound_play("ghost_purge_unlock_chest", {pos = pos,max_hear_distance = 16})
     local meta = core.get_meta(pos)
     local inv = meta:get_inventory()
-    meta:set_string("infotext", oldinfotext .. " (Unlocked)")
+    meta:set_string("infotext", oldinfotext .. " (" .. S("Unlocked") .. ")")
     inv:set_list("main", items)
     if inv:room_for_item("main", "default:steel_ingot") then
         inv:add_item("main", "default:steel_ingot")

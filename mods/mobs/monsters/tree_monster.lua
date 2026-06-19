@@ -30,7 +30,7 @@ mobs:register_mob("mobs:tree_monster", {
 		{name = "default:stick", chance = 1, min = 0, max = 2},
 		{name = "default:sapling", chance = 2, min = 0, max = 2},
 		{name = "default:junglesapling", chance = 3, min = 0, max = 2},
-		{name = "default:apple", chance = 4, min = 1, max = 2},
+		{name = "default:apple", chance = 8, min = 0, max = 1},
 	},
 	water_damage = 0,
 	lava_damage = 0,
