@@ -6,6 +6,7 @@ dofile(modpath .. "/recipes.lua")
 dofile(modpath .. "/liquids.lua")
 dofile(modpath .. "/items.lua")
 dofile(modpath .. "/vanish.lua")
+dofile(modpath .. "/nodes.lua")
 
 core.hud_replace_builtin("breath", {
 	type = "statbar",
