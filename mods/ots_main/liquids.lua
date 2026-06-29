@@ -76,7 +76,7 @@ if bucket then
 	bucket.register_liquid(
 		SOURCE,
 		FLOWING,
-		":bucket:bucket_viscous",
+		"bucket:bucket_viscous",
 		"bucket.png^ots_viscous_bucket_overlay.png",
 		S("Viscous Liquid Bucket")
 	)
