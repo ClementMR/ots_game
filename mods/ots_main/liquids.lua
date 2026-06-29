@@ -76,14 +76,14 @@ if bucket then
 	bucket.register_liquid(
 		SOURCE,
 		FLOWING,
-		"bucket:bucket_viscous",
+		"ots_main:bucket_viscous",
 		"bucket.png^ots_viscous_bucket_overlay.png",
 		S("Viscous Liquid Bucket")
 	)
 
 	core.register_craft({
 		type = "shapeless",
-		output = "bucket:bucket_viscous",
+		output = "ots_main:bucket_viscous",
 		recipe = {
 			"bucket:bucket_water",
 			"default:cactus",
@@ -93,6 +93,8 @@ if bucket then
 		},
 	})
 end
+
+core.register_alias_force("bucket:bucket_viscous", "ots_main:bucket_viscous")
 
 local function is_viscous_liquid(node_name)
 	return core.get_item_group(node_name, "viscous_liquid") > 0
