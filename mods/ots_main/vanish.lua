@@ -1,9 +1,8 @@
 local STR = "ots_main:vanished"
-local S = core.get_translator("ots_main")
 
 local armor_available = core.global_exists("armor")
 
-local function get_vanish(player)
+local function is_vanished(player)
 	return player:get_meta():get_string(STR) == "true"
 end
 
@@ -24,7 +23,7 @@ local function unvanish_player(player)
 		color = {a = 255, r = 255, g = 255, b = 255},
 	})
 	set_vanish(player, false)
-	core.chat_send_player(player:get_player_name(), S("You are now unvanished!"))
+	core.chat_send_player(player:get_player_name(), "You are now unvanished!")
 end
 
 local function clear_properties(player)
@@ -46,26 +45,27 @@ local function vanish_player(player)
 		return false
 	end
 
-	if get_vanish(player) then
+	if is_vanished(player) then
 		unvanish_player(player)
 		return true
 	end
+
 	clear_properties(player)
 	set_vanish(player, true)
-	core.chat_send_player(player:get_player_name(), S("You are now vanished!"))
+	core.chat_send_player(player:get_player_name(), "You are now vanished!")
 	return true
 end
 
 if armor_available then
 	armor:register_on_update(function(player)
-		if get_vanish(player) then
+		if is_vanished(player) then
 			clear_properties(player)
 		end
 	end)
 end
 
 core.register_chatcommand("vanish", {
-	description = S("Toggle the vanish state for a player or yourself"),
+	description = "Toggle the vanish state for a player or yourself",
 	privs = {server = true},
 	func = function(name, param)
 		if param ~= "" then
@@ -73,21 +73,21 @@ core.register_chatcommand("vanish", {
 			if target_player then
 				return vanish_player(target_player)
 			end
-			return false, S("The player @1 does not exist or is not online.", param)
+			return false, ("The player %s does not exist or is not online."):format(param)
 		end
 
 		return vanish_player(core.get_player_by_name(name))
 	end,
 })
 
-core.register_on_respawnplayer(function(player)
-	if get_vanish(player) then
+core.register_on_joinplayer(function(player)
+	if is_vanished(player) then
 		clear_properties(player)
 	end
 end)
 
-core.register_on_leaveplayer(function(player)
-	if get_vanish(player) then
-		set_vanish(player, false)
+core.register_on_respawnplayer(function(player)
+	if is_vanished(player) then
+		clear_properties(player)
 	end
 end)

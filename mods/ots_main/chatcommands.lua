@@ -34,7 +34,7 @@ core.register_chatcommand("clear_bed", {
 
 core.register_chatcommand("s_msg", {
 	params = "<name> <message>",
-	description = S("Send a direct message to a player (Admin tunnel)"),
+	description = "Send a direct message to a player (Admin tunnel)",
 	privs = {server=true},
 	func = function(name, param)
 		local sendto, message = param:match("^(%S+)%s(.+)$")
@@ -43,28 +43,28 @@ core.register_chatcommand("s_msg", {
 		end
 
 		if not core.get_player_by_name(sendto) then
-			return false, S("The player @1 is not online.", sendto)
+			return false, ("The player %s is not online."):format(sendto)
 		end
 
-		core.chat_send_player(sendto, core.colorize("yellow", "[Server] "..message))
+		core.chat_send_player(sendto, core.colorize("yellow", "[Server] " .. message))
 
-		core.log("action", "[Server] sent to "..sendto..": "..message)
+		core.log("action", "[Server] sent to " .. sendto .. ": " .. message)
 
-		return true, S("Message sent to @1.", sendto)
+		return true, ("Message sent to %s."):format(sendto)
 	end,
 })
 
 core.register_chatcommand("s_all", {
 	params = "<message>",
-	description = S("Send a message to all players (Admin tunnel)"),
+	description = "Send a message to all players (Admin tunnel)",
 	privs = {server=true},
 	func = function(name, param)
 		if not param or param == "" then
-			return false, S("Invalid usage, see /help s_all.")
+			return false, "Invalid usage, see /help s_all."
 		end
 
-		core.chat_send_all(core.colorize("yellow", "[Server] "..param))
+		core.chat_send_all(core.colorize("yellow", ("[Server] %s"):format(param)))
 
-		core.log("action", "[Server] sent : "..param)
+		core.log("action", ("[Server] sent : %s"):format(param))
 	end,
 })

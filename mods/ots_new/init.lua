@@ -59,17 +59,17 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 end)
 
 core.register_chatcommand("update_news", {
-    description = S("Force everyone to see the news again"),
+    description = "Force everyone to see the news again",
     privs = {server = true},
     func = function(name, param)
         local version = get_news_version() + 1
         storage:set_int(NEWS_VERSION_KEY, version)
-        return true, S("News version bumped to @1", version)
+        return true, "News version bumped to @1", version
     end
 })
 
 core.register_chatcommand("news", {
-    description = S("See the news"),
+    description = "See the news",
     func = function(name)
         local player = core.get_player_by_name(name)
         if not player then

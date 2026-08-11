@@ -1,6 +1,7 @@
 # textdomain: ots_main
+
 Golden Apple=Pomme dorée
-The player "@1" joined the server for the first time!=Le joueur "@1" rejoint le serveur pour la première fois !
+The player "@1" joined the server for the first time!=Le joueur "@1" rejoint le serveur pour la première fois!
 Viscous Liquid Source=Source de liquide visqueux
 Flowing Viscous Liquid=Liquide visqueux coulant
 Viscous Liquid Bucket=Seau de liquide visqueux
@@ -9,18 +10,7 @@ Player(s): @1=Joueur(s) : @1
 Clear your bed spawn position=Effacer votre point de reapparition au lit
 Your bed spawn position has been cleared.=Votre point de reapparition au lit a ete efface.
 You don't have a bed spawn position set.=Vous n'avez pas de point de réapparition au lit.
-Send a direct message to a player (Admin tunnel)=Envoyer un message direct a un joueur (tunnel admin)
-Invalid usage, see /help s_msg.=Utilisation invalide, voir /help s_msg.
-The player @1 is not online.=Le joueur @1 n'est pas en ligne.
-Message sent to @1.=Message envoye a @1.
-Send a message to all players (Admin tunnel)=Envoyer un message a tous les joueurs (tunnel admin)
-Invalid usage, see /help s_all.=Utilisation invalide, voir /help s_all.
 Lamp=Lampe
-Player settings=Paramètres joueur
-Save=Enregistrer
-No settings available=Aucun paramètre disponible
-Open player settings=Ouvrir les paramètres joueur
 You are now unvanished!=Vous êtes maintenant visible !
 You are now vanished!=Vous êtes maintenant invisible !
 Toggle the vanish state for a player or yourself=Basculer l'invisibilité pour un joueur ou vous-même
-The player @1 does not exist or is not online.=Le joueur @1 n'existe pas ou n'est pas en ligne.
