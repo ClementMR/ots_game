@@ -523,7 +523,7 @@ minetest.register_node("anvil:anvil", {
 		inv:set_stack("input", 1, input)
 
 		-- damage the hammer slightly
-		wielded:add_wear(20000)
+		wielded:add_wear(12000)
 		puncher:set_wielded_item(wielded)
 	end,
 	is_ground_content = false,
