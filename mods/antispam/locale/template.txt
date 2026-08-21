@@ -1,4 +1,0 @@
-# textdomain: antispam
-Kicked for spamming.=
-Warning! You've sent the message '@1' too often. Wait at least @2 seconds before sending it again.=
-Warning! You are sending messages too fast. Wait at least @1 seconds before sending another message.=
